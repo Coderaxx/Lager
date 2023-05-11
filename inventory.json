@@ -1,0 +1,44 @@
+{
+  "H21.VH.S01.E1": {
+    "brand": "Samsung",
+    "model": "Galaxy S21",
+    "barcode": "1234567890",
+    "location": "H21.VH.S01.E1"
+  },
+  "H21.VH.S01.E2": {
+    "brand": "Apple",
+    "model": "iPhone 13",
+    "barcode": "2345678901",
+    "location": "H21.VH.S01.E2"
+  },
+  "H21.VH.S02.E1": {
+    "brand": "Sony",
+    "model": "PlayStation 5",
+    "barcode": "3456789012",
+    "location": "H21.VH.S02.E1"
+  },
+  "H21.MH.S03.E2": {
+    "brand": "Microsoft",
+    "model": "Xbox Series X",
+    "barcode": "4567890123",
+    "location": "H21.MH.S03.E2"
+  },
+  "H21.MH.S07.E3": {
+    "brand": "Nintendo",
+    "model": "Switch",
+    "barcode": "5678901234",
+    "location": "H21.MH.S07.E3"
+  },
+  "H21.HH.S08.E1": {
+    "brand": "Dell",
+    "model": "XPS 13",
+    "barcode": "6789012345",
+    "location": "H21.HH.S08.E1"
+  },
+  "H21.HH.S08.E2": {
+    "brand": "Apple",
+    "model": "iPhone 14 Pro",
+    "barcode": "6789012345",
+    "location": "H21.HH.S08.E2"
+  }
+}

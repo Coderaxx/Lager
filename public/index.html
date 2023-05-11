@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lagerføringssystem</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <section class="section">
+        <div class="container">
+            <h1 class="title">Lagerføringssystem</h1>
+            <form id="barcodeForm">
+                <div class="field">
+                    <label class="label">Strekkode eller tekst</label>
+                    <div class="control">
+                        <input class="input" type="text" name="barcode" placeholder="Skriv inn strekkode eller tekst" required />
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="control">
+                        <button class="button is-primary">Søk</button>
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="control">
+                        <button type="button" class="button is-info" id="scanBarcode">Skann strekkode</button>
+                    </div>
+                </div>
+            </form>
+            <br>
+            <video id="barcode-scanner" class="is-hidden" width="100%" height="100%" autoplay playsinline></video>
+            <div id="result" class="notification is-hidden"></div>
+        </div>
+    </section>
+    <script>
+        const barcodeForm = document.getElementById("barcodeForm");
+        const resultElement = document.getElementById("result");
+
+        barcodeForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const barcode = e.target.elements.barcode.value;
+
+            try {
+                const response = await fetch(`/inventory/search/${barcode}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    resultElement.innerHTML = "";
+                    const columns = document.createElement("div");
+                    columns.className = "columns is-multiline";
+
+                    for (const item of data) {
+                        const column = document.createElement("div");
+                        column.className = "column is-one-third";
+
+                        const card = document.createElement("div");
+                        card.className = "card";
+
+                        const cardContent = document.createElement("div");
+                        cardContent.className = "card-content";
+
+                        const media = document.createElement("div");
+                        media.className = "media";
+
+                        const mediaContent = document.createElement("div");
+                        mediaContent.className = "media-content";
+
+                        const title = document.createElement("p");
+                        title.className = "title is-4";
+                        title.textContent = `${item.brand} ${item.model}`;
+
+                        const subtitle = document.createElement("p");
+                        subtitle.className = "subtitle is-6";
+                        subtitle.textContent = `Hylleplassering: ${item.location}`;
+
+                        mediaContent.appendChild(title);
+                        mediaContent.appendChild(subtitle);
+                        media.appendChild(mediaContent);
+                        cardContent.appendChild(media);
+                        card.appendChild(cardContent);
+                        column.appendChild(card);
+                        columns.appendChild(column);
+                    }
+
+                    resultElement.appendChild(columns);
+                    resultElement.classList.remove("is-hidden", "is-danger");
+                    resultElement.classList.add("is-success");
+                } else {
+                    resultElement.classList.remove("is-hidden", "is-success");
+                    resultElement.classList.add("is-danger");
+                    resultElement.textContent = data.message;
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        });
+
+        const barcodeScanner = document.getElementById("barcode-scanner");
+        const scanBarcodeButton = document.getElementById("scanBarcode");
+
+        scanBarcodeButton.addEventListener("click", async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
+                barcodeScanner.srcObject = stream;
+                barcodeScanner.classList.remove("is-hidden");
+
+                Quagga.init(
+                {
+                    inputStream: {
+                        name: "Live",
+                        type: "LiveStream",
+                        constraints: {
+                            facingMode: "environment",
+                        },
+                        target: barcodeScanner,
+                    },
+                    decoder: {
+                        readers: ["ean_reader"],
+                    },
+                },
+                (err) => {
+                    if (err) {
+                        console.error(err);
+                        barcodeScanner.classList.add("is-hidden");
+                        return;
+                    }
+                    Quagga.start();
+                }
+                );
+
+                Quagga.onDetected((data) => {
+                    const barcode = data.codeResult.code;
+                    barcodeForm.elements.barcode.value = barcode;
+                    Quagga.stop();
+                    barcodeScanner.classList.add("is-hidden");
+                    if (barcodeScanner.srcObject) {
+                        barcodeScanner.srcObject.getTracks().forEach((track) => track.stop());
+                    }
+                });
+            } catch (error) {
+                console.error("Error accessing camera:", error);
+            }
+        });
+    </script>
+    <script src="https://cdn.rawgit.com/serratus/quaggaJS/master/dist/quagga.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
