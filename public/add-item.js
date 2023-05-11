@@ -4,6 +4,7 @@ $(document).ready(() => {
   const brandInput = document.getElementById("brandInput");
   const modelInput = document.getElementById("modelInput");
   const itemInputFields = document.getElementById("itemInputFields");
+  const inventory = {};
 
   locationInput.addEventListener("change", () => {
     const location = locationInput.value;
