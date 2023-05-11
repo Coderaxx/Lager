@@ -12,59 +12,34 @@
             <h1 class="title">Legg til vare</h1>
             <form id="addItemForm">
                 <div class="field">
-                    <label class="label">Hyllekategori</label>
+                    <label class="label">Scan hyllen/plasseringen</label>
                     <div class="control">
-                        <div class="select">
-                            <select id="categorySelect" required>
-                                <option value="">Velg kategori</option>
-                                <option value="VH">VH</option>
-                                <option value="MH">MH</option>
-                                <option value="HH">HH</option>
-                            </select>
+                        <input class="input" type="text" id="locationInput" placeholder="Scann hyllen/plasseringen" required />
+                    </div>
+                </div>
+                <div id="itemInputFields" style="display: none;">
+                    <div class="field">
+                        <label class="label">Scan varen</label>
+                        <div class="control">
+                            <input class="input" type="text" id="barcodeInput" placeholder="Scann varen" required />
                         </div>
                     </div>
-                </div>
-                <div class="field">
-                    <label class="label">Hylleseksjon</label>
-                    <div class="control">
-                        <div class="select">
-                            <select id="sectionSelect" required>
-                                <option value="">Velg seksjon</option>
-                            </select>
+                    <div class="field">
+                        <label class="label">Merke</label>
+                        <div class="control">
+                            <input class="input" type="text" id="brandInput" placeholder="Skriv inn merke" required />
                         </div>
                     </div>
-                </div>
-                <div class="field">
-                    <label class="label">Hylleplan</label>
-                    <div class="control">
-                        <div class="select">
-                            <select id="levelSelect" required>
-                                <option value="">Velg plan</option>
-                            </select>
+                    <div class="field">
+                        <label class="label">Modell</label>
+                        <div class="control">
+                            <input class="input" type="text" id="modelInput" placeholder="Skriv inn modell" required />
                         </div>
                     </div>
-                </div>
-                <div class="field">
-                    <label class="label">Merke</label>
-                    <div class="control">
-                        <input class="input" type="text" name="brand" placeholder="Skriv inn merke" required />
-                    </div>
-                </div>
-                <div class="field">
-                    <label class="label">Modell</label>
-                    <div class="control">
-                        <input class="input" type="text" name="model" placeholder="Skriv inn modell" required />
-                    </div>
-                </div>
-                <div class="field">
-                    <label class="label">Strekkode</label>
-                    <div class="control">
-                        <input class="input" type="text" name="barcode" id="barcodeInput" placeholder="Skriv inn strekkode" required />
-                    </div>
-                </div>
-                <div class="field">
-                    <div class="control">
-                        <button class="button is-primary">Legg til vare</button>
+                    <div class="field">
+                        <div class="control">
+                            <button class="button is-primary">Legg til vare</button>
+                        </div>
                     </div>
                 </div>
             </form>
