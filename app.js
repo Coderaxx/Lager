@@ -7,6 +7,7 @@ app.listen(PORT, () => {
 const fs = require("fs");
 
 app.use(express.static("public"));
+app.use(express.json());
 
 let inventory = readInventoryFromFile();
 
@@ -29,7 +30,7 @@ function saveInventoryToFile(inventory) {
 }
 
 function searchInventory(query) {
-  const results = Object.values(inventory).filter(item => {
+  const results = Object.values(inventory).filter((item) => {
     if (item.barcode === query) {
       return true;
     }
@@ -53,12 +54,30 @@ app.get("/inventory/search/:query", (req, res) => {
   }
 });
 
-
 app.post("/inventory/:shelf/:section/:level", (req, res) => {
   const { shelf, section, level } = req.params;
   const location = `H${shelf}.S${section}.E${level}`;
 
   inventory[location] = req.body;
 
-  res.status(201).json({ message: "Item added", location, item: req.body });
+  res.status(201).json({ message: "Vare lagt til", location, item: req.body });
+
+  saveInventoryToFile(inventory);
+});
+
+app.post("/inventory/add-item", (req, res) => {
+  const { location, brand, model, barcode } = req.body;
+
+  const newItem = {
+    brand,
+    model,
+    barcode,
+    location,
+  };
+
+  inventory[location] = newItem;
+
+  res.status(201).json({ message: "Vare lagt til", location, item: newItem });
+
+  saveInventoryToFile(inventory);
 });

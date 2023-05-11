@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lagerføringssystem - Legg til vare</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css" />
+</head>
+<body>
+    <section class="section">
+        <div class="container">
+            <h1 class="title">Legg til vare</h1>
+            <form id="addItemForm">
+                <div class="field">
+                    <label class="label">Hylleplassering</label>
+                    <div class="control">
+                        <input class="input" type="text" name="location" id="locationInput" placeholder="Skriv inn hylleplassering" required />
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">Merke</label>
+                    <div class="control">
+                        <input class="input" type="text" name="brand" placeholder="Skriv inn merke" required />
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">Modell</label>
+                    <div class="control">
+                        <input class="input" type="text" name="model" placeholder="Skriv inn modell" required />
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">Strekkode</label>
+                    <div class="control">
+                        <input class="input" type="text" name="barcode" id="barcodeInput" placeholder="Skriv inn strekkode" required />
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="control">
+                        <button class="button is-primary">Legg til vare</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="add-item.js"></script>
+</body>
+</html>
