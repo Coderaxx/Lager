@@ -63,6 +63,6 @@ app.post("/inventory/:shelf/:section/:level", (req, res) => {
   res.status(201).json({ message: "Item added", location, item: req.body });
 });
 
-app.listen(port, () => {
-  console.log(`Inventory app listening at http://localhost:${port}`);
+app.listen(PORT, () => {
+  console.log(`Inventory app listening at http://localhost:${PORT}`);
 });
