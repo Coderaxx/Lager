@@ -6,14 +6,14 @@ app.listen(PORT, () => {
 });
 const fs = require("fs");
 
-app.use(express.static("public"));
 app.use(express.json());
+app.use(express.static("public"));
 
 let inventory = readInventoryFromFile();
 
 function readInventoryFromFile() {
   try {
-    const data = fs.readFileSync("inventory.json", "utf-8");
+    const data = fs.readFileSync(__dirname + "/inventory.json", "utf-8");
     return JSON.parse(data);
   } catch (error) {
     console.error("Error reading inventory file:", error);
