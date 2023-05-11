@@ -46,6 +46,7 @@ $(document).ready(() => {
           addItemForm.reset();
           itemInputFields.style.display = "none";
         } else {
+          console.error("Feil ved lagring av vare:", response);
           alert("Noe gikk galt. Vennligst prøv igjen.");
         }
       })
