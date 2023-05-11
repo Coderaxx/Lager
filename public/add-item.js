@@ -33,14 +33,25 @@ $(document).ready(() => {
       location
     };
 
-    inventory[location] = newItem;
-
-    saveInventoryToFile(inventory);
-
-    addItemForm.reset();
-    itemInputFields.style.display = "none";
-
-    // Vis en melding om at varen ble lagt til
-    alert("Vare lagt til!");
+    fetch(`/inventory/${location}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(newItem)
+    })
+      .then(response => {
+        if (response.ok) {
+          alert("Vare lagt til!");
+          addItemForm.reset();
+          itemInputFields.style.display = "none";
+        } else {
+          alert("Noe gikk galt. Vennligst prøv igjen.");
+        }
+      })
+      .catch(error => {
+        console.error("Feil ved lagring av vare:", error);
+        alert("Noe gikk galt. Vennligst prøv igjen.");
+      });
   });
 });
