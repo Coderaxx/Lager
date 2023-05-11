@@ -4,7 +4,6 @@ $(document).ready(() => {
   const brandInput = document.getElementById("brandInput");
   const modelInput = document.getElementById("modelInput");
   const itemInputFields = document.getElementById("itemInputFields");
-  const inventory = {};
 
   locationInput.addEventListener("change", () => {
     const location = locationInput.value;
@@ -36,11 +35,12 @@ $(document).ready(() => {
 
     inventory[location] = newItem;
 
-    res.status(201).json({ message: "Vare lagt til", location, item: newItem });
-
     saveInventoryToFile(inventory);
 
     addItemForm.reset();
     itemInputFields.style.display = "none";
+
+    // Vis en melding om at varen ble lagt til
+    alert("Vare lagt til!");
   });
 });
