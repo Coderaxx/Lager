@@ -1,4 +1,4 @@
-$(document).ready(() => {
+$(window).on("load", () => {
   const locationInput = document.getElementById("locationInput");
   const barcodeInput = document.getElementById("barcodeInput");
   const brandInput = document.getElementById("brandInput");
