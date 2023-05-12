@@ -1,18 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lagerføringssystem - Slett vare</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css" />
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.css">
     <style>
         table {
             width: 100%;
         }
-        th, td {
+
+        th,
+        td {
             padding: 10px;
             text-align: left;
         }
+
         .delete-button {
             background-color: #ff3860;
             color: white;
@@ -22,18 +28,19 @@
         }
     </style>
 </head>
+
 <body>
-    <section class="text-gray-700">
-        <div class="container mx-auto px-4 py-8">
-            <h1 class="text-3xl font-bold mb-4">Slett vare</h1>
-            <table class="w-full">
+    <section class="section">
+        <div class="container">
+            <h1 class="title">Slett vare</h1>
+            <table id="inventoryTable">
                 <thead>
                     <tr>
-                        <th class="py-2">Merke</th>
-                        <th class="py-2">Modell</th>
-                        <th class="py-2">Strekkode</th>
-                        <th class="py-2">Plassering</th>
-                        <th class="py-2"></th>
+                        <th>Merke</th>
+                        <th>Modell</th>
+                        <th>Strekkode</th>
+                        <th>Plassering</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody id="inventoryTableBody"></tbody>
@@ -42,6 +49,8 @@
     </section>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.all.min.js"></script>
     <script src="delete-item.js"></script>
 </body>
 </html>

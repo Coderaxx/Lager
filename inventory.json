@@ -1,20 +1,7 @@
 {
   "VH": {
     "S01": {
-      "E1": {
-        "H21.VH.S01.E1": {
-          "brand": "Samsung",
-          "model": "Galaxy S21",
-          "barcode": "1234567890",
-          "antall": 1
-        },
-        "H21.VH.S01.E2": {
-          "brand": "Apple",
-          "model": "iPhone 13",
-          "barcode": "2345678901",
-          "antall": 2
-        }
-      },
+      "E1": {},
       "E2": {
         "H21.VH.S01.E3": {
           "brand": "Sony",
