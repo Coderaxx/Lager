@@ -119,3 +119,5 @@ $(document).ready(() => {
       console.error("Feil ved lagring av vare:", error);
       showAlert("Feil", "Noe gikk galt under lagring av varen. Vennligst prøv igjen.", "error");
     });
+  });
+});
