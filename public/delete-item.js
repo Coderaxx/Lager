@@ -25,65 +25,43 @@ $(document).ready(() => {
 
   // Hent lageret fra serveren
   fetch("/inventory")
-  .then(response => response.json())
-  .then(data => {
-    const items = Object.values(data).flatMap(category =>
-      Object.values(category).flatMap(section =>
-        Object.values(section).flatMap(level =>
-          Object.values(level)
+    .then(response => response.json())
+    .then(data => {
+      const items = Object.values(data).flatMap(category =>
+        Object.values(category).flatMap(section =>
+          Object.values(section).flatMap(level =>
+            Object.values(level)
           )
         )
       );
 
-    items.forEach(item => {
-      const row = createTableRow(item);
-      inventoryTableBody.append(row);
+      items.forEach(item => {
+        const row = createTableRow(item);
+        inventoryTableBody.append(row);
+      });
+    })
+    .catch(error => {
+      console.error("Feil ved henting av lageret:", error);
+      alert("Noe gikk galt. Vennligst prøv igjen.");
     });
-  })
-  .catch(error => {
-    console.error("Feil ved henting av lageret:", error);
-    alert("Noe gikk galt. Vennligst prøv igjen.");
-  });
 
-// Slett vare
+  // Slett vare
   function deleteItem(barcode) {
     fetch(`/inventory/${barcode}`, {
       method: "DELETE",
     })
-    .then(response => {
-      if (response.ok) {
-        alert("Vare slettet!");
-        location.reload();
-      } else {
-        console.error("Feil ved sletting av vare:", response);
+      .then(response => {
+        if (response.ok) {
+          alert("Vare slettet!");
+          location.reload();
+        } else {
+          console.error("Feil ved sletting av vare:", response);
+          alert("Noe gikk galt. Vennligst prøv igjen.");
+        }
+      })
+      .catch(error => {
+        console.error("Feil ved sletting av vare:", error);
         alert("Noe gikk galt. Vennligst prøv igjen.");
-      }
-    })
-    .catch(error => {
-      console.error("Feil ved sletting av vare:", error);
-      alert("Noe gikk galt. Vennligst prøv igjen.");
-    });
+      });
   }
-
-// Hent lageret fra serveren
-  fetch("/inventory")
-  .then(response => response.json())
-  .then(data => {
-    const items = Object.values(data).flatMap(category =>
-      Object.values(category).flatMap(section =>
-        Object.values(section).flatMap(level =>
-          Object.values(level)
-          )
-        )
-      );
-
-    items.forEach(item => {
-      const row = createTableRow(item);
-      inventoryTableBody.append(row);
-    });
-  })
-  .catch(error => {
-    console.error("Feil ved henting av lageret:", error);
-    alert("Noe gikk galt. Vennligst prøv igjen.");
-  });
-}
+});
