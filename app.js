@@ -88,3 +88,29 @@ app.post("/inventory", (req, res) => {
 
   saveInventoryToFile(inventory);
 });
+
+app.delete("/inventory/:barcode", (req, res) => {
+  const { barcode } = req.params;
+  let deleted = false;
+
+  Object.values(inventory).forEach((category) => {
+    Object.values(category).forEach((section) => {
+      Object.values(section).forEach((level) => {
+        Object.entries(level).forEach(([location, item]) => {
+          if (item.barcode === barcode) {
+            delete level[location];
+            deleted = true;
+            return;
+          }
+        });
+      });
+    });
+  });
+
+  if (deleted) {
+    saveInventoryToFile(inventory);
+    res.status(200).json({ message: "Vare slettet" });
+  } else {
+    res.status(404).json({ message: "Vare ikke funnet" });
+  }
+});
