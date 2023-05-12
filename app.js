@@ -63,7 +63,8 @@ app.get("/inventory/search/:query", (req, res) => {
 });
 
 app.get("/inventory", (req, res) => {
-  return readInventoryFromFile();
+  const inventoryData = readInventoryFromFile();
+  res.json(inventoryData);
 });
 
 app.post("/inventory", (req, res) => {
