@@ -2,8 +2,8 @@ $(document).ready(() => {
   const inventoryTableBody = $("#inventoryTableBody");
 
   // Hjelpefunksjon for å opprette en rad i tabellen
-  function createTableRow(item) {
-    const { brand, model, barcode, location } = item;
+  function createTableRow(item, location) {
+    const { brand, model, barcode } = item;
 
     const row = $("<tr></tr>");
     row.append(`<td>${brand}</td>`);
@@ -30,13 +30,18 @@ $(document).ready(() => {
       const items = Object.values(data).flatMap(category =>
         Object.values(category).flatMap(section =>
           Object.values(section).flatMap(level =>
-            Object.values(level)
+            Object.entries(level).map(([location, item]) => {
+              return {
+                item,
+                location: `H21.${category}.${section}.${level}`
+              };
+            })
           )
         )
       );
 
-      items.forEach(item => {
-        const row = createTableRow(item);
+      items.forEach(({ item, location }) => {
+        const row = createTableRow(item, location);
         inventoryTableBody.append(row);
       });
     })
