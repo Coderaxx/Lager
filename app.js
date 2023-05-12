@@ -64,7 +64,7 @@ app.get("/inventory/search/:query", (req, res) => {
 
 app.post("/inventory/:category/:section/:level", (req, res) => {
   const { category, section, level } = req.params;
-  const location = `H${category}.${section}.${level}`;
+  const location = `H21.${category}.${section}.${level}`;
 
   inventory[category] = inventory[category] || {};
   inventory[category][section] = inventory[category][section] || {};

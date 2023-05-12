@@ -33,7 +33,7 @@ $(document).ready(() => {
       location
     };
 
-    fetch(`./inventory/${location}`, {
+    fetch(`/inventory/${location}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
