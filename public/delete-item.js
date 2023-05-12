@@ -27,10 +27,10 @@ $(document).ready(() => {
   fetch("/inventory")
     .then(response => response.json())
     .then(data => {
-      const items = Object.values(data).flatMap(category =>
-        Object.values(category).flatMap(section =>
-          Object.values(section).flatMap(level =>
-            Object.entries(level).map(([location, item]) => {
+      const items = Object.entries(data).flatMap(([category, sections]) =>
+        Object.entries(sections).flatMap(([section, levels]) =>
+          Object.entries(levels).flatMap(([level, items]) =>
+            Object.entries(items).map(([location, item]) => {
               return {
                 item,
                 location: `H21.${category}.${section}.${level}`
