@@ -86,3 +86,4 @@ $(document).ready(() => {
     console.error("Feil ved henting av lageret:", error);
     alert("Noe gikk galt. Vennligst prøv igjen.");
   });
+}
