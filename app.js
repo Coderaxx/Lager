@@ -62,6 +62,10 @@ app.get("/inventory/search/:query", (req, res) => {
   }
 });
 
+app.get("/inventory", (req, res) => {
+  return readInventoryFromFile();
+});
+
 app.post("/inventory", (req, res) => {
   const { location, brand, model, barcode } = req.body;
   const [_, category, section, level] = location.split(".");
