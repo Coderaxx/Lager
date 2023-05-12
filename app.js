@@ -66,14 +66,12 @@ app.post("/inventory/:category/:section/:level", (req, res) => {
   const { category, section, level } = req.params;
   const location = `H21.${category}.${section}.${level}`;
 
-  inventory[category] = inventory[category] || {};
-  inventory[category][section] = inventory[category][section] || {};
-  inventory[category][section][level] = inventory[category][section][level] || {};
+  inventory.VH = inventory.VH || {};
+  inventory.MH = inventory.MH || {};
+  inventory.HH = inventory.HH || {};
+  inventory[category][section][level][location] = req.body;
 
-  const item = req.body;
-  inventory[category][section][level][location] = item;
-
-  res.status(201).json({ message: "Vare lagt til", location, item });
+  res.status(201).json({ message: "Vare lagt til", location, item: req.body });
 
   saveInventoryToFile(inventory);
 });
