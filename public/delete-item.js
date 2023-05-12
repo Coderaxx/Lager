@@ -23,8 +23,9 @@ $(document).ready(() => {
     return row;
   }
 
-  // Hent lageret fra serveren
-  fetch("/inventory")
+  // Hent lageret fra serveren og oppdater tabellen
+  function fetchInventory() {
+    fetch("/inventory")
     .then(response => response.json())
     .then(data => {
       const items = Object.entries(data).flatMap(([category, sections]) =>
@@ -36,9 +37,12 @@ $(document).ready(() => {
                 location: `H21.${category}.${section}.${level}`
               };
             })
+            )
           )
-        )
-      );
+        );
+
+        // Tøm tabellen
+      inventoryTableBody.empty();
 
       items.forEach(({ item, location }) => {
         const row = createTableRow(item, location);
@@ -47,36 +51,71 @@ $(document).ready(() => {
     })
     .catch(error => {
       console.error("Feil ved henting av lageret:", error);
-      showAlert("Feil", "Noe gikk galt. Vennligst prøv igjen.", "error");
+      showAlert("Feil", "Noe gikk galt under henting av lageret. Vennligst prøv igjen.", "error");
     });
+  }
 
   // Slett vare
   function deleteItem(barcode) {
     fetch(`/inventory/${barcode}`, {
       method: "DELETE",
     })
-      .then(response => {
-        if (response.ok) {
-          showAlert("Suksess", "Vare slettet!", "success");
-          location.reload();
-        } else {
-          showAlert("Feil", "Noe gikk galt. Vennligst prøv igjen.", "error");
-          console.error("Feil ved sletting av vare:", response);
-        }
-      })
-      .catch(error => {
-        showAlert("Feil", "Noe gikk galt. Vennligst prøv igjen.", "error");
-        console.error("Feil ved sletting av vare:", error);
-      });
-  }
-
-  // Vis varsler med SweetAlert2
-  function showAlert(title, message, type) {
-    Swal.fire({
-      title,
-      text: message,
-      icon: type,
-      confirmButtonText: "OK"
+    .then(response => {
+      if (response.ok) {
+        showAlert("Suksess", "Vare slettet!", "success");
+          // Oppdater tabellen ved å fjerne slettet rad
+        const deletedRow = $(`tr[data-barcode="${barcode}"]`);
+        deletedRow.remove();
+      } else {
+        console.error("Feil ved sletting av vare:", response);
+        showAlert("Feil", "Noe gikk galt under sletting av varen. Vennligst prøv igjen.", "error");
+      }
+    })
+    .catch(error => {
+      console.error("Feil ved sletting av vare:", error);
+      showAlert("Feil", "Noe gikk galt under sletting av varen. Vennligst prøv igjen.", "error");
     });
   }
-});
+
+  // Hent lageret og oppdater tabellen ved sidenlast
+  fetchInventory();
+
+  // Oppdater tabellen når et nytt element blir lagt til
+  const addItemForm = document.getElementById("addItemForm");
+  addItemForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const location = locationInput.value;
+    const barcode = barcodeInput.value;
+    const brand = brandInput.value;
+    const model = modelInput.value;
+
+    const newItem = {
+      brand,
+      model,
+      barcode,
+      location,
+    };
+
+    fetch("/inventory", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newItem),
+    })
+    .then((response) => {
+      if (response.ok) {
+        showAlert("Suksess", "Vare lagt til!", "success");
+        addItemForm.reset();
+        itemInputFields.style.display = "none";
+      // Oppdater tabellen ved å hente lageret på nytt
+        fetchInventory();
+      } else {
+        console.error("Feil ved lagring av vare:", response);
+        showAlert("Feil", "Noe gikk galt under lagring av varen. Vennligst prøv igjen.", "error");
+      }
+    })
+    .catch((error) => {
+      console.error("Feil ved lagring av vare:", error);
+      showAlert("Feil", "Noe gikk galt under lagring av varen. Vennligst prøv igjen.", "error");
+    });
