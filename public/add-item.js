@@ -30,29 +30,28 @@ $(document).ready(() => {
       brand,
       model,
       barcode,
-      location,
+      location
     };
 
-    fetch("/inventory", {
+    fetch(`/inventory/${location}`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/json"
       },
-      body: JSON.stringify(newItem),
+      body: JSON.stringify(newItem)
     })
-    .then((response) => {
-      if (response.ok) {
-        alert("Vare lagt til!");
-        addItemForm.reset();
-        itemInputFields.style.display = "none";
-      } else {
-        console.error("Feil ved lagring av vare:", response);
+      .then(response => {
+        if (response.ok) {
+          alert("Vare lagt til!");
+          addItemForm.reset();
+          itemInputFields.style.display = "none";
+        } else {
+          alert("Noe gikk galt. Vennligst prøv igjen.");
+        }
+      })
+      .catch(error => {
+        console.error("Feil ved lagring av vare:", error);
         alert("Noe gikk galt. Vennligst prøv igjen.");
-      }
-    })
-    .catch((error) => {
-      console.error("Feil ved lagring av vare:", error);
-      alert("Noe gikk galt. Vennligst prøv igjen.");
-    });
+      });
   });
 });

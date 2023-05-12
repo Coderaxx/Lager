@@ -1,35 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lagerføringssystem - Legg til vare</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css" />
 </head>
+
 <body>
-    <section class="bg-gray-100 py-8">
-        <div class="container mx-auto px-4">
-            <h1 class="text-4xl font-bold mb-4">Legg til vare</h1>
-            <form id="addItemForm" class="max-w-lg">
-                <div class="mb-4">
-                    <label class="block text-sm font-bold mb-2" for="locationInput">Plassering</label>
-                    <input id="locationInput" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-400" type="text" name="location" placeholder="Scann hyllen/plasseringen" required>
+    <section class="section">
+        <div class="container">
+            <h1 class="title">Legg til vare</h1>
+            <form id="addItemForm">
+                <div class="field">
+                    <label class="label">Scan hyllen/plasseringen</label>
+                    <div class="control">
+                        <input class="input" type="text" id="locationInput" placeholder="Scann hyllen/plasseringen"
+                            required />
+                    </div>
                 </div>
-                <div id="itemInputFields" class="hidden">
-                    <div class="mb-4">
-                        <label class="block text-sm font-bold mb-2" for="barcodeInput">Strekkode</label>
-                        <input id="barcodeInput" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-400" type="text" name="barcode" placeholder="Scann varen" required>
+                <div id="itemInputFields" style="display: none;">
+                    <div class="field">
+                        <label class="label">Scan varen</label>
+                        <div class="control">
+                            <input class="input" type="text" id="barcodeInput" placeholder="Scann varen" required />
+                        </div>
                     </div>
-                    <div class="mb-4">
-                        <label class="block text-sm font-bold mb-2" for="brandInput">Merke</label>
-                        <input id="brandInput" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-400" type="text" name="brand" placeholder="Skriv inn merke" required>
+                    <div class="field">
+                        <label class="label">Merke</label>
+                        <div class="control">
+                            <input class="input" type="text" id="brandInput" placeholder="Skriv inn merke" required />
+                        </div>
                     </div>
-                    <div class="mb-4">
-                        <label class="block text-sm font-bold mb-2" for="modelInput">Modell</label>
-                        <input id="modelInput" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-400" type="text" name="model" placeholder="Skriv inn modell" required>
+                    <div class="field">
+                        <label class="label">Modell</label>
+                        <div class="control">
+                            <input class="input" type="text" id="modelInput" placeholder="Skriv inn modell" required />
+                        </div>
                     </div>
-                    <div class="mb-4">
-                        <button class="w-full bg-blue-500 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-600" type="submit">Legg til vare</button>
+                    <div class="field">
+                        <div class="control">
+                            <button class="button is-primary">Legg til vare</button>
+                        </div>
                     </div>
                 </div>
             </form>
@@ -38,4 +51,5 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="add-item.js"></script>
 </body>
+
 </html>
