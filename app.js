@@ -62,7 +62,7 @@ app.get("/inventory/search/:query", (req, res) => {
   }
 });
 
-app.post("/inventory/:category/:section/:level", (req, res) => {
+app.post("/inventory", (req, res) => {
   const { category, section, level } = req.params;
   const location = `H21.${category}.${section}.${level}`;
 
