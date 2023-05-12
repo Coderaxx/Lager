@@ -47,7 +47,7 @@ $(document).ready(() => {
     })
     .catch(error => {
       console.error("Feil ved henting av lageret:", error);
-      alert("Noe gikk galt. Vennligst prøv igjen.");
+      showAlert("Feil", "Noe gikk galt. Vennligst prøv igjen.", "error");
     });
 
   // Slett vare
@@ -57,16 +57,26 @@ $(document).ready(() => {
     })
       .then(response => {
         if (response.ok) {
-          alert("Vare slettet!");
+          showAlert("Suksess", "Vare slettet!", "success");
           location.reload();
         } else {
+          showAlert("Feil", "Noe gikk galt. Vennligst prøv igjen.", "error");
           console.error("Feil ved sletting av vare:", response);
-          alert("Noe gikk galt. Vennligst prøv igjen.");
         }
       })
       .catch(error => {
+        showAlert("Feil", "Noe gikk galt. Vennligst prøv igjen.", "error");
         console.error("Feil ved sletting av vare:", error);
-        alert("Noe gikk galt. Vennligst prøv igjen.");
       });
+  }
+
+  // Vis varsler med SweetAlert2
+  function showAlert(title, message, type) {
+    Swal.fire({
+      title,
+      text: message,
+      icon: type,
+      confirmButtonText: "OK"
+    });
   }
 });
