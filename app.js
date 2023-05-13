@@ -8,6 +8,7 @@ const fs = require("fs");
 
 app.use(express.json());
 app.use(express.static("public", { "Content-Type": "application/javascript" }));
+app.use(express.static("public"))
 
 let inventory = readInventoryFromFile();
 
