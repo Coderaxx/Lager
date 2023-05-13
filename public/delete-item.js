@@ -16,17 +16,18 @@ $(document).ready(() => {
 
     // Hjelpefunksjon for å opprette en rad i tabellen
     function createTableRow(item, location) {
-      const { brand, model, barcode } = item;
+      const { merke, modell, strekkode, antall } = item;
 
       const row = $("<tr></tr>");
-      row.append(`<td>${brand}</td>`);
-      row.append(`<td>${model}</td>`);
-      row.append(`<td>${barcode}</td>`);
+      row.append(`<td>${merke}</td>`);
+      row.append(`<td>${modell}</td>`);
+      row.append(`<td>${strekkode}</td>`);
       row.append(`<td>${location}</td>`);
+      row.append(`<td>${antall}</td>`);
 
       const deleteButton = $(`<button class="button is-danger">Slett</button>`);
       deleteButton.click(() => {
-        deleteItem(barcode);
+        deleteItem(strekkode, row);
       });
 
       const deleteCell = $("<td></td>");
@@ -40,15 +41,17 @@ $(document).ready(() => {
     fetch("/inventory")
       .then((response) => response.json())
       .then((data) => {
-        const items = Object.entries(data).flatMap(([category, sections]) =>
-          Object.entries(sections).flatMap(([section, levels]) =>
-            Object.entries(levels).flatMap(([level, items]) =>
-              Object.entries(items).map(([location, item]) => {
-                return {
-                  item,
-                  location: `H21.${category}.${section}.${level}`,
-                };
-              })
+        const items = Object.entries(data).flatMap(([category, shelf]) =>
+          Object.entries(shelf).flatMap(([shelf, section]) =>
+            Object.entries(section).flatMap(([section, levels]) =>
+              Object.entries(levels).flatMap(([level, items]) =>
+                Object.entries(items).map(([location, item]) => {
+                  return {
+                    item,
+                    location: `${category}.${shelf}.${section}.${level}.${location}`,
+                  };
+                })
+              )
             )
           )
         );
@@ -74,19 +77,21 @@ $(document).ready(() => {
   fetchInventory();
 
   // Slett vare
-  function deleteItem(barcode) {
+  function deleteItem(barcode, row) {
     fetch(`/inventory/${barcode}`, {
       method: "DELETE",
     })
       .then((response) => {
         if (response.ok) {
           showAlert("Suksess", "Vare slettet!", "success");
-          const row = $(`tr:has(td:contains(${barcode}))`);
           row.remove();
         } else {
           console.error("Feil ved sletting av vare:", response);
-        showAlert("Feil", "Noe gikk galt under sletting av vare. Vennligst prøv igjen.",
-            "error");
+          showAlert(
+            "Feil",
+            "Noe gikk galt under sletting av vare. Vennligst prøv igjen.",
+            "error"
+          );
         }
       })
       .catch((error) => {

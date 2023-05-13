@@ -13,8 +13,8 @@ let inventory = readInventoryFromFile();
 
 function readInventoryFromFile() {
   try {
-    const data = fs.readFileSync(__dirname + "/inventory.json", "utf-8");
-    return JSON.parse(data);
+    const inventoryData = fs.readFileSync("inventory.json");
+    return JSON.parse(inventoryData);
   } catch (error) {
     console.error("Error reading inventory file:", error);
     return {};
@@ -30,22 +30,28 @@ function saveInventoryToFile(inventory) {
 }
 
 function searchInventory(query) {
-  const results = Object.values(inventory).flatMap((category) => {
-    return Object.values(category).flatMap((section) => {
-      return Object.values(section).flatMap((level) => {
-        return Object.entries(level).map(([location, item]) => {
-          return { location, ...item };
-        });
-      });
-    });
-  }).filter(item => {
-    if (item.barcode === query) {
-      return true;
-    }
+  const results = [];
 
-    const searchStr = `${item.brand} ${item.model}`.toLowerCase();
-    return searchStr.includes(query.toLowerCase());
-  });
+  for (const category in inventory) {
+    for (const shelf in inventory[category]) {
+      for (const section in inventory[category][shelf]) {
+        for (const level in inventory[category][shelf][section]) {
+          const items = inventory[category][shelf][section][level];
+
+          if (Array.isArray(items)) {
+            for (const item of items) {
+              if (
+                item.barcode === query ||
+                `${item.merke} ${item.modell}`.toLowerCase().includes(query.toLowerCase())
+              ) {
+                results.push({ location: `${category}.${shelf}.${section}.${level}`, ...item });
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 
   return results;
 }
@@ -68,66 +74,85 @@ app.get("/inventory", (req, res) => {
 });
 
 app.post("/inventory", (req, res) => {
-  const { location, brand, model, barcode } = req.body;
-  const [_, category, section, level] = location.split(".");
+  const { location, item } = req.body;
 
-  inventory[category] = inventory[category] || {};
-  inventory[category][section] = inventory[category][section] || {};
-  inventory[category][section][level] = inventory[category][section][level] || {};
+  const [category, shelf, section, level] = location.split(".");
 
-  const item = {
-    brand,
-    model,
-    barcode,
-    location,
-  };
+  if (!inventory[category]) {
+    inventory[category] = {};
+  }
 
-  inventory[category][section][level][location] = item;
+  if (!inventory[category][shelf]) {
+    inventory[category][shelf] = {};
+  }
 
-  res.status(201).json({ message: "Vare lagt til", location, item });
+  if (!inventory[category][shelf][section]) {
+    inventory[category][shelf][section] = {};
+  }
+
+  if (!inventory[category][shelf][section][level]) {
+    inventory[category][shelf][section][level] = [];
+  }
+
+  inventory[category][shelf][section][level].push(item);
 
   saveInventoryToFile(inventory);
+
+  res.status(201).json({ message: "Vare lagt til" });
 });
 
-
-//jeg får at plasseringen ikke finnes, men jeg vet at den finnes. Hva er feil?
-//vi må splitte opp plasseringen i main, category, section og level.
-//vi må sjekke om main, category, section og level finnes i inventory.json.
-//vi må returnere en feilmelding hvis plasseringen ikke finnes.
-//vi må returnere en suksessmelding hvis plasseringen finnes.
 app.get("/inventory/:location", (req, res) => {
   const { location } = req.params;
-  const [_, category, section, level] = location.split(".");
+  const [category, shelf, section, level] = location.split(".");
 
-  if (inventory[category] && inventory[category][section] && inventory[category][section][level]) {
-    res.status(200).json({ message: "Plasseringen finnes" });
+  if (
+    inventory[category] &&
+    inventory[category][shelf] &&
+    inventory[category][shelf][section] &&
+    inventory[category][shelf][section][level]
+  ) {
+    res.json(inventory[category][shelf][section][level]);
   } else {
-    res.status(404).json({ message: "Plasseringen finnes ikke" });
+    res.status(404).json({ message: "Plassering ikke funnet" });
   }
 });
 
 app.delete("/inventory/:barcode", (req, res) => {
   const { barcode } = req.params;
-  let deleted = false;
 
-  Object.values(inventory).forEach((category) => {
-    Object.values(category).forEach((section) => {
-      Object.values(section).forEach((level) => {
-        Object.entries(level).forEach(([location, item]) => {
-          if (item.barcode === barcode) {
-            delete level[location];
-            deleted = true;
-            return;
-          }
-        });
-      });
-    });
-  });
+  const results = searchInventory(barcode);
 
-  if (deleted) {
-    saveInventoryToFile(inventory);
-    res.status(200).json({ message: "Vare slettet" });
+  console.log(barcode, results);
+
+  if (results.length > 0) {
+    const [item] = results;
+    const { location } = item;
+    const [category, shelf, section, level] = location.split(".");
+    const itemIndex = inventory[category][shelf][section][level].findIndex(
+      (item) => item.barcode === barcode
+    );
+
+    if (itemIndex !== -1) {
+      inventory[category][shelf][section][level].splice(itemIndex, 1);
+
+      saveInventoryToFile(inventory);
+
+      res.json({ message: "Vare slettet" });
+    } else {
+      res.status(404).json({ message: "Vare ikke funnet" });
+    }
   } else {
     res.status(404).json({ message: "Vare ikke funnet" });
   }
+});
+
+// Håndter feil ved 404-not found
+app.use((req, res, next) => {
+  res.status(404).json({ message: "Ressurs ikke funnet" });
+});
+
+// Håndter generelle feil
+app.use((err, req, res, next) => {
+  console.error("Server error:", err);
+  res.status(500).json({ message: "Noe gikk galt på serveren" });
 });

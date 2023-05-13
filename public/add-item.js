@@ -5,35 +5,22 @@ $(document).ready(() => {
   const modelInput = document.getElementById("modelInput");
   const itemInputFields = document.getElementById("itemInputFields");
 
-  //vi skal sjekke om scannet verdi av plassering tilsvarer en lokasjon, og hvis det er tilfellet, så skal vi gå videre. hvis ikke, så skal vi vise en feilmelding
-  //vi skal sjekke dette med å spørre app.js om det finnes en lokasjon med den scannet verdien
-  //vi skal logge alle stegene for debugging
-  /*
-  1. sjekk om det finnes en lokasjon med den scannet verdien
-  2. hvis det finnes en lokasjon, så skal vi gå videre
-  3. hvis det ikke finnes en lokasjon, så skal vi vise en feilmelding
-  */
   locationInput.addEventListener("change", () => {
     const location = locationInput.value;
-    const [_, category, section, level] = location.split(".");
-    console.log(_, category, section, level);
     fetch(`/inventory/${location}`)
       .then((response) => {
         if (response.ok) {
           itemInputFields.style.display = "block";
           barcodeInput.focus();
-          localStorage.setItem("lastLocation", location);
-          localStorage.setItem("lastLocationDate", Date.now());
         } else {
-          alert(`Plasseringen ${location} finnes ikke`);
-          locationInput.value = "";
-          locationInput.focus();
+          return response.json().then((data) => {
+            throw new Error(data.message);
+          });
         }
       })
       .catch((error) => {
-        alert("Plasseringen finnes ikke");
-        locationInput.value = "";
-        locationInput.focus();
+        console.error("Feil ved sjekk av plassering:", error);
+        alert("Noe gikk galt. Vennligst prøv igjen.");
       });
   });
 
@@ -42,7 +29,7 @@ $(document).ready(() => {
     barcodeInput.value = barcode;
     brandInput.focus();
   });
-  
+
   brandInput.addEventListener("change", () => {
     const brand = brandInput.value;
     brandInput.value = brand;
@@ -53,7 +40,7 @@ $(document).ready(() => {
     const model = modelInput.value;
     modelInput.value = model;
   });
-  
+
   const lastLocation = localStorage.getItem("lastLocation");
   const lastLocationDate = localStorage.getItem("lastLocationDate");
   if (lastLocation && lastLocationDate && Date.now() - lastLocationDate < 10 * 60 * 1000) {
@@ -105,8 +92,9 @@ $(document).ready(() => {
           localStorage.setItem("lastLocation", location);
           localStorage.setItem("lastLocationDate", Date.now());
         } else {
-          console.error("Feil ved lagring av vare:", response);
-          alert("Noe gikk galt. Vennligst prøv igjen.");
+          return response.json().then((data) => {
+            throw new Error(data.message);
+          });
         }
       })
       .catch((error) => {
