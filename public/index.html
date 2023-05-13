@@ -99,7 +99,56 @@
                 console.error(error);
             }
         });
+
+        const barcodeScanner = document.getElementById("barcode-scanner");
+        const scanBarcodeButton = document.getElementById("scanBarcode");
+
+        scanBarcodeButton.addEventListener("click", async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
+                barcodeScanner.srcObject = stream;
+                barcodeScanner.classList.remove("is-hidden");
+
+                Quagga.init(
+                    {
+                        inputStream: {
+                            name: "Live",
+                            type: "LiveStream",
+                            constraints: {
+                                facingMode: "environment",
+                            },
+                            target: barcodeScanner,
+                        },
+                        decoder: {
+                            readers: ["ean_reader"],
+                        },
+                    },
+                    (err) => {
+                        if (err) {
+                            console.error(err);
+                            barcodeScanner.classList.add("is-hidden");
+                            return;
+                        }
+                        Quagga.start();
+                    }
+                );
+
+                Quagga.onDetected((data) => {
+                    const barcode = data.codeResult.code;
+                    barcodeForm.elements.barcode.value = barcode;
+                    Quagga.stop();
+                    barcodeScanner.classList.add("is-hidden");
+                    if (barcodeScanner.srcObject) {
+                        barcodeScanner.srcObject.getTracks().forEach((track) => track.stop());
+                    }
+                });
+            } catch (error) {
+                console.error("Error accessing camera:", error);
+            }
+        });
     </script>
-    <script src="../app.js"></script>
+    <script src="https://cdn.rawgit.com/serratus/quaggaJS/master/dist/quagga.min.js"></script>
+    <script src="./app.js"></script>
 </body>
+
 </html>
