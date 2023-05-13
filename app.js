@@ -36,15 +36,17 @@ function searchInventory(query) {
     for (const shelf in inventory[category]) {
       for (const section in inventory[category][shelf]) {
         for (const level in inventory[category][shelf][section]) {
-          const items = inventory[category][shelf][section][level];
+          for (const location in inventory[category][shelf][section][level]) {
+            const items = inventory[category][shelf][section][level][location];
 
-          if (Array.isArray(items)) {
-            for (const item of items) {
-              if (
-                item.barcode === query ||
-                `${item.merke} ${item.modell}`.toLowerCase().includes(query.toLowerCase())
-              ) {
-                results.push({ location: `${category}.${shelf}.${section}.${level}`, ...item });
+            if (Array.isArray(items)) {
+              for (const item of items) {
+                if (
+                  item.barcode === query ||
+                  `${item.merke} ${item.modell}`.toLowerCase().includes(query.toLowerCase())
+                ) {
+                  results.push({ location: `${category}.${shelf}.${section}.${level}.${location}`, ...item });
+                }
               }
             }
           }
@@ -127,13 +129,10 @@ app.delete("/inventory/:barcode", (req, res) => {
   if (results.length > 0) {
     const [item] = results;
     const { location } = item;
-    const [category, shelf, section, level] = location.split(".");
-    const itemIndex = inventory[category][shelf][section][level].findIndex(
-      (item) => item.barcode === barcode
-    );
-
-    if (itemIndex !== -1) {
-      inventory[category][shelf][section][level].splice(itemIndex, 1);
+    const [category, shelf, section, level, locationIndex] = location.split(".");
+    
+    if (inventory[category]?.[shelf]?.[section]?.[level]?.[locationIndex]) {
+      inventory[category][shelf][section][level][locationIndex] = inventory[category][shelf][section][level][locationIndex].filter(item => item.barcode !== barcode);
 
       saveInventoryToFile(inventory);
 
