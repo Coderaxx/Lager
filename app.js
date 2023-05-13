@@ -7,7 +7,7 @@ app.listen(PORT, () => {
 const fs = require("fs");
 
 app.use(express.json());
-app.use(express.static(__dirname));
+app.use(express.static("public"));
 
 let inventory = readInventoryFromFile();
 
