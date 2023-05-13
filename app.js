@@ -79,7 +79,7 @@ app.post("/inventory", (req, res) => {
     brand,
     model,
     barcode,
-    location: `H21.${location}`,
+    location,
   };
 
   inventory[category][section][level][location] = item;
@@ -89,16 +89,20 @@ app.post("/inventory", (req, res) => {
   saveInventoryToFile(inventory);
 });
 
-//vi skal lage en api-funksjon som skal søke etter en plassering i lageret
+
+//jeg får at plasseringen ikke finnes, men jeg vet at den finnes. Hva er feil?
+//vi må splitte opp plasseringen i main, category, section og level.
+//vi må sjekke om main, category, section og level finnes i inventory.json.
+//vi må returnere en feilmelding hvis plasseringen ikke finnes.
+//vi må returnere en suksessmelding hvis plasseringen finnes.
 app.get("/inventory/:location", (req, res) => {
   const { location } = req.params;
   const [_, category, section, level] = location.split(".");
-  const item = inventory[category]?.[section]?.[level]?.[location];
-  
-  if (item) {
-    res.json(item);
+
+  if (inventory[category] && inventory[category][section] && inventory[category][section][level]) {
+    res.status(200).json({ message: "Plasseringen finnes" });
   } else {
-    res.status(404).json({ message: "Vare ikke funnet" });
+    res.status(404).json({ message: "Plasseringen finnes ikke" });
   }
 });
 

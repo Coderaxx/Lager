@@ -7,26 +7,34 @@ $(document).ready(() => {
 
   //vi skal sjekke om scannet verdi av plassering tilsvarer en lokasjon, og hvis det er tilfellet, så skal vi gå videre. hvis ikke, så skal vi vise en feilmelding
   //vi skal sjekke dette med å spørre app.js om det finnes en lokasjon med den scannet verdien
+  //vi skal logge alle stegene for debugging
+  /*
+  1. sjekk om det finnes en lokasjon med den scannet verdien
+  2. hvis det finnes en lokasjon, så skal vi gå videre
+  3. hvis det ikke finnes en lokasjon, så skal vi vise en feilmelding
+  */
   locationInput.addEventListener("change", () => {
     const location = locationInput.value;
-    locationInput.value = location;
+    const [_, category, section, level] = location.split(".");
+    console.log(_, category, section, level);
     fetch(`/inventory/${location}`)
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.error) {
-        alert(data.error);
-      } else {
-        //vi skal lagre lokasjonen i localStorage, slik at vi kan huske den neste gang vi skal legge til en ny vare
-        localStorage.setItem("lastLocation", location);
-        localStorage.setItem("lastLocationDate", Date.now());
-        itemInputFields.style.display = "block";
-        barcodeInput.focus();
-      }
-    })
-    .catch((error) => {
-      console.error("Feil ved henting av lageret:", error);
-      alert("Noe gikk galt ved henting av lageret. Vennligst prøv igjen.");
-    });
+      .then((response) => {
+        if (response.ok) {
+          itemInputFields.style.display = "block";
+          barcodeInput.focus();
+          localStorage.setItem("lastLocation", location);
+          localStorage.setItem("lastLocationDate", Date.now());
+        } else {
+          alert(`Plasseringen ${location} finnes ikke`);
+          locationInput.value = "";
+          locationInput.focus();
+        }
+      })
+      .catch((error) => {
+        alert("Plasseringen finnes ikke");
+        locationInput.value = "";
+        locationInput.focus();
+      });
   });
 
   barcodeInput.addEventListener("change", () => {
@@ -46,9 +54,6 @@ $(document).ready(() => {
     modelInput.value = model;
   });
   
-  //koden skal også huske hvilken lokasjon jeg valgte sist, slik at jeg slipper å velge den på nytt hver gang jeg skal legge til en ny vare.
-  //vi skal kun huske lokasjon hvis det er under 10 minutter siden vi la til en vare
-  //hvis en lokasjon er lagret og brukt i feltet, skal alle andre felt vises
   const lastLocation = localStorage.getItem("lastLocation");
   const lastLocationDate = localStorage.getItem("lastLocationDate");
   if (lastLocation && lastLocationDate && Date.now() - lastLocationDate < 10 * 60 * 1000) {
@@ -83,12 +88,9 @@ $(document).ready(() => {
       .then((response) => {
         if (response.ok) {
           alert("Vare lagt til!");
-          //siden vi bruker reset, så må vi åpne alle feltene på nytt. men det skal kun skje hvis vi har lagret en lokasjon
           if (location) {
             itemInputFields.style.display = "block";
           }
-          //vi skal også sjekke om bruker scanner en ny plassering, og hvis det er tilfellet, så skal hele locationInput-feltet tømmes, og vi setter inn scannet verdi. vi skal også sette fokus på locationInput-feltet
-          //vi skal sjekke om scannet verdi tilsvarer en lokasjon, og hvis det er tilfellet, så skal vi tømme locationInput-feltet og sette fokus på det
           const scannedLocation = localStorage.getItem("scannedLocation");
           if (scannedLocation) {
             locationInput.value = scannedLocation;
