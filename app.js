@@ -89,6 +89,19 @@ app.post("/inventory", (req, res) => {
   saveInventoryToFile(inventory);
 });
 
+//vi skal lage en api-funksjon som skal søke etter en plassering i lageret
+app.get("/inventory/:location", (req, res) => {
+  const { location } = req.params;
+  const [_, category, section, level] = location.split(".");
+  const item = inventory[category]?.[section]?.[level]?.[location];
+  
+  if (item) {
+    res.json(item);
+  } else {
+    res.status(404).json({ message: "Vare ikke funnet" });
+  }
+});
+
 app.delete("/inventory/:barcode", (req, res) => {
   const { barcode } = req.params;
   let deleted = false;
