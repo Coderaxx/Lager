@@ -8,6 +8,31 @@ Honeybadger.configure({
   apiKey: "hbp_ISi2vinyYa5nA3zK1PFX3DXzbHc0yx25BKkH",
   environment: "production"
 });
+const Sentry = require("@sentry/node");
+
+Sentry.init({
+  dsn: "https://3c602fc817b942cbaf82608c5d9450fe@o4505183347081216.ingest.sentry.io/4505183347081216",
+
+  // Set tracesSampleRate to 1.0 to capture 100%
+  // of transactions for performance monitoring.
+  // We recommend adjusting this value in production
+  tracesSampleRate: 1.0,
+});
+
+const transaction = Sentry.startTransaction({
+  op: "test",
+  name: "My First Test Transaction",
+});
+
+setTimeout(() => {
+  try {
+    foo();
+  } catch (e) {
+    Sentry.captureException(e);
+  } finally {
+    transaction.finish();
+  }
+}, 99);
 
 // Angi sti til den offentlige mappen
 app.use(express.static(path.join(__dirname, "public")));
