@@ -234,11 +234,6 @@ app.get("/locations", (req, res) => {
   res.json(locations);
 });
 
-// Håndter GET-forespørsel for /add-location
-app.get("/add-location", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "add-location.html"));
-});
-
 // Håndter POST-forespørsel for /add-location
 app.post("/add-location", (req, res) => {
   const { category, shelf, section, level } = req.body;
