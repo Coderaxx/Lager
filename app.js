@@ -5,7 +5,7 @@ const path = require("path");
 const fs = require("fs");
 const Honeybadger = require("@honeybadger-io/js");
 Honeybadger.configure({
-  apiKey: "d9ba190ec57784b064c2f12a8a6559b119a5b158ecc1f2c370b69c0076bf2144",
+  apiKey: "hbp_ISi2vinyYa5nA3zK1PFX3DXzbHc0yx25BKkH",
   environment: "production"
 });
 
