@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Lagerføringssystem - Plasseringer</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+    <link rel="icon" type="image/png" href="assets/img/favicon.png">
+    <style>
+        .add-location-form {
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <section class="section">
+        <div class="container">
+            <h1 class="title">Plasseringer</h1>
+            <form id="addLocationForm" class="add-location-form">
+                <div class="field is-horizontal">
+                    <div class="field-body">
+                        <div class="field">
+                            <p class="control is-expanded">
+                                <input id="locationInput" class="input" type="text" placeholder="Plassering">
+                            </p>
+                        </div>
+                        <div class="field">
+                            <p class="control">
+                                <button id="addLocationButton" class="button is-primary" type="submit">Legg til</button>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <table id="locationsTable" class="table is-hoverable is-striped is-fullwidth">
+                <thead>
+                    <tr>
+                        <th>Plassering</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="locationsTableBody"></tbody>
+            </table>
+        </div>
+    </section>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="locations.js"></script>
+</body>
+
+</html>

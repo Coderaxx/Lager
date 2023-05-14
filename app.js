@@ -17,6 +17,10 @@ app.get("/delete", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "delete-item.html"));
 });
 
+app.get("/locations", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "locations.html"));
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
@@ -203,4 +207,89 @@ app.use((req, res, next) => {
 app.use((err, req, res, next) => {
   console.error("Server error:", err);
   res.status(500).json({ message: "Noe gikk galt på serveren" });
+});
+
+// Funksjon for å generere liste over plasseringer i inventory.json
+function getAllLocations(inventoryData) {
+  const locations = [];
+
+  for (const category of inventoryData.categories) {
+    for (const shelf of category.shelves) {
+      for (const section of shelf.sections) {
+        for (const level of section.levels) {
+          const location = `${ category.name }.${ shelf.name }.${ section.name }.${ level.name }`;
+          locations.push(location);
+        }
+      }
+    }
+  }
+
+  return locations;
+}
+
+// Håndter GET-forespørsel for /locations
+app.get("/locations", (req, res) => {
+  const inventoryData = readInventoryFromFile();
+  const locations = getAllLocations(inventoryData);
+  res.json(locations);
+});
+
+// Håndter GET-forespørsel for /add-location
+app.get("/add-location", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "add-location.html"));
+});
+
+// Håndter POST-forespørsel for /add-location
+app.post("/add-location", (req, res) => {
+  const { category, shelf, section, level } = req.body;
+
+  const categoryObj = inventory.categories.find((c) => c.name === category);
+  if (!categoryObj) {
+    inventory.categories.push({ name: category, shelves: [] });
+  }
+
+  const shelfObj = categoryObj.shelves.find((s) => s.name === shelf);
+  if (!shelfObj) {
+    categoryObj.shelves.push({ name: shelf, sections: [] });
+  }
+
+  const sectionObj = shelfObj.sections.find((s) => s.name === section);
+  if (!sectionObj) {
+    shelfObj.sections.push({ name: section, levels: [] });
+  }
+
+  const levelObj = sectionObj.levels.find((l) => l.name === level);
+  if (!levelObj) {
+    sectionObj.levels.push({ name: level, items: [] });
+  }
+
+  saveInventoryToFile(inventory);
+
+  res.redirect("/locations");
+});
+
+// Håndter GET-forespørsel for /remove-location
+app.get("/remove-location/:location", (req, res) => {
+  const { location } = req.params;
+  const [category, shelf, section, level] = location.split(".");
+
+  const categoryObj = inventory.categories.find((c) => c.name === category);
+  if (categoryObj) {
+    const shelfObj = categoryObj.shelves.find((s) => s.name === shelf);
+    if (shelfObj) {
+      const sectionObj = shelfObj.sections.find((s) => s.name === section);
+      if (sectionObj) {
+        const levelObj = sectionObj.levels.find((l) => l.name === level);
+        if (levelObj) {
+          // Fjern plasseringen fra inventory.json
+          sectionObj.levels = sectionObj.levels.filter((l) => l.name !== level);
+          saveInventoryToFile(inventory);
+          res.redirect("/locations");
+          return;
+        }
+      }
+    }
+  }
+
+  res.status(404).json({ message: "Plassering ikke funnet" });
 });
