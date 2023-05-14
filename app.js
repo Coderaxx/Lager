@@ -17,7 +17,7 @@ app.get("/delete", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "delete-item.html"));
 });
 
-app.get("/loc", (req, res) => {
+app.get("/location", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "locations.html"));
 });
 
