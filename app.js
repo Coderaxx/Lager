@@ -17,7 +17,7 @@ app.get("/delete", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "delete-item.html"));
 });
 
-app.get("/locations", (req, res) => {
+app.get("/loc", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "locations.html"));
 });
 
@@ -230,7 +230,7 @@ function getAllLocations(inventoryData) {
 // Håndter GET-forespørsel for /locations
 app.get("/locations", (req, res) => {
   const inventoryData = readInventoryFromFile();
-  const locations = getAllLocations(inventoryData);
+  const locations = getAllLocations(inventoryData.locations);
   res.json(locations);
 });
 
