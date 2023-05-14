@@ -3,6 +3,13 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const path = require("path");
 const fs = require("fs");
+const Honeybadger = require("@honeybadger-io/js");
+Honeybadger.configure({
+  apiKey: "d9ba190ec57784b064c2f12a8a6559b119a5b158ecc1f2c370b69c0076bf2144",
+  environment: "production"
+});
+
+Honeybadger.notify("Testing Honeybadger!");
 
 // Angi sti til den offentlige mappen
 app.use(express.static(path.join(__dirname, "public")));
