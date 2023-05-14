@@ -1,8 +1,6 @@
 const express = require("express");
 const app = express();
 const PORT = process.env.PORT || 3000;
-const server = require("http").createServer(app);
-const io = require("socket.io")(server);
 const path = require("path");
 const fs = require("fs");
 
@@ -133,7 +131,6 @@ app.post("/inventory", (req, res) => {
   levelObj.items.push(newItem);
 
   saveInventoryToFile(inventory);
-  io.emit("updateInventory", inventory);
 
   res.status(201).json({ message: "Vare lagt til" });
 });
@@ -191,7 +188,6 @@ app.delete("/inventory/:barcode", (req, res) => {
 
   if (itemFound) {
     saveInventoryToFile(inventory);
-    io.emit("updateInventory", inventory);
     res.json({ message: "Vare slettet" });
   } else {
     res.status(404).json({ message: "Vare ikke funnet" });
@@ -207,33 +203,4 @@ app.use((req, res, next) => {
 app.use((err, req, res, next) => {
   console.error("Server error:", err);
   res.status(500).json({ message: "Noe gikk galt på serveren" });
-});
-
-// Lytt etter Socket.IO-tilkoblinger
-io.on("connection", (socket) => {
-  console.log("En klient er tilkoblet");
-
-  // Sender nåværende varelager til klienten ved tilkobling
-  socket.emit("initialInventory", inventory);
-
-  // Lytt etter lagring av ny vare fra klienten
-  socket.on("addItem", (item) => {
-    // Legg til den nye varen i varelageret
-    inventory.push(item);
-    // Send oppdatert varelager til tilkoblede klienter via WebSocket
-    io.emit("updateInventory", inventory);
-  });
-
-  // Lytt etter sletting av vare fra klienten
-  socket.on("deleteItem", (itemId) => {
-    // Finn og fjern varen fra varelageret
-    inventory = inventory.filter((item) => item.id !== itemId);
-    // Send oppdatert varelager til tilkoblede klienter via WebSocket
-    io.emit("updateInventory", inventory);
-  });
-
-  // Lytt etter Socket.IO-frakoblinger
-  socket.on("disconnect", () => {
-    console.log("En klient er frakoblet");
-  });
 });
