@@ -19,14 +19,7 @@
                 },
                 {
                   "name": "E3",
-                  "items": [
-                    {
-                      "brand": "Skruf",
-                      "model": "Super White No54 Fresh S4",
-                      "barcode": "7330196002339",
-                      "location": "H21.VH.S1.E3"
-                    }
-                  ]
+                  "items": []
                 }
               ]
             },
@@ -95,6 +88,18 @@
                       "brand": "Skruf",
                       "model": "Super White No54 Fresh S4",
                       "barcode": "7330196002339",
+                      "location": "H21.VH.S5.E2"
+                    },
+                    {
+                      "brand": "Pepsi",
+                      "model": "Max",
+                      "barcode": "7044610874685",
+                      "location": "H21.VH.S5.E2"
+                    },
+                    {
+                      "brand": "Pepsi",
+                      "model": "Max",
+                      "barcode": "7044610874685",
                       "location": "H21.VH.S5.E2"
                     }
                   ]

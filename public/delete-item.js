@@ -1,4 +1,57 @@
 $(document).ready(() => {
+  // Opprett en Socket.IO-tilkobling til serveren
+  const socket = io();
+
+  // Lytt etter initialt varelager fra serveren
+  socket.on("initialInventory", (inventory) => {
+    updateInventoryTable(inventory);
+  });
+
+  // Lytt etter oppdateringer i varelageret fra serveren
+  socket.on("updateInventory", (inventory) => {
+    updateInventoryTable(inventory);
+  });
+
+  // Funksjon for å oppdatere varetabellen
+  function updateInventoryTable(inventory) {
+    const tableBody = document.getElementById("inventoryTableBody");
+    tableBody.innerHTML = ""; // Tøm tabellen før oppdatering
+
+    // Gå gjennom hvert element i varelageret og oppdater tabellen
+    for (const category of inventory.categories) {
+      for (const shelf of category.shelves) {
+        for (const section of shelf.sections) {
+          for (const level of section.levels) {
+            for (const item of level.items) {
+              const row = document.createElement("tr");
+
+              // Opprett celler for hver kolonne i tabellen
+              const locationCell = document.createElement("td");
+              const brandCell = document.createElement("td");
+              const modelCell = document.createElement("td");
+              const barcodeCell = document.createElement("td");
+
+              // Sett innholdet for hver celle
+              locationCell.textContent = item.location;
+              brandCell.textContent = item.brand;
+              modelCell.textContent = item.model;
+              barcodeCell.textContent = item.barcode;
+
+              // Legg til cellene i raden
+              row.appendChild(locationCell);
+              row.appendChild(brandCell);
+              row.appendChild(modelCell);
+              row.appendChild(barcodeCell);
+
+              // Legg til raden i tabellens tbody
+              tableBody.appendChild(row);
+            }
+          }
+        }
+      }
+    }
+  }
+
   function showAlert(title, message, type) {
     Swal.fire({
       title: title,
