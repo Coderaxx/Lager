@@ -10,6 +10,7 @@
   "author": "Jesper Grimstad",
   "license": "ISC",
   "dependencies": {
+    "axios": "^1.4.0",
     "bootstrap": "^5.2.3",
     "express": "^4.18.2"
   }

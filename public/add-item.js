@@ -1,3 +1,5 @@
+import axios from "axios";
+
 $(document).ready(() => {
   const locationInput = document.getElementById("locationInput");
   const barcodeInput = document.getElementById("barcodeInput");
@@ -47,15 +49,13 @@ $(document).ready(() => {
 
   locationInput.addEventListener("change", () => {
     const location = locationInput.value;
-    fetch(`/inventory/${location}`)
+    axios.get(`/inventory/${location}`)
       .then((response) => {
-        if (response.ok) {
+        if (response.status === 200) {
           itemInputFields.style.display = "block";
           barcodeInput.focus();
         } else {
-          return response.json().then((data) => {
-            throw new Error(data.message);
-          });
+          throw new Error(response.data.message);
         }
       })
       .catch((error) => {
@@ -79,20 +79,18 @@ $(document).ready(() => {
       .catch((error) => {
         if (error === "Ingen match funnet for strekkoden") {
           // Søk etter varen i API-et
-          fetch(`https://brocade.io/api/items/${barcode}`)
+          axios.get(`https://brocade.io/api/items/${barcode}`)
             .then((response) => {
-              if (response.ok) {
-                return response.json();
+              if (response.status === 200) {
+                const { brand, model } = response.data;
+                brandInput.value = brand;
+                modelInput.value = model;
+                modelInput.focus();
               } else {
                 throw new Error("Ingen match funnet for strekkoden");
               }
             })
-            .then((data) => {
-              const { brand, model } = data;
-              brandInput.value = brand;
-              modelInput.value = model;
-              modelInput.focus();
-            }).catch((error) => {
+            .catch((error) => {
               console.error("Feil ved søk etter strekkode:", error);
               brandInput.value = "";
               modelInput.value = "";
@@ -136,15 +134,9 @@ $(document).ready(() => {
       location,
     };
 
-    fetch("/inventory", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(newItem),
-    })
+    axios.post("/inventory", newItem)
       .then((response) => {
-        if (response.ok) {
+        if (response.status === 201) {
           alert("Vare lagt til!");
           if (location) {
             itemInputFields.style.display = "block";
