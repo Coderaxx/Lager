@@ -5,6 +5,46 @@ $(document).ready(() => {
   const modelInput = document.getElementById("modelInput");
   const itemInputFields = document.getElementById("itemInputFields");
 
+  // Funksjon for å sjekke om en streng er i riktig plasseringsformat
+  function isValidLocationFormat(input) {
+    const locationFormat = /^[A-Z]\d{2}\.[A-Z]+\.S\d{1,2}\.E\d{1,2}$/;
+    return locationFormat.test(input);
+  }
+
+  // Funksjon for å oppdatere plasseringsinndatafeltet med skannet verdi
+  function updateLocationInput(scannedLocation) {
+    if (isValidLocationFormat(scannedLocation)) {
+      locationInput.value = scannedLocation;
+    }
+  }
+
+  function searchInventoryByBarcode(barcode) {
+    return new Promise((resolve, reject) => {
+      fetch(`/inventory/search/${barcode}`)
+        .then((response) => {
+          if (response.ok) {
+            return response.json();
+          } else if (response.status === 404) {
+            throw new Error("Ingen match funnet for strekkoden");
+          } else {
+            throw new Error("Noe gikk galt ved søk i lageret");
+          }
+        })
+        .then((data) => {
+          const matchingItem = data.find((item) => item.barcode === barcode);
+          if (matchingItem) {
+            const { brand, model } = matchingItem;
+            resolve({ brand, model });
+          } else {
+            reject("Ingen match funnet for strekkoden");
+          }
+        })
+        .catch((error) => {
+          reject(error.message);
+        });
+    });
+  }
+
   locationInput.addEventListener("change", () => {
     const location = locationInput.value;
     fetch(`/inventory/${location}`)
@@ -20,7 +60,9 @@ $(document).ready(() => {
       })
       .catch((error) => {
         console.error("Feil ved sjekk av plassering:", error);
-        alert("Noe gikk galt. Vennligst prøv igjen.");
+        alert("Plasseringen finnes ikke. Vennligst prøv igjen.");
+        document.getElementById("addItemForm").reset();
+        itemInputFields.style.display = "none";
       });
   });
 
@@ -28,6 +70,36 @@ $(document).ready(() => {
     const barcode = barcodeInput.value;
     barcodeInput.value = barcode;
     brandInput.focus();
+    searchInventoryByBarcode(barcode)
+      .then(({ brand, model }) => {
+        brandInput.value = brand;
+        modelInput.value = model;
+        modelInput.focus();
+      })
+      .catch((error) => {
+        if (error === "Ingen match funnet for strekkoden") {
+          // Søk etter varen i API-et
+          fetch(`https://brocade.io/api/items/${barcode}`)
+            .then((response) => {
+              if (response.ok) {
+                return response.json();
+              } else {
+                throw new Error("Ingen match funnet for strekkoden");
+              }
+            })
+            .then((data) => {
+              const { brand, model } = data;
+              brandInput.value = brand;
+              modelInput.value = model;
+              modelInput.focus();
+            }).catch((error) => {
+              console.error("Feil ved søk etter strekkode:", error);
+              brandInput.value = "";
+              modelInput.value = "";
+              brandInput.focus();
+            });
+        }
+      });
   });
 
   brandInput.addEventListener("change", () => {
@@ -52,7 +124,6 @@ $(document).ready(() => {
   const addItemForm = document.getElementById("addItemForm");
   addItemForm.addEventListener("submit", (e) => {
     e.preventDefault();
-
     const location = locationInput.value;
     const barcode = barcodeInput.value;
     const brand = brandInput.value;
@@ -80,7 +151,7 @@ $(document).ready(() => {
           }
           const scannedLocation = localStorage.getItem("scannedLocation");
           if (scannedLocation) {
-            locationInput.value = scannedLocation;
+            updateLocationInput(scannedLocation);
             localStorage.removeItem("scannedLocation");
             locationInput.focus();
           } else {
@@ -88,13 +159,11 @@ $(document).ready(() => {
           }
           addItemForm.reset();
           locationInput.value = location;
-          locationInput.focus();
+          barcodeInput.focus();
           localStorage.setItem("lastLocation", location);
           localStorage.setItem("lastLocationDate", Date.now());
         } else {
-          return response.json().then((data) => {
-            throw new Error(data.message);
-          });
+          throw new Error("Feil ved lagring av vare");
         }
       })
       .catch((error) => {

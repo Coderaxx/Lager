@@ -16,18 +16,17 @@ $(document).ready(() => {
 
     // Hjelpefunksjon for å opprette en rad i tabellen
     function createTableRow(item, location) {
-      const { merke, modell, strekkode, antall } = item;
+      const { brand, model, barcode, location: itemLocation } = item;
 
       const row = $("<tr></tr>");
-      row.append(`<td>${merke}</td>`);
-      row.append(`<td>${modell}</td>`);
-      row.append(`<td>${strekkode}</td>`);
-      row.append(`<td>${location}</td>`);
-      row.append(`<td>${antall}</td>`);
+      row.append(`<td>${brand}</td>`);
+      row.append(`<td>${model}</td>`);
+      row.append(`<td>${barcode}</td>`);
+      row.append(`<td>${itemLocation}</td>`);
 
       const deleteButton = $(`<button class="button is-danger">Slett</button>`);
       deleteButton.click(() => {
-        deleteItem(strekkode, row);
+        deleteItem(barcode, row);
       });
 
       const deleteCell = $("<td></td>");
@@ -41,14 +40,14 @@ $(document).ready(() => {
     fetch("/inventory")
       .then((response) => response.json())
       .then((data) => {
-        const items = Object.entries(data).flatMap(([category, shelf]) =>
-          Object.entries(shelf).flatMap(([shelf, section]) =>
-            Object.entries(section).flatMap(([section, levels]) =>
-              Object.entries(levels).flatMap(([level, items]) =>
-                Object.entries(items).map(([location, item]) => {
+        const items = data.categories.flatMap((category) =>
+          category.shelves.flatMap((shelf) =>
+            shelf.sections.flatMap((section) =>
+              section.levels.flatMap((level) =>
+                level.items.map((item) => {
                   return {
                     item,
-                    location: `${category}.${shelf}.${section}.${level}.${location}`,
+                    location: `${category.name}.${shelf.name}.${section.name}.${level.name}`,
                   };
                 })
               )

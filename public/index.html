@@ -12,13 +12,40 @@
 <body>
     <section class="section">
         <div class="container">
-            <h1 class="title">Lagerføringssystem</h1>
+            <nav class="level">
+                <div class="level-item has-text-centered">
+                    <div>
+                        <p class="heading">Hyller</p>
+                        <p class="title" id="shelfCount">-</p>
+                    </div>
+                </div>
+                <div class="level-item has-text-centered">
+                    <div>
+                        <p class="heading">Seksjoner</p>
+                        <p class="title" id="sectionCount">-</p>
+                    </div>
+                </div>
+                <div class="level-item has-text-centered">
+                    <div>
+                        <p class="heading">Etasjer</p>
+                        <p class="title" id="levelCount">-</p>
+                    </div>
+                </div>
+                <div class="level-item has-text-centered">
+                    <div>
+                        <p class="heading">Lagerbeholdning</p>
+                        <p class="title" id="itemCount">-</p>
+                    </div>
+                </div>
+            </nav>
+            <hr>
+            <h1 class="title">Lagerføringssystem "Sønnico"-lager</h1>
             <form id="barcodeForm" class="box">
                 <div class="field">
                     <label class="label">Strekkode eller tekst</label>
                     <div class="control">
                         <input class="input" type="text" name="barcode" placeholder="Skriv inn strekkode eller tekst"
-                            required />
+                            required autofocus />
                     </div>
                 </div>
                 <div class="field">
@@ -31,7 +58,64 @@
             <div id="result" class="notification is-hidden"></div>
         </div>
     </section>
+    <footer class="footer">
+        <div class="content has-text-centered">
+            <strong>Lagerføringssystem</strong> av <a href="https://github.com/Coderaxx/">Jesper Grimstad</a>.
+        </div>
+    </footer>
     <script>
+        async function countInventory() {
+            const count = {
+                itemCount: 0,
+                shelfCount: 0,
+                sectionCount: 0,
+                levelCount: 0,
+            };
+
+            try {
+                const response = await fetch("/inventory");
+                const data = await response.json();
+
+                if (response.ok) {
+                    for (const category of data.categories) {
+                        for (const shelf of category.shelves) {
+                            count.shelfCount += 1;
+
+                            for (const section of shelf.sections) {
+                                count.sectionCount += 1;
+
+                                for (const level of section.levels) {
+                                    count.levelCount += 1;
+                                    count.itemCount += level.items.length;
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error(error);
+            }
+
+            return count;
+        }
+
+        $(document).ready(async () => {
+            const itemCount = document.getElementById("itemCount");
+            const shelfCount = document.getElementById("shelfCount");
+            const sectionCount = document.getElementById("sectionCount");
+            const levelCount = document.getElementById("levelCount");
+
+            try {
+                const count = await countInventory();
+                itemCount.textContent = count.itemCount;
+                shelfCount.textContent = count.shelfCount;
+                sectionCount.textContent = count.sectionCount;
+                levelCount.textContent = count.levelCount;
+            } catch (error) {
+                console.error(error);
+            }
+        });
+
         const barcodeForm = document.getElementById("barcodeForm");
         const resultElement = document.getElementById("result");
 
@@ -45,43 +129,65 @@
 
                 if (response.ok) {
                     resultElement.innerHTML = "";
-                    const columns = document.createElement("div");
-                    columns.className = "columns is-multiline";
 
-                    for (const item of data) {
-                        const column = document.createElement("div");
-                        column.className = "column is-one-third";
+                    for (const category in data) {
+                        const categorySection = document.createElement("section");
+                        categorySection.className = "section";
 
-                        const card = document.createElement("div");
-                        card.className = "card";
+                        const categoryTitle = document.createElement("h2");
+                        categoryTitle.className = "title";
+                        categoryTitle.textContent = `${category}`;
+                        categorySection.appendChild(categoryTitle);
 
-                        const cardContent = document.createElement("div");
-                        cardContent.className = "card-content";
+                        const columns = document.createElement("div");
+                        columns.className = "columns is-multiline";
 
-                        const media = document.createElement("div");
-                        media.className = "media";
+                        const categoryItems = Array.isArray(data[category]) ? data[category] : [data[category]];
 
-                        const mediaContent = document.createElement("div");
-                        mediaContent.className = "media-content";
+                        for (const item of categoryItems) {
+                            const column = document.createElement("div");
+                            column.className = "column is-one-third";
 
-                        const title = document.createElement("p");
-                        title.className = "title is-4";
-                        title.textContent = `${item.merke} ${item.modell}`;
+                            const card = document.createElement("div");
+                            card.className = "card";
 
-                        const subtitle = document.createElement("p");
-                        subtitle.className = "subtitle is-6";
-                        subtitle.textContent = `Hylleplassering: ${item.plassering}`;
+                            const cardContent = document.createElement("div");
+                            cardContent.className = "card-content";
 
-                        mediaContent.appendChild(title);
-                        mediaContent.appendChild(subtitle);
-                        media.appendChild(mediaContent);
-                        cardContent.appendChild(media);
-                        card.appendChild(cardContent);
-                        column.appendChild(card);
-                        columns.appendChild(column);
+                            const media = document.createElement("div");
+                            media.className = "media";
+
+                            const mediaContent = document.createElement("div");
+                            mediaContent.className = "media-content";
+
+                            const title = document.createElement("p");
+                            title.className = "title is-4";
+                            title.textContent = `${item.brand} ${item.model}`;
+
+                            const location = document.createElement("div");
+                            location.className = "content";
+                            location.innerHTML = `
+                                <p>Hylle: ${item.location.split(".")[1]}</p>
+                                <p>Seksjon: ${item.location.split(".")[2]}</p>
+                                <p>Etasje: ${item.location.split(".")[3]}</p>
+                                <p>Full plassering: ${item.location}</p>
+                            `;
+
+                            categoryTitle.textContent = `${item.location}`;
+
+                            mediaContent.appendChild(title);
+                            mediaContent.appendChild(location);
+                            media.appendChild(mediaContent);
+                            cardContent.appendChild(media);
+                            card.appendChild(cardContent);
+                            column.appendChild(card);
+                            columns.appendChild(column);
+                        }
+
+                        categorySection.appendChild(columns);
+                        resultElement.appendChild(categorySection);
                     }
 
-                    resultElement.appendChild(columns);
                     resultElement.classList.remove("is-hidden", "is-danger");
                     resultElement.classList.add("is-success");
                 } else {
@@ -94,6 +200,7 @@
             }
         });
     </script>
+
 </body>
 
 </html>

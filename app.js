@@ -1,6 +1,21 @@
 const express = require("express");
 const app = express();
 const PORT = process.env.PORT || 3000;
+const path = require("path");
+
+// Angi sti til den offentlige mappen
+app.use(express.static(path.join(__dirname, "public")));
+
+// Håndter GET-forespørsel for /add
+app.get("/add", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "add-item.html"));
+});
+
+// Håndter GET-forespørsel for /delete
+app.get("/delete", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "delete-item.html"));
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
@@ -32,29 +47,33 @@ function saveInventoryToFile(inventory) {
 function searchInventory(query) {
   const results = [];
 
-  for (const category in inventory) {
-    for (const shelf in inventory[category]) {
-      for (const section in inventory[category][shelf]) {
-        for (const level in inventory[category][shelf][section]) {
-          for (const location in inventory[category][shelf][section][level]) {
-            const items = inventory[category][shelf][section][level][location];
+  for (const category of inventory.categories) {
+    for (const shelf of category.shelves) {
+      for (const section of shelf.sections) {
+        for (const level of section.levels) {
+          const items = level.items;
 
-            if (Array.isArray(items)) {
-              for (const item of items) {
-                if (
-                  item.barcode === query ||
-                  `${item.merke} ${item.modell}`.toLowerCase().includes(query.toLowerCase())
-                ) {
-                  results.push({ location: `${category}.${shelf}.${section}.${level}.${location}`, ...item });
-                }
+          if (Array.isArray(items)) {
+            for (const item of items) {
+              if (
+                item.barcode === query ||
+                `${item.brand} ${item.model}`.toLowerCase().includes(query.toLowerCase())
+              ) {
+                results.push({ location: `${category.name}.${shelf.name}.${section.name}.${level.name}`, ...item });
               }
+            }
+          } else {
+            if (
+              items.barcode === query ||
+              `${items.brand} ${items.model}`.toLowerCase().includes(query.toLowerCase())
+            ) {
+              results.push({ location: `${category.name}.${shelf.name}.${section.name}.${level.name}`, ...items });
             }
           }
         }
       }
     }
   }
-
   return results;
 }
 
@@ -64,7 +83,7 @@ app.get("/inventory/search/:query", (req, res) => {
   const results = searchInventory(query);
 
   if (results.length > 0) {
-    res.json(results);
+    res.status(200).json(results);
   } else {
     res.status(404).json({ message: "Ingen varer funnet" });
   }
@@ -76,27 +95,40 @@ app.get("/inventory", (req, res) => {
 });
 
 app.post("/inventory", (req, res) => {
-  const { location, item } = req.body;
+  const newItem = req.body;
 
+  const { location } = newItem;
   const [category, shelf, section, level] = location.split(".");
 
-  if (!inventory[category]) {
-    inventory[category] = {};
+  if (!inventory.categories) {
+    inventory.categories = [];
   }
 
-  if (!inventory[category][shelf]) {
-    inventory[category][shelf] = {};
+  let categoryObj = inventory.categories.find((c) => c.name === category);
+  if (!categoryObj) {
+    categoryObj = { name: category, shelves: [] };
+    inventory.categories.push(categoryObj);
   }
 
-  if (!inventory[category][shelf][section]) {
-    inventory[category][shelf][section] = {};
+  let shelfObj = categoryObj.shelves.find((s) => s.name === shelf);
+  if (!shelfObj) {
+    shelfObj = { name: shelf, sections: [] };
+    categoryObj.shelves.push(shelfObj);
   }
 
-  if (!inventory[category][shelf][section][level]) {
-    inventory[category][shelf][section][level] = [];
+  let sectionObj = shelfObj.sections.find((s) => s.name === section);
+  if (!sectionObj) {
+    sectionObj = { name: section, levels: [] };
+    shelfObj.sections.push(sectionObj);
   }
 
-  inventory[category][shelf][section][level].push(item);
+  let levelObj = sectionObj.levels.find((l) => l.name === level);
+  if (!levelObj) {
+    levelObj = { name: level, items: [] };
+    sectionObj.levels.push(levelObj);
+  }
+
+  levelObj.items.push(newItem);
 
   saveInventoryToFile(inventory);
 
@@ -107,39 +139,56 @@ app.get("/inventory/:location", (req, res) => {
   const { location } = req.params;
   const [category, shelf, section, level] = location.split(".");
 
-  if (
-    inventory[category] &&
-    inventory[category][shelf] &&
-    inventory[category][shelf][section] &&
-    inventory[category][shelf][section][level]
-  ) {
-    res.json(inventory[category][shelf][section][level]);
-  } else {
-    res.status(404).json({ message: "Plassering ikke funnet" });
+  const categoryObj = inventory.categories.find((c) => c.name === category);
+  if (categoryObj) {
+    const shelfObj = categoryObj.shelves.find((s) => s.name === shelf);
+    if (shelfObj) {
+      const sectionObj = shelfObj.sections.find((s) => s.name === section);
+      if (sectionObj) {
+        const levelObj = sectionObj.levels.find((l) => l.name === level);
+        if (levelObj) {
+          res.json(levelObj.items);
+          return;
+        }
+      }
+    }
   }
+
+  res.status(404).json({ message: "Plassering ikke funnet" });
 });
 
 app.delete("/inventory/:barcode", (req, res) => {
   const { barcode } = req.params;
 
-  const results = searchInventory(barcode);
+  let itemFound = false;
 
-  console.log(barcode, results);
-
-  if (results.length > 0) {
-    const [item] = results;
-    const { location } = item;
-    const [category, shelf, section, level, locationIndex] = location.split(".");
-    
-    if (inventory[category]?.[shelf]?.[section]?.[level]?.[locationIndex]) {
-      inventory[category][shelf][section][level][locationIndex] = inventory[category][shelf][section][level][locationIndex].filter(item => item.barcode !== barcode);
-
-      saveInventoryToFile(inventory);
-
-      res.json({ message: "Vare slettet" });
-    } else {
-      res.status(404).json({ message: "Vare ikke funnet" });
+  for (const categoryObj of inventory.categories) {
+    for (const shelfObj of categoryObj.shelves) {
+      for (const sectionObj of shelfObj.sections) {
+        for (const levelObj of sectionObj.levels) {
+          const itemIndex = levelObj.items.findIndex((item) => item.barcode === barcode);
+          if (itemIndex !== -1) {
+            levelObj.items.splice(itemIndex, 1);
+            itemFound = true;
+            break;
+          }
+        }
+        if (itemFound) {
+          break;
+        }
+      }
+      if (itemFound) {
+        break;
+      }
     }
+    if (itemFound) {
+      break;
+    }
+  }
+
+  if (itemFound) {
+    saveInventoryToFile(inventory);
+    res.json({ message: "Vare slettet" });
   } else {
     res.status(404).json({ message: "Vare ikke funnet" });
   }
