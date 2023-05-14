@@ -1,8 +1,6 @@
 $(document).ready(() => {
     Sentry.onLoad(function () {
         Sentry.init({
-            dsn: "https://3c602fc817b942cbaf82608c5d9450fe@o4505183347081216.ingest.sentry.io/4505183347081216",
-
             // Set tracesSampleRate to 1.0 to capture 100%
             // of transactions for performance monitoring.
             // We recommend adjusting this value in production
