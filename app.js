@@ -2,7 +2,6 @@ const express = require("express");
 const app = express();
 const PORT = process.env.PORT || 3000;
 const path = require("path");
-const axios = require("axios");
 
 // Angi sti til den offentlige mappen
 app.use(express.static(path.join(__dirname, "public")));

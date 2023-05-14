@@ -1,5 +1,3 @@
-import axios from "axios";
-
 $(document).ready(() => {
   const locationInput = document.getElementById("locationInput");
   const barcodeInput = document.getElementById("barcodeInput");
