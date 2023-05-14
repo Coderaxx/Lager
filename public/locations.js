@@ -61,7 +61,8 @@ $(document).ready(() => {
         fetch("/locations")
             .then((response) => response.json())
             .then((data) => {
-                updateLocationsTables(data.locations);
+                console.log("Plasseringer:", data);
+                updateLocationsTables(data);
             })
             .catch((error) => {
                 console.error("Feil ved henting av plasseringer:", error);
