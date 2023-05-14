@@ -19,7 +19,14 @@
                 },
                 {
                   "name": "E3",
-                  "items": []
+                  "items": [
+                    {
+                      "brand": "Skruf",
+                      "model": "Super White No54 Fresh S4",
+                      "barcode": "7330196002339",
+                      "location": "H21.VH.S1.E3"
+                    }
+                  ]
                 }
               ]
             },
@@ -83,7 +90,14 @@
                 },
                 {
                   "name": "E2",
-                  "items": []
+                  "items": [
+                    {
+                      "brand": "Skruf",
+                      "model": "Super White No54 Fresh S4",
+                      "barcode": "7330196002339",
+                      "location": "H21.VH.S5.E2"
+                    }
+                  ]
                 },
                 {
                   "name": "E3",

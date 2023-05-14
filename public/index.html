@@ -7,6 +7,8 @@
     <title>Lagerføringssystem</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+    <link rel="icon" type="image/png" href="assets/img/favicon.png">
 </head>
 
 <body>
@@ -130,63 +132,62 @@
                 if (response.ok) {
                     resultElement.innerHTML = "";
 
+                    const itemsMap = new Map();
+
+                    const columns = document.createElement("div");
+                    columns.className = "columns is-multiline";
+
                     for (const category in data) {
-                        const categorySection = document.createElement("section");
-                        categorySection.className = "section";
-
-                        const categoryTitle = document.createElement("h2");
-                        categoryTitle.className = "title";
-                        categoryTitle.textContent = `${category}`;
-                        categorySection.appendChild(categoryTitle);
-
-                        const columns = document.createElement("div");
-                        columns.className = "columns is-multiline";
-
                         const categoryItems = Array.isArray(data[category]) ? data[category] : [data[category]];
 
                         for (const item of categoryItems) {
-                            const column = document.createElement("div");
-                            column.className = "column is-one-third";
+                            const itemLocation = item.location;
 
-                            const card = document.createElement("div");
-                            card.className = "card";
+                            if (!itemsMap.has(itemLocation)) {
+                                const itemInfo = {
+                                    brand: item.brand,
+                                    model: item.model,
+                                    location: itemLocation
+                                };
 
-                            const cardContent = document.createElement("div");
-                            cardContent.className = "card-content";
+                                itemsMap.set(itemLocation, itemInfo);
 
-                            const media = document.createElement("div");
-                            media.className = "media";
+                                const column = document.createElement("div");
+                                column.className = "column is-one-third";
 
-                            const mediaContent = document.createElement("div");
-                            mediaContent.className = "media-content";
+                                const box = document.createElement("div");
+                                box.className = "box";
 
-                            const title = document.createElement("p");
-                            title.className = "title is-4";
-                            title.textContent = `${item.brand} ${item.model}`;
+                                const media = document.createElement("article");
+                                media.className = "media";
 
-                            const location = document.createElement("div");
-                            location.className = "content";
-                            location.innerHTML = `
-                                <p>Hylle: ${item.location.split(".")[1]}</p>
-                                <p>Seksjon: ${item.location.split(".")[2]}</p>
-                                <p>Etasje: ${item.location.split(".")[3]}</p>
-                                <p>Full plassering: ${item.location}</p>
-                            `;
+                                const mediaContent = document.createElement("div");
+                                mediaContent.className = "media-content";
 
-                            categoryTitle.textContent = `${item.location}`;
+                                const title = document.createElement("p");
+                                title.className = "title is-4";
+                                title.textContent = `${item.brand} ${item.model}`;
 
-                            mediaContent.appendChild(title);
-                            mediaContent.appendChild(location);
-                            media.appendChild(mediaContent);
-                            cardContent.appendChild(media);
-                            card.appendChild(cardContent);
-                            column.appendChild(card);
-                            columns.appendChild(column);
+                                const content = document.createElement("div");
+                                content.className = "content";
+                                content.innerHTML = `
+                                <p><strong>Hylle:</strong> ${item.location.split(".")[1]}</p>
+                                <p><strong>Seksjon:</strong> ${item.location.split(".")[2]}</p>
+                                <p><strong>Etasje:</strong> ${item.location.split(".")[3]}</p>
+                                <p><strong>Full plassering:</strong> ${item.location}</p>
+                                `;
+
+                                mediaContent.appendChild(title);
+                                mediaContent.appendChild(content);
+                                media.appendChild(mediaContent);
+                                box.appendChild(media);
+                                column.appendChild(box);
+                                columns.appendChild(column);
+                            }
                         }
-
-                        categorySection.appendChild(columns);
-                        resultElement.appendChild(categorySection);
                     }
+
+                    resultElement.appendChild(columns);
 
                     resultElement.classList.remove("is-hidden", "is-danger");
                     resultElement.classList.add("is-success");
@@ -200,7 +201,6 @@
             }
         });
     </script>
-
 </body>
 
 </html>
