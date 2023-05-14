@@ -1,13 +1,13 @@
 $(document).ready(() => {
     const addLocationForm = document.getElementById("addLocationForm");
     const locationInput = document.getElementById("locationInput");
-    const locationsContainer = document.getElementById("locationsContainer");
+    const locationsContainer = document.getElementById("locationsTableBody");
 
     // Oppdater plasseringstabellene
     function updateLocationsTables(locations) {
         locationsContainer.innerHTML = "";
 
-        locations.forEach((shelf) => {
+        for (const shelfName in locations) {
             const shelfTable = document.createElement("table");
             shelfTable.classList.add("table", "is-hoverable", "is-striped", "is-fullwidth");
 
@@ -28,19 +28,21 @@ $(document).ready(() => {
 
             const tableBody = document.createElement("tbody");
 
-            shelf.sections.forEach((section) => {
-                section.levels.forEach((level) => {
+            const sections = locations[shelfName];
+            for (const sectionName in sections) {
+                const levels = sections[sectionName];
+                for (const levelName in levels) {
                     const row = document.createElement("tr");
                     const sectionCell = document.createElement("td");
-                    sectionCell.textContent = section.name;
+                    sectionCell.textContent = sectionName;
                     const levelCell = document.createElement("td");
-                    levelCell.textContent = level.name;
+                    levelCell.textContent = levelName;
                     const actionCell = document.createElement("td");
                     const deleteButton = document.createElement("button");
                     deleteButton.textContent = "Slett";
                     deleteButton.classList.add("button", "is-danger", "is-small");
                     deleteButton.addEventListener("click", () => {
-                        deleteLocation(shelf.name, section.name, level.name);
+                        deleteLocation(shelfName, sectionName, levelName);
                     });
 
                     actionCell.appendChild(deleteButton);
@@ -48,70 +50,58 @@ $(document).ready(() => {
                     row.appendChild(levelCell);
                     row.appendChild(actionCell);
                     tableBody.appendChild(row);
-                });
-            });
+                }
+            }
 
             shelfTable.appendChild(tableBody);
             locationsContainer.appendChild(shelfTable);
-        });
+        }
     }
 
     // Hent eksisterende plasseringer fra serveren
-    function getLocations() {
-        fetch("/locations")
-            .then((response) => response.json())
-            .then((data) => {
-                console.log("Plasseringer:", data);
-                updateLocationsTables(data);
-            })
-            .catch((error) => {
-                console.error("Feil ved henting av plasseringer:", error);
-            });
+    async function getLocations() {
+        try {
+            const response = await axios.get("/locations");
+            const data = response.data;
+            updateLocationsTables(data);
+        } catch (error) {
+            console.error("Feil ved henting av plasseringer:", error);
+        }
     }
 
     // Legg til en ny plassering
-    function addLocation(shelf, section, level) {
+    async function addLocation(shelf, section, level) {
         const location = `${shelf}.${section}.${level}`;
 
-        fetch("/locations", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ location }),
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.success) {
-                    getLocations();
-                    locationInput.value = "";
-                } else {
-                    console.error("Feil ved legging til plassering:", data.error);
-                }
-            })
-            .catch((error) => {
-                console.error("Feil ved legging til plassering:", error);
-            });
+        try {
+            const response = await axios.post("/locations", { location });
+            const data = response.data;
+            if (data.success) {
+                await getLocations();
+                locationInput.value = "";
+            } else {
+                console.error("Feil ved legging til plassering:", data.error);
+            }
+        } catch (error) {
+            console.error("Feil ved legging til plassering:", error);
+        }
     }
 
     // Slett en plassering
-    function deleteLocation(shelf, section, level) {
+    async function deleteLocation(shelf, section, level) {
         const location = `${shelf}.${section}.${level}`;
 
-        fetch(`/locations/${location}`, {
-            method: "DELETE",
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.success) {
-                    getLocations();
-                } else {
-                    console.error("Feil ved sletting av plassering:", data.error);
-                }
-            })
-            .catch((error) => {
-                console.error("Feil ved sletting av plassering:", error);
-            });
+        try {
+            const response = await axios.delete(`/locations/${location}`);
+            const data = response.data;
+            if (data.success) {
+                await getLocations();
+            } else {
+                console.error("Feil ved sletting av plassering:", data.error);
+            }
+        } catch (error) {
+            console.error("Feil ved sletting av plassering:", error);
+        }
     }
 
     // Lytt til innsending av skjema for å legge til en ny plassering
