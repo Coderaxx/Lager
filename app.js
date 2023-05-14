@@ -3,11 +3,6 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const path = require("path");
 const fs = require("fs");
-const Honeybadger = require("@honeybadger-io/js");
-Honeybadger.configure({
-  apiKey: "hbp_ISi2vinyYa5nA3zK1PFX3DXzbHc0yx25BKkH",
-  environment: "production"
-});
 const Sentry = require("@sentry/node");
 
 Sentry.init({
@@ -18,21 +13,6 @@ Sentry.init({
   // We recommend adjusting this value in production
   tracesSampleRate: 1.0,
 });
-
-const transaction = Sentry.startTransaction({
-  op: "test",
-  name: "My First Test Transaction",
-});
-
-setTimeout(() => {
-  try {
-    foo();
-  } catch (e) {
-    Sentry.captureException(e);
-  } finally {
-    transaction.finish();
-  }
-}, 99);
 
 // Angi sti til den offentlige mappen
 app.use(express.static(path.join(__dirname, "public")));
@@ -66,6 +46,7 @@ function readInventoryFromFile() {
     return JSON.parse(inventoryData);
   } catch (error) {
     console.error("Error reading inventory file:", error);
+    Sentry.captureException(error);
     return {};
   }
 }
@@ -75,6 +56,7 @@ function saveInventoryToFile(inventory) {
     fs.writeFileSync("inventory.json", JSON.stringify(inventory, null, 2));
   } catch (error) {
     console.error("Error writing inventory file:", error);
+    Sentry.captureException(error);
   }
 }
 
