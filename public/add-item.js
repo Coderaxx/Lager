@@ -1,4 +1,15 @@
 $(document).ready(() => {
+  function showAlert(title, type) {
+    Swal.fire({
+      title: title,
+      icon: type,
+      timer: 3000,
+      toast: true,
+      position: "top-end",
+      showConfirmButton: false,
+    });
+  }
+
   const locationInput = document.getElementById("locationInput");
   const barcodeInput = document.getElementById("barcodeInput");
   const brandInput = document.getElementById("brandInput");
@@ -58,9 +69,10 @@ $(document).ready(() => {
       })
       .catch((error) => {
         console.error("Feil ved sjekk av plassering:", error);
-        alert("Plasseringen finnes ikke. Vennligst prøv igjen.");
+        showAlert("Feil!\r\nPlasseringen finnes ikke. Vennligst prøv igjen.", "error");
         document.getElementById("addItemForm").reset();
         itemInputFields.style.display = "none";
+        locationInput.focus();
       });
   });
 
@@ -135,7 +147,7 @@ $(document).ready(() => {
     axios.post("/inventory", newItem)
       .then((response) => {
         if (response.status === 201) {
-          alert("Vare lagt til!");
+          showAlert("Suksess!\r\nVare lagt til!", "success");
           if (location) {
             itemInputFields.style.display = "block";
           }
@@ -158,7 +170,7 @@ $(document).ready(() => {
       })
       .catch((error) => {
         console.error("Feil ved lagring av vare:", error);
-        alert("Noe gikk galt. Vennligst prøv igjen.");
+        showAlert("Feil!\r\nNoe gikk galt. Vennligst prøv igjen.", "error");
       });
   });
 });

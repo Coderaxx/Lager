@@ -1,8 +1,7 @@
 $(document).ready(() => {
-  function showAlert(title, message, type) {
+  function showAlert(title, type) {
     Swal.fire({
       title: title,
-      text: message,
       icon: type,
       timer: 3000,
       toast: true,
@@ -65,8 +64,7 @@ $(document).ready(() => {
       .catch((error) => {
         console.error("Feil ved henting av lageret:", error);
         showAlert(
-          "Feil",
-          "Noe gikk galt ved henting av lageret. Vennligst prøv igjen.",
+          "Feil!\r\nNoe gikk galt ved henting av lageret. Vennligst prøv igjen.",
           "error"
         );
       });
@@ -82,13 +80,12 @@ $(document).ready(() => {
     })
       .then((response) => {
         if (response.ok) {
-          showAlert("Suksess", "Vare slettet!", "success");
+          showAlert("Suksess!\r\nVare slettet!", "success");
           row.remove();
         } else {
           console.error("Feil ved sletting av vare:", response);
           showAlert(
-            "Feil",
-            "Noe gikk galt under sletting av vare. Vennligst prøv igjen.",
+            "Feil!\r\nNoe gikk galt under sletting av vare. Vennligst prøv igjen.",
             "error"
           );
         }
@@ -96,8 +93,7 @@ $(document).ready(() => {
       .catch((error) => {
         console.error("Feil ved sletting av vare:", error);
         showAlert(
-          "Feil",
-          "Noe gikk galt under sletting av vare. Vennligst prøv igjen.",
+          "Feil!\r\nNoe gikk galt under sletting av vare. Vennligst prøv igjen.",
           "error"
         );
       });
