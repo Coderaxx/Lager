@@ -9,8 +9,6 @@ Honeybadger.configure({
   environment: "production"
 });
 
-Honeybadger.notify("Testing Honeybadger!");
-
 // Angi sti til den offentlige mappen
 app.use(express.static(path.join(__dirname, "public")));
 
