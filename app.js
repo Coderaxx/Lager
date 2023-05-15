@@ -65,26 +65,24 @@ function searchInventory(query) {
 
   for (const category of inventory.categories) {
     for (const shelf of category.shelves) {
-      for (const section of shelf.sections) {
-        for (const level of section.levels) {
-          const items = level.items;
+      for (const level of section.levels) {
+        const items = level.items;
 
-          if (Array.isArray(items)) {
-            for (const item of items) {
-              if (
-                item.barcode === query ||
-                `${item.brand} ${item.model}`.toLowerCase().includes(query.toLowerCase())
-              ) {
-                results.push({ location: `${category.name}.${shelf.name}.${section.name}.${level.name}`, ...item });
-              }
-            }
-          } else {
+        if (Array.isArray(items)) {
+          for (const item of items) {
             if (
-              items.barcode === query ||
-              `${items.brand} ${items.model}`.toLowerCase().includes(query.toLowerCase())
+              item.barcode === query ||
+              `${item.brand} ${item.model}`.toLowerCase().includes(query.toLowerCase())
             ) {
-              results.push({ location: `${category.name}.${shelf.name}.${section.name}.${level.name}`, ...items });
+              results.push({ location: `${category.name}.${shelf.name}.${section.name}.${level.name}`, ...item });
             }
+          }
+        } else {
+          if (
+            items.barcode === query ||
+            `${items.brand} ${items.model}`.toLowerCase().includes(query.toLowerCase())
+          ) {
+            results.push({ location: `${category.name}.${shelf.name}.${section.name}.${level.name}`, ...items });
           }
         }
       }
@@ -114,14 +112,9 @@ app.post("/add-location", (req, res) => {
     categoryObj.shelves.push({ name: shelf, sections: [] });
   }
 
-  const sectionObj = shelfObj.sections.find((s) => s.name === section);
-  if (!sectionObj) {
-    shelfObj.sections.push({ name: section, levels: [] });
-  }
-
-  const levelObj = sectionObj.levels.find((l) => l.name === level);
+  const levelObj = shelfObj.levels.find((l) => l.name === level);
   if (!levelObj) {
-    sectionObj.levels.push({ name: level, items: [] });
+    shelfObj.levels.push({ name: level, items: [] });
   }
 
   saveInventoryToFile(inventory);
@@ -138,16 +131,13 @@ app.get("/remove-location/:location", (req, res) => {
   if (categoryObj) {
     const shelfObj = categoryObj.shelves.find((s) => s.name === shelf);
     if (shelfObj) {
-      const sectionObj = shelfObj.sections.find((s) => s.name === section);
-      if (sectionObj) {
-        const levelObj = sectionObj.levels.find((l) => l.name === level);
-        if (levelObj) {
-          // Fjern plasseringen fra inventory.json
-          sectionObj.levels = sectionObj.levels.filter((l) => l.name !== level);
-          saveInventoryToFile(inventory);
-          res.redirect("/locations");
-          return;
-        }
+      const levelObj = shelfObj.levels.find((l) => l.name === level);
+      if (levelObj) {
+        // Fjern plasseringen fra inventory.json
+        shelfObj.levels = shelfObj.levels.filter((l) => l.name !== level);
+        saveInventoryToFile(inventory);
+        res.redirect("/locations");
+        return;
       }
     }
   }
@@ -176,7 +166,7 @@ app.post("/inventory", (req, res) => {
   const newItem = req.body;
 
   const { location } = newItem;
-  const [category, shelf, section, level] = location.split(".");
+  const [category, shelf, level] = location.split(".");
 
   if (!inventory.categories) {
     inventory.categories = [];
@@ -194,16 +184,10 @@ app.post("/inventory", (req, res) => {
     categoryObj.shelves.push(shelfObj);
   }
 
-  let sectionObj = shelfObj.sections.find((s) => s.name === section);
-  if (!sectionObj) {
-    sectionObj = { name: section, levels: [] };
-    shelfObj.sections.push(sectionObj);
-  }
-
-  let levelObj = sectionObj.levels.find((l) => l.name === level);
+  let levelObj = shelfObj.levels.find((l) => l.name === level);
   if (!levelObj) {
     levelObj = { name: level, items: [] };
-    sectionObj.levels.push(levelObj);
+    shelfObj.levels.push(levelObj);
   }
 
   levelObj.items.push(newItem);
@@ -221,13 +205,10 @@ app.get("/inventory/:location", (req, res) => {
   if (categoryObj) {
     const shelfObj = categoryObj.shelves.find((s) => s.name === shelf);
     if (shelfObj) {
-      const sectionObj = shelfObj.sections.find((s) => s.name === section);
-      if (sectionObj) {
-        const levelObj = sectionObj.levels.find((l) => l.name === level);
-        if (levelObj) {
-          res.json(levelObj.items);
-          return;
-        }
+      const levelObj = shelfObj.levels.find((l) => l.name === level);
+      if (levelObj) {
+        res.json(levelObj.items);
+        return;
       }
     }
   }
@@ -242,14 +223,12 @@ app.delete("/inventory/:barcode", (req, res) => {
 
   for (const categoryObj of inventory.categories) {
     for (const shelfObj of categoryObj.shelves) {
-      for (const sectionObj of shelfObj.sections) {
-        for (const levelObj of sectionObj.levels) {
-          const itemIndex = levelObj.items.findIndex((item) => item.barcode === barcode);
-          if (itemIndex !== -1) {
-            levelObj.items.splice(itemIndex, 1);
-            itemFound = true;
-            break;
-          }
+      for (const levelObj of shelfObj.levels) {
+        const itemIndex = levelObj.items.findIndex((item) => item.barcode === barcode);
+        if (itemIndex !== -1) {
+          levelObj.items.splice(itemIndex, 1);
+          itemFound = true;
+          break;
         }
         if (itemFound) {
           break;
@@ -293,13 +272,9 @@ function getAllLocations(inventoryData) {
         locations[shelf.name] = {};
       }
 
-      for (const section of shelf.sections) {
-        if (!locations[shelf.name][section.name]) {
-          locations[shelf.name][section.name] = {};
-        }
-
-        for (const level of section.levels) {
-          locations[shelf.name][section.name][level.name] = [];
+      for (const level of shelf.levels) {
+        if (!locations[shelf.name][level.name]) {
+          locations[shelf.name][level.name] = {};
         }
       }
     }
