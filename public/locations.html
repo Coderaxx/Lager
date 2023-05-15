@@ -52,6 +52,7 @@
     <script src="https://js.sentry-cdn.com/3c602fc817b942cbaf82608c5d9450fe.min.js" crossorigin="anonymous"></script>
     <script type="text/javascript">
         $(document).ready(() => {
+            const Sentry = require("@sentry/browser");
             Sentry.init({
             // Set tracesSampleRate to 1.0 to capture 100%
             // of transactions for performance monitoring.
