@@ -59,7 +59,14 @@ $(document).ready(async () => {
 
   locationInput.addEventListener("change", () => {
     const location = locationInput.value;
-    axios.get(`/inventory/${location}`)
+    const locationParts = location.split(".");
+    const category = locationParts[0];
+    const shelf = locationParts[1];
+    const level = locationParts[2];
+    
+    const updatedLocation = `${category}.${shelf}.${level}`;
+    
+    axios.get(`/inventory/${updatedLocation}`)
       .then((response) => {
         if (response.status === 200) {
           itemInputFields.style.display = "block";
@@ -75,7 +82,7 @@ $(document).ready(async () => {
         document.getElementById("addItemForm").reset();
         itemInputFields.style.display = "none";
         locationInput.focus();
-        locationInput.value = location;
+        locationInput.value = updatedLocation;
       });
   });
 

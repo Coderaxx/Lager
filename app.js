@@ -217,6 +217,20 @@ app.get("/inventory/:location", (req, res) => {
     }
   }
 
+  // Hvis plasseringen ikke finnes, prøv å finne plasseringen med brukerens format
+  const updatedLocation = `${category}.${shelf}.${level}`;
+  const updatedCategoryObj = inventory.categories.find((c) => c.name === category);
+  if (updatedCategoryObj) {
+    const updatedShelfObj = updatedCategoryObj.shelves.find((s) => s.name === shelf);
+    if (updatedShelfObj) {
+      const updatedLevelObj = updatedShelfObj.levels.find((l) => l.name === level);
+      if (updatedLevelObj) {
+        res.json(updatedLevelObj.items);
+        return;
+      }
+    }
+  }
+
   res.status(404).json({ message: "Plassering ikke funnet" });
 });
 
