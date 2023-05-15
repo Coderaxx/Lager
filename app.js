@@ -74,7 +74,7 @@ function searchInventory(query) {
               item.barcode === query ||
               `${item.brand} ${item.model}`.toLowerCase().includes(query.toLowerCase())
             ) {
-              results.push({ location: `${category.name}.${shelf.name}.${level.name}`, ...item });
+              results.push({ location: `${category.name}.${shelf.name}${level.name}`, ...item });
             }
           }
         } else {
@@ -82,7 +82,7 @@ function searchInventory(query) {
             items.barcode === query ||
             `${items.brand} ${items.model}`.toLowerCase().includes(query.toLowerCase())
           ) {
-            results.push({ location: `${category.name}.${shelf.name}.${level.name}`, ...items });
+            results.push({ location: `${category.name}.${shelf.name}${level.name}`, ...items });
           }
         }
       }
