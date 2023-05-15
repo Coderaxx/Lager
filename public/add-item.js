@@ -78,6 +78,12 @@ $(document).ready(async () => {
       });
   });
 
+  locationInput.addEventListener("input", () => {
+    const input = locationInput.value;
+    locationInput.value = input.toUpperCase();
+  });
+
+
   barcodeInput.addEventListener("change", () => {
     const barcode = barcodeInput.value;
     barcodeInput.value = barcode;
