@@ -1,4 +1,4 @@
-$(document).ready(() => {
+$(document).ready(async () => {
   function showAlert(title, type) {
     Swal.fire({
       title: title,
@@ -140,7 +140,6 @@ $(document).ready(() => {
     const barcode = barcodeInput.value;
     const brand = brandInput.value;
     const model = modelInput.value;
-
     const newItem = {
       brand,
       model,
