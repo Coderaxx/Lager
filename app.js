@@ -274,7 +274,7 @@ function getAllLocations(inventoryData) {
 
       for (const level of shelf.levels) {
         if (!locations[shelf.name][level.name]) {
-          locations[shelf.name][level.name] = {};
+          locations[shelf.name, level.name] = {};
         }
       }
     }
