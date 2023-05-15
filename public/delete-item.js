@@ -62,6 +62,7 @@ $(document).ready(() => {
         });
       })
       .catch((error) => {
+        Sentry.captureException(error);
         console.error("Feil ved henting av lageret:", error);
         showAlert(
           "Feil!\r\nNoe gikk galt ved henting av lageret. Vennligst prøv igjen.",
@@ -91,6 +92,7 @@ $(document).ready(() => {
         }
       })
       .catch((error) => {
+        Sentry.captureException(error);
         console.error("Feil ved sletting av vare:", error);
         showAlert(
           "Feil!\r\nNoe gikk galt under sletting av vare. Vennligst prøv igjen.",

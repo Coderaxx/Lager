@@ -52,6 +52,7 @@ $(document).ready(() => {
         })
         .catch((error) => {
           reject(error.message);
+          Sentry.captureException(error);
         });
     });
   }
@@ -68,6 +69,7 @@ $(document).ready(() => {
         }
       })
       .catch((error) => {
+        Sentry.captureException(error);
         console.error("Feil ved sjekk av plassering:", error);
         showAlert("Feil!\r\nPlasseringen finnes ikke. Vennligst prøv igjen.", "error");
         document.getElementById("addItemForm").reset();
@@ -87,6 +89,7 @@ $(document).ready(() => {
         modelInput.focus();
       })
       .catch((error) => {
+        Sentry.captureException(error);
         if (error === "Ingen match funnet for strekkoden") {
           // Søk etter varen i API-et
           axios.get(`https://brocade.io/api/items/${barcode}`)
@@ -101,6 +104,7 @@ $(document).ready(() => {
               }
             })
             .catch((error) => {
+              Sentry.captureException(error);
               console.error("Feil ved søk etter strekkode:", error);
               brandInput.value = "";
               modelInput.value = "";
@@ -169,6 +173,7 @@ $(document).ready(() => {
         }
       })
       .catch((error) => {
+        Sentry.captureException(error);
         console.error("Feil ved lagring av vare:", error);
         showAlert("Feil!\r\nNoe gikk galt. Vennligst prøv igjen.", "error");
       });

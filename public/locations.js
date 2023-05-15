@@ -65,6 +65,7 @@ $(document).ready(() => {
             const data = response.data;
             updateLocationsTables(data);
         } catch (error) {
+            Sentry.captureException(error);
             console.error("Feil ved henting av plasseringer:", error);
             Sentry.captureException(error);
         }
@@ -84,6 +85,7 @@ $(document).ready(() => {
                 console.error("Feil ved legging til plassering:", data.error);
             }
         } catch (error) {
+            Sentry.captureException(error);
             console.error("Feil ved legging til plassering:", error);
         }
     }
@@ -101,6 +103,7 @@ $(document).ready(() => {
                 console.error("Feil ved sletting av plassering:", data.error);
             }
         } catch (error) {
+            Sentry.captureException(error);
             console.error("Feil ved sletting av plassering:", error);
         }
     }
