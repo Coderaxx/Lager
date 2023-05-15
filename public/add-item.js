@@ -18,7 +18,7 @@ $(document).ready(async () => {
 
   // Funksjon for å sjekke om en streng er i riktig plasseringsformat
   function isValidLocationFormat(input) {
-    const locationFormat = /^[A-Z]\d{2}\.[A-Z]+\.S\d{1,2}\.E\d{1,2}$/;
+    const locationFormat = /^[A-Z]+\d+$/;
     return locationFormat.test(input);
   }
 
