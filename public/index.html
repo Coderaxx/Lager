@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,6 +11,7 @@
     <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
     <link rel="icon" type="image/png" href="assets/img/favicon.png">
 </head>
+
 <body>
     <section class="section">
         <div class="container">
@@ -82,13 +84,9 @@
                         for (const shelf of category.shelves) {
                             count.shelfCount += 1;
 
-                            for (const section of shelf.sections) {
-                                count.sectionCount += 1;
-
-                                for (const level of section.levels) {
-                                    count.levelCount += 1;
-                                    count.itemCount += level.items.length;
-                                }
+                            for (const level of shelf.levels) {
+                                count.levelCount += 1;
+                                count.itemCount += level.items.length;
                             }
                         }
                     }
@@ -103,14 +101,12 @@
         $(document).ready(async () => {
             const itemCount = document.getElementById("itemCount");
             const shelfCount = document.getElementById("shelfCount");
-            const sectionCount = document.getElementById("sectionCount");
             const levelCount = document.getElementById("levelCount");
 
             try {
                 const count = await countInventory();
                 itemCount.textContent = count.itemCount;
                 shelfCount.textContent = count.shelfCount;
-                sectionCount.textContent = count.sectionCount;
                 levelCount.textContent = count.levelCount;
             } catch (error) {
                 console.error(error);
