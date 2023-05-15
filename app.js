@@ -65,7 +65,7 @@ function searchInventory(query) {
 
   for (const category of inventory.categories) {
     for (const shelf of category.shelves) {
-      for (const level of section.levels) {
+      for (const level of shelf.levels) {
         const items = level.items;
 
         if (Array.isArray(items)) {
@@ -74,7 +74,7 @@ function searchInventory(query) {
               item.barcode === query ||
               `${item.brand} ${item.model}`.toLowerCase().includes(query.toLowerCase())
             ) {
-              results.push({ location: `${category.name}.${shelf.name}.${section.name}.${level.name}`, ...item });
+              results.push({ location: `${category.name}.${shelf.name}.${level.name}`, ...item });
             }
           }
         } else {
@@ -82,7 +82,7 @@ function searchInventory(query) {
             items.barcode === query ||
             `${items.brand} ${items.model}`.toLowerCase().includes(query.toLowerCase())
           ) {
-            results.push({ location: `${category.name}.${shelf.name}.${section.name}.${level.name}`, ...items });
+            results.push({ location: `${category.name}.${shelf.name}.${level.name}`, ...items });
           }
         }
       }
@@ -100,7 +100,7 @@ app.get("/locations", (req, res) => {
 
 // Håndter POST-forespørsel for /add-location
 app.post("/add-location", (req, res) => {
-  const { category, shelf, section, level } = req.body;
+  const { category, shelf, level } = req.body;
 
   const categoryObj = inventory.categories.find((c) => c.name === category);
   if (!categoryObj) {
@@ -180,7 +180,7 @@ app.post("/inventory", (req, res) => {
 
   let shelfObj = categoryObj.shelves.find((s) => s.name === shelf);
   if (!shelfObj) {
-    shelfObj = { name: shelf, sections: [] };
+    shelfObj = { name: shelf, levels: [] };
     categoryObj.shelves.push(shelfObj);
   }
 
@@ -199,7 +199,7 @@ app.post("/inventory", (req, res) => {
 
 app.get("/inventory/:location", (req, res) => {
   const { location } = req.params;
-  const [category, shelf, section, level] = location.split(".");
+  const [category, shelf, level] = location.split(".");
 
   const categoryObj = inventory.categories.find((c) => c.name === category);
   if (categoryObj) {
