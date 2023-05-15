@@ -74,7 +74,7 @@ function searchInventory(query) {
               item.barcode === query ||
               `${item.brand} ${item.model}`.toLowerCase().includes(query.toLowerCase())
             ) {
-              results.push({ location: `${category.name}.${shelf.name}${level.name}`, ...item });
+              results.push({ location: `${category.name}.${shelf.name}.${level.name}`, ...item });
             }
           }
         } else {
@@ -82,7 +82,7 @@ function searchInventory(query) {
             items.barcode === query ||
             `${items.brand} ${items.model}`.toLowerCase().includes(query.toLowerCase())
           ) {
-            results.push({ location: `${category.name}.${shelf.name}${level.name}`, ...items });
+            results.push({ location: `${category.name}.${shelf.name}.${level.name}`, ...items });
           }
         }
       }
@@ -109,7 +109,7 @@ app.post("/add-location", (req, res) => {
 
   const shelfObj = categoryObj.shelves.find((s) => s.name === shelf);
   if (!shelfObj) {
-    categoryObj.shelves.push({ name: shelf, sections: [] });
+    categoryObj.shelves.push({ name: shelf, levels: [] });
   }
 
   const levelObj = shelfObj.levels.find((l) => l.name === level);
@@ -125,7 +125,7 @@ app.post("/add-location", (req, res) => {
 // Håndter GET-forespørsel for /remove-location
 app.get("/remove-location/:location", (req, res) => {
   const { location } = req.params;
-  const [category, shelf, section, level] = location.split(".");
+  const [category, shelf, level] = location.split(".");
 
   const categoryObj = inventory.categories.find((c) => c.name === category);
   if (categoryObj) {
@@ -230,9 +230,6 @@ app.delete("/inventory/:barcode", (req, res) => {
           itemFound = true;
           break;
         }
-        if (itemFound) {
-          break;
-        }
       }
       if (itemFound) {
         break;
@@ -274,8 +271,10 @@ function getAllLocations(inventoryData) {
 
       for (const level of shelf.levels) {
         if (!locations[shelf.name][level.name]) {
-          locations[shelf.name, level.name] = {};
+          locations[shelf.name][level.name] = [];
         }
+
+        locations[shelf.name][level.name] = [...locations[shelf.name][level.name], ...level.items];
       }
     }
   }
