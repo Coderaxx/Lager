@@ -203,8 +203,7 @@ app.get("/inventory/:location", (req, res) => {
   const locationParts = location.split(".");
   const category = locationParts[0];
   const shelf = locationParts[1];
-  const section = locationParts[2];
-  const level = locationParts[3];
+  const level = locationParts[2];
 
   const categoryObj = inventory.categories.find((c) => c.name === category);
   if (categoryObj) {
