@@ -75,6 +75,7 @@ $(document).ready(async () => {
         document.getElementById("addItemForm").reset();
         itemInputFields.style.display = "none";
         locationInput.focus();
+        locationInput.value = location;
       });
   });
 
