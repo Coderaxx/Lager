@@ -58,7 +58,7 @@ $(document).ready(async () => {
   }
 
   locationInput.addEventListener("change", () => {
-    const location = locationInput.value;
+    const location = locationInput.value.trim();
     const locationParts = location.split(".");
     const category = locationParts[0];
     const shelf = locationParts[1];
