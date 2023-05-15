@@ -41,15 +41,13 @@ $(document).ready(() => {
       .then((data) => {
         const items = data.categories.flatMap((category) =>
           category.shelves.flatMap((shelf) =>
-            shelf.sections.flatMap((section) =>
-              section.levels.flatMap((level) =>
+            shelf.levels.flatMap((level) =>
                 level.items.map((item) => {
                   return {
                     item,
-                    location: `${category.name}.${shelf.name}.${section.name}.${level.name}`,
+                    location: `${category.name}.${shelf.name}.${level.name}`,
                   };
                 })
-              )
             )
           )
         );
