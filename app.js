@@ -197,9 +197,14 @@ app.post("/inventory", (req, res) => {
   res.status(201).json({ message: "Vare lagt til" });
 });
 
+// Håndter GET-forespørsel for /inventory/:location
 app.get("/inventory/:location", (req, res) => {
   const { location } = req.params;
-  const [category, shelf, level] = location.split(".");
+  const locationParts = location.split(".");
+  const category = locationParts[0];
+  const shelf = locationParts[1];
+  const section = locationParts[2];
+  const level = locationParts[3];
 
   const categoryObj = inventory.categories.find((c) => c.name === category);
   if (categoryObj) {
