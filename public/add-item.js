@@ -65,12 +65,13 @@ $(document).ready(async () => {
     return `${category}.${shelf}.${level}`;
   }
 
+  const oldLocation = location;
+
   locationInput.addEventListener("change", () => {
     let location = locationInput.value.trim();
 
     // Sjekk om plasseringen er i ønsket format, ellers konverter den
     if (!isValidLocationFormat(location)) {
-      const oldLocation = location;
       location = convertToFullLocationFormat(location);
     }
 
