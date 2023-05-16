@@ -70,6 +70,7 @@ $(document).ready(async () => {
 
     // Sjekk om plasseringen er i ønsket format, ellers konverter den
     if (!isValidLocationFormat(location)) {
+      const oldLocation = location;
       location = convertToFullLocationFormat(location);
     }
 
@@ -89,7 +90,7 @@ $(document).ready(async () => {
         document.getElementById("addItemForm").reset();
         itemInputFields.style.display = "none";
         locationInput.focus();
-        locationInput.value = location;
+        locationInput.value = oldLocation;
       });
   });
 
