@@ -57,9 +57,22 @@ $(document).ready(async () => {
     });
   }
 
+  // Hjelpefunksjon for å konvertere en plassering til ønsket format
+  function convertToFullLocationFormat(location) {
+    const [category, shelfLevel] = location.split(".");
+    const shelf = shelfLevel.charAt(0);
+    const level = shelfLevel.substr(1);
+    return `${category}.${shelf}.${level}`;
+  }
+
   locationInput.addEventListener("change", () => {
-    const location = locationInput.value.trim();
-        
+    let location = locationInput.value.trim();
+
+    // Sjekk om plasseringen er i ønsket format, ellers konverter den
+    if (!isValidLocationFormat(location)) {
+      location = convertToFullLocationFormat(location);
+    }
+
     axios.get(`/inventory/${location}`)
       .then((response) => {
         if (response.status === 200) {

@@ -202,7 +202,7 @@ app.get("/inventory/:location", (req, res) => {
   let { location } = req.params;
 
   // Sjekk om plasseringen er i ønsket format, ellers konverter den
-  if (isValidLocationFormat(location)) {
+  if (!isValidLocationFormat(location)) {
     location = convertToFullLocationFormat(location);
   }
 
