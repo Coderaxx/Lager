@@ -199,7 +199,13 @@ app.post("/inventory", (req, res) => {
 
 // Håndter GET-forespørsel for /inventory/:location
 app.get("/inventory/:location", (req, res) => {
-  const { location } = req.params;
+  let { location } = req.params;
+
+  // Sjekk om plasseringen er i ønsket format, ellers konverter den
+  if (isValidLocationFormat(location)) {
+    location = convertToFullLocationFormat(location);
+  }
+
   const locationParts = location.split(".");
   const category = locationParts[0];
   const shelf = locationParts[1];
@@ -217,22 +223,22 @@ app.get("/inventory/:location", (req, res) => {
     }
   }
 
-  // Hvis plasseringen ikke finnes, prøv å finne plasseringen med brukerens format
-  const updatedLocation = `${category}.${shelf}.${level}`;
-  const updatedCategoryObj = inventory.categories.find((c) => c.name === category);
-  if (updatedCategoryObj) {
-    const updatedShelfObj = updatedCategoryObj.shelves.find((s) => s.name === shelf);
-    if (updatedShelfObj) {
-      const updatedLevelObj = updatedShelfObj.levels.find((l) => l.name === level);
-      if (updatedLevelObj) {
-        res.json(updatedLevelObj.items);
-        return;
-      }
-    }
-  }
-
   res.status(404).json({ message: "Plassering ikke funnet" });
 });
+
+// Hjelpefunksjon for å sjekke om en plassering er i ønsket format
+function isValidLocationFormat(location) {
+  const regex = /^[A-Z]+\d+\.[A-Z]+\.\d+$/;
+  return regex.test(location);
+}
+
+// Hjelpefunksjon for å konvertere en plassering til ønsket format
+function convertToFullLocationFormat(location) {
+  const [category, shelfLevel] = location.split(".");
+  const shelf = shelfLevel.charAt(0);
+  const level = shelfLevel.substr(1);
+  return `${category}.${shelf}.${level}`;
+}
 
 app.delete("/inventory/:barcode", (req, res) => {
   const { barcode } = req.params;
