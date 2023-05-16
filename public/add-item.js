@@ -16,22 +16,6 @@ $(document).ready(async () => {
   const modelInput = document.getElementById("modelInput");
   const itemInputFields = document.getElementById("itemInputFields");
 
-  // Funksjon for å tolke plasseringen fra brukerinput
-  function parseLocation(location) {
-    const regex = /^([A-Z]+\d+)\.([A-Z])(\d+)$/;
-
-    const match = location.match(regex);
-    if (match) {
-      const category = match[1];
-      const shelf = match[2];
-      const level = match[3];
-
-      return { category, shelf, level };
-    }
-
-    return null;
-  }
-
   // Funksjon for å sjekke om en streng er i riktig plasseringsformat
   function isValidLocationFormat(input) {
     const locationFormat = /^[A-Z]+\d+$/;
@@ -75,39 +59,25 @@ $(document).ready(async () => {
 
   locationInput.addEventListener("change", () => {
     const location = locationInput.value.trim();
-
-    if (isValidLocationFormat(location)) {
-      const parsedLocation = parseLocation(location);
-      const category = parsedLocation.category;
-      const shelf = parsedLocation.shelf;
-      const level = parsedLocation.level;
-
-      const updatedLocation = `${category}.${shelf}.${level}`;
-
-      axios.get(`/inventory/${updatedLocation}`)
-        .then((response) => {
-          if (response.status === 200) {
-            itemInputFields.style.display = "block";
-            barcodeInput.focus();
-          } else {
-            throw new Error(response.data.message);
-          }
-        })
-        .catch((error) => {
-          Sentry.captureException(error);
-          console.error("Feil ved sjekk av plassering:", error);
-          showAlert("Feil!\r\nPlasseringen finnes ikke. Vennligst prøv igjen.", "error");
-          document.getElementById("addItemForm").reset();
-          itemInputFields.style.display = "none";
-          locationInput.focus();
-          locationInput.value = updatedLocation;
-        });
-    } else {
-      showAlert("Feil!\r\nUgyldig plasseringsformat. Vennligst bruk riktig format (f.eks. H21.A1)", "error");
-      document.getElementById("addItemForm").reset();
-      itemInputFields.style.display = "none";
-      locationInput.focus();
-    }
+        
+    axios.get(`/inventory/${location}`)
+      .then((response) => {
+        if (response.status === 200) {
+          itemInputFields.style.display = "block";
+          barcodeInput.focus();
+        } else {
+          throw new Error(response.data.message);
+        }
+      })
+      .catch((error) => {
+        Sentry.captureException(error);
+        console.error("Feil ved sjekk av plassering:", error);
+        showAlert("Feil!\r\nPlasseringen finnes ikke. Vennligst prøv igjen.", "error");
+        document.getElementById("addItemForm").reset();
+        itemInputFields.style.display = "none";
+        locationInput.focus();
+        locationInput.value = location;
+      });
   });
 
   locationInput.addEventListener("input", () => {
