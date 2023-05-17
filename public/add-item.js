@@ -25,7 +25,8 @@ $(document).ready(async () => {
   // Funksjon for å oppdatere plasseringsinndatafeltet med skannet verdi
   function updateLocationInput(scannedLocation) {
     if (isValidLocationFormat(scannedLocation)) {
-      locationInput.value = scannedLocation;
+      const [category, shelf, level] = scannedLocation.match(/(\D+)(\d+)/).slice(1);
+      locationInput.value = `${category}.${shelf}${level}`;
     }
   }
 
@@ -57,22 +58,17 @@ $(document).ready(async () => {
     });
   }
 
-  // Hjelpefunksjon for å konvertere en plassering til ønsket format
-  function convertToFullLocationFormat(location) {
-    const [category, shelfLevel] = location.split(".");
-    const shelf = shelfLevel.charAt(0);
-    const level = shelfLevel.substr(1);
-    return `${category}.${shelf}.${level}`;
-  }
-
-  const oldLocation = location;
+  const oldLocation = locationInput.value;
 
   locationInput.addEventListener("change", () => {
     let location = locationInput.value.trim();
 
     // Sjekk om plasseringen er i ønsket format, ellers konverter den
     if (!isValidLocationFormat(location)) {
-      location = convertToFullLocationFormat(location);
+      const [category, shelfLevel] = location.split(".");
+      const shelf = shelfLevel.charAt(0);
+      const level = shelfLevel.substr(1);
+      location = `${category}.${shelf}${level}`;
     }
 
     axios.get(`/inventory/${location}`)
@@ -159,45 +155,76 @@ $(document).ready(async () => {
   const addItemForm = document.getElementById("addItemForm");
   addItemForm.addEventListener("submit", (e) => {
     e.preventDefault();
-    const location = locationInput.value;
+    let location = locationInput.value.trim();
+
+    // Sjekk om plasseringen er i ønsket format, ellers konverter den
+    if (!isValidLocationFormat(location)) {
+      const [category, shelfLevel] = location.split(".");
+      const shelf = shelfLevel.charAt(0);
+      const level = shelfLevel.substr(1);
+      location = `${category}.${shelf}${level}`;
+    }
+
     const barcode = barcodeInput.value;
     const brand = brandInput.value;
     const model = modelInput.value;
+    const articleNumber = articleNumberInput.value;
     const newItem = {
       brand,
       model,
       barcode,
+      articleNumber,
       location,
     };
 
-    axios.post("/inventory", newItem)
+    axios.get(`/inventory/${location}`)
       .then((response) => {
-        if (response.status === 201) {
-          showAlert("Suksess!\r\nVare lagt til!", "success");
-          if (location) {
-            itemInputFields.style.display = "block";
-          }
-          const scannedLocation = localStorage.getItem("scannedLocation");
-          if (scannedLocation) {
-            updateLocationInput(scannedLocation);
-            localStorage.removeItem("scannedLocation");
-            locationInput.focus();
-          } else {
-            barcodeInput.focus();
-          }
-          addItemForm.reset();
-          locationInput.value = location;
-          barcodeInput.focus();
-          localStorage.setItem("lastLocation", location);
-          localStorage.setItem("lastLocationDate", Date.now());
+        if (response.status === 200) {
+          // Plasseringen eksisterer, legg til varen i riktig plassering
+          axios.post(`/inventory/${location}`, newItem)
+            .then((response) => {
+              if (response.status === 201) {
+                showAlert("Suksess!\r\nVare lagt til!", "success");
+                if (location) {
+                  itemInputFields.style.display = "block";
+                }
+                const scannedLocation = localStorage.getItem("scannedLocation");
+                if (scannedLocation) {
+                  updateLocationInput(scannedLocation);
+                  localStorage.removeItem("scannedLocation");
+                  locationInput.focus();
+                } else {
+                  barcodeInput.focus();
+                }
+                addItemForm.reset();
+                locationInput.value = location;
+                barcodeInput.focus();
+                localStorage.setItem("lastLocation", location);
+                localStorage.setItem("lastLocationDate", Date.now());
+              } else {
+                throw new Error("Feil ved lagring av vare");
+              }
+            })
+            .catch((error) => {
+              Sentry.captureException(error);
+              console.error("Feil ved lagring av vare:", error);
+              showAlert("Feil!\r\nNoe gikk galt. Vennligst prøv igjen.", "error");
+            });
+        } else if (response.status === 404) {
+          // Plasseringen finnes ikke, vis feilmelding
+          throw new Error("Plasseringen finnes ikke");
         } else {
-          throw new Error("Feil ved lagring av vare");
+          throw new Error(response.data.message);
         }
       })
       .catch((error) => {
         Sentry.captureException(error);
-        console.error("Feil ved lagring av vare:", error);
-        showAlert("Feil!\r\nNoe gikk galt. Vennligst prøv igjen.", "error");
+        console.error("Feil ved sjekk av plassering:", error);
+        showAlert("Feil!\r\nPlasseringen finnes ikke. Vennligst prøv igjen.", "error");
+        document.getElementById("addItemForm").reset();
+        itemInputFields.style.display = "none";
+        locationInput.focus();
+        locationInput.value = oldLocation;
       });
   });
 });

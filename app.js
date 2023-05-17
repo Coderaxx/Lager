@@ -162,11 +162,12 @@ app.get("/inventory", (req, res) => {
   res.json(inventoryData);
 });
 
-app.post("/inventory", (req, res) => {
+app.post("/inventory/:location", (req, res) => {
   const newItem = req.body;
-
-  const { location } = newItem;
-  const [category, shelf, level] = location.split(".");
+  const { location } = req.params;
+  const [category, shelfLevel] = location.split(".");
+  const shelf = shelfLevel.charAt(0);
+  const level = shelfLevel.substr(1);
 
   if (!inventory.categories) {
     inventory.categories = [];
@@ -190,6 +191,7 @@ app.post("/inventory", (req, res) => {
     shelfObj.levels.push(levelObj);
   }
 
+  newItem.location = location;
   levelObj.items.push(newItem);
 
   saveInventoryToFile(inventory);
