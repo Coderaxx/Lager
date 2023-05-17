@@ -1,281 +1,377 @@
 {
-    "categories": [
+  "categories": [
+    {
+      "name": "H21",
+      "shelves": [
         {
-            "name": "H21",
-            "shelves": [
-                {
-                    "name": "A",
-                    "levels": [
-                        {
-                            "name": "1",
-                            "items": []
-                        },
-                        {
-                            "name": "2",
-                            "items": []
-                        },
-                        {
-                            "name": "3",
-                            "items": []
-                        }
-                   ]
-                },
-                {
-                    "name": "B",
-                    "levels": [
-                        {
-                            "name": "1",
-                            "items": []
-                        },
-                        {
-                            "name": "2",
-                            "items": []
-                        },
-                        {
-                            "name": "3",
-                            "items": []
-                        }
-                   ]
-                },
-                {
-                    "name": "C",
-                    "levels": [
-                        {
-                            "name": "1",
-                            "items": []
-                        },
-                        {
-                            "name": "2",
-                            "items": []
-                        },
-                        {
-                            "name": "3",
-                            "items": []
-                        }
-                   ]
-                },
-                {
-                    "name": "D",
-                    "levels": [
-                        {
-                            "name": "1",
-                            "items": []
-                        },
-                        {
-                            "name": "2",
-                            "items": []
-                        },
-                        {
-                            "name": "3",
-                            "items": []
-                        }
-                   ]
-                },
-                {
-                    "name": "E",
-                    "levels": [
-                        {
-                            "name": "1",
-                            "items": []
-                        },
-                        {
-                            "name": "2",
-                            "items": []
-                        },
-                        {
-                            "name": "3",
-                            "items": []
-                        }
-                   ]
-                },
-                {
-                    "name": "F",
-                    "levels": [
-                        {
-                            "name": "1",
-                            "items": []
-                        },
-                        {
-                            "name": "2",
-                            "items": []
-                        },
-                        {
-                            "name": "3",
-                            "items": []
-                        }
-                   ]
-                },
-                {
-                    "name": "G",
-                    "levels": [
-                        {
-                            "name": "1",
-                            "items": []
-                        },
-                        {
-                            "name": "2",
-                            "items": []
-                        },
-                        {
-                            "name": "3",
-                            "items": []
-                        }
-                   ]
-                },
-                {
-                    "name": "H",
-                    "levels": [
-                        {
-                            "name": "1",
-                            "items": []
-                        },
-                        {
-                            "name": "2",
-                            "items": []
-                        },
-                        {
-                            "name": "3",
-                            "items": []
-                        }
-                   ]
-                },
-                {
-                    "name": "I",
-                    "levels": [
-                        {
-                            "name": "1",
-                            "items": []
-                        },
-                        {
-                            "name": "2",
-                            "items": []
-                        },
-                        {
-                            "name": "3",
-                            "items": []
-                        }
-                   ]
-                },
-                {
-                    "name": "J",
-                    "levels": [
-                        {
-                            "name": "1",
-                            "items": []
-                        },
-                        {
-                            "name": "2",
-                            "items": []
-                        },
-                        {
-                            "name": "3",
-                            "items": []
-                        }
-                   ]
-                },
-                {
-                    "name": "K",
-                    "levels": [
-                        {
-                            "name": "1",
-                            "items": []
-                        },
-                        {
-                            "name": "2",
-                            "items": []
-                        },
-                        {
-                            "name": "3",
-                            "items": []
-                        }
-                    ]
-                },
-                {
-                    "name": "L",
-                    "levels": [
-                        {
-                            "name": "1",
-                            "items": []
-                        },
-                        {
-                            "name": "2",
-                            "items": []
-                        },
-                        {
-                            "name": "3",
-                            "items": []
-                        }
-                    ]
-                },
-                {
-                    "name": "M",
-                    "levels": [
-                        {
-                            "name": "1",
-                            "items": []
-                        },
-                        {
-                            "name": "2",
-                            "items": []
-                        },
-                        {
-                            "name": "3",
-                            "items": []
-                        }
-                    ]
-                },
-                {
-                    "name": "N",
-                    "levels": [
-                        {
-                            "name": "1",
-                            "items": []
-                        },
-                        {
-                            "name": "2",
-                            "items": []
-                        },
-                        {
-                            "name": "3",
-                            "items": []
-                        }
-                    ]
-                },
-                {
-                    "name": "O",
-                    "levels": [
-                        {
-                            "name": "1",
-                            "items": []
-                        },
-                        {
-                            "name": "2",
-                            "items": []
-                        },
-                        {
-                            "name": "3",
-                            "items": []
-                        }
-                    ]
-                },
-                {
-                    "name": "P",
-                    "levels": [
-                        {
-                            "name": "1",
-                            "items": []
-                        },
-                        {
-                            "name": "2",
-                            "items": []
-                        },
-                        {
-                            "name": "3",
-                            "items": []
-                        }
-                    ]
-                }
-            ]
+          "name": "A",
+          "levels": [
+            {
+              "name": "1",
+              "items": []
+            },
+            {
+              "name": "2",
+              "items": []
+            },
+            {
+              "name": "3",
+              "items": []
+            },
+            {
+              "name": "4",
+              "items": []
+            },
+            {
+              "name": "5",
+              "items": []
+            }
+          ]
+        },
+        {
+          "name": "B",
+          "levels": [
+            {
+              "name": "1",
+              "items": []
+            },
+            {
+              "name": "2",
+              "items": []
+            },
+            {
+              "name": "3",
+              "items": []
+            },
+            {
+              "name": "4",
+              "items": []
+            }
+          ]
+        },
+        {
+          "name": "C",
+          "levels": [
+            {
+              "name": "1",
+              "items": []
+            },
+            {
+              "name": "2",
+              "items": []
+            },
+            {
+              "name": "3",
+              "items": []
+            },
+            {
+              "name": "4",
+              "items": []
+            }
+          ]
+        },
+        {
+          "name": "D",
+          "levels": [
+            {
+              "name": "1",
+              "items": []
+            },
+            {
+              "name": "2",
+              "items": []
+            },
+            {
+              "name": "3",
+              "items": []
+            },
+            {
+              "name": "4",
+              "items": []
+            }
+          ]
+        },
+        {
+          "name": "E",
+          "levels": [
+            {
+              "name": "1",
+              "items": []
+            },
+            {
+              "name": "2",
+              "items": []
+            },
+            {
+              "name": "3",
+              "items": []
+            },
+            {
+              "name": "4",
+              "items": []
+            }
+          ]
+        },
+        {
+          "name": "F",
+          "levels": [
+            {
+              "name": "1",
+              "items": []
+            },
+            {
+              "name": "2",
+              "items": []
+            },
+            {
+              "name": "3",
+              "items": []
+            },
+            {
+              "name": "4",
+              "items": []
+            },
+            {
+              "name": "5",
+              "items": []
+            }
+          ]
+        },
+        {
+          "name": "G",
+          "levels": [
+            {
+              "name": "1",
+              "items": []
+            },
+            {
+              "name": "2",
+              "items": []
+            },
+            {
+              "name": "3",
+              "items": []
+            },
+            {
+              "name": "4",
+              "items": []
+            }
+          ]
+        },
+        {
+          "name": "H",
+          "levels": [
+            {
+              "name": "1",
+              "items": []
+            },
+            {
+              "name": "2",
+              "items": []
+            },
+            {
+              "name": "3",
+              "items": []
+            },
+            {
+              "name": "4",
+              "items": []
+            }
+          ]
+        },
+        {
+          "name": "I",
+          "levels": [
+            {
+              "name": "1",
+              "items": []
+            },
+            {
+              "name": "2",
+              "items": []
+            },
+            {
+              "name": "3",
+              "items": []
+            },
+            {
+              "name": "4",
+              "items": []
+            }
+          ]
+        },
+        {
+          "name": "J",
+          "levels": [
+            {
+              "name": "1",
+              "items": []
+            },
+            {
+              "name": "2",
+              "items": []
+            },
+            {
+              "name": "3",
+              "items": []
+            },
+            {
+              "name": "4",
+              "items": []
+            },
+            {
+              "name": "5",
+              "items": []
+            },
+            {
+              "name": "6",
+              "items": []
+            }
+          ]
+        },
+        {
+          "name": "K",
+          "levels": [
+            {
+              "name": "1",
+              "items": []
+            },
+            {
+              "name": "2",
+              "items": []
+            },
+            {
+              "name": "3",
+              "items": []
+            },
+            {
+              "name": "4",
+              "items": []
+            },
+            {
+              "name": "5",
+              "items": []
+            },
+            {
+              "name": "6",
+              "items": []
+            },
+            {
+              "name": "7",
+              "items": []
+            }
+          ]
+        },
+        {
+          "name": "L",
+          "levels": [
+            {
+              "name": "1",
+              "items": []
+            },
+            {
+              "name": "2",
+              "items": []
+            },
+            {
+              "name": "3",
+              "items": []
+            }
+          ]
+        },
+        {
+          "name": "M",
+          "levels": [
+            {
+              "name": "1",
+              "items": []
+            },
+            {
+              "name": "2",
+              "items": []
+            },
+            {
+              "name": "3",
+              "items": []
+            },
+            {
+              "name": "4",
+              "items": []
+            },
+            {
+              "name": "5",
+              "items": []
+            },
+            {
+              "name": "6",
+              "items": []
+            }
+          ]
+        },
+        {
+          "name": "N",
+          "levels": [
+            {
+              "name": "1",
+              "items": []
+            },
+            {
+              "name": "2",
+              "items": []
+            },
+            {
+              "name": "3",
+              "items": []
+            },
+            {
+              "name": "4",
+              "items": []
+            },
+            {
+              "name": "5",
+              "items": []
+            },
+            {
+              "name": "6",
+              "items": []
+            }
+          ]
+        },
+        {
+          "name": "O",
+          "levels": [
+            {
+              "name": "1",
+              "items": []
+            },
+            {
+              "name": "2",
+              "items": []
+            },
+            {
+              "name": "3",
+              "items": []
+            },
+            {
+              "name": "4",
+              "items": []
+            },
+            {
+              "name": "5",
+              "items": []
+            }
+          ]
+        },
+        {
+          "name": "P",
+          "levels": [
+            {
+              "name": "1",
+              "items": []
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }
