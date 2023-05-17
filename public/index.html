@@ -8,6 +8,9 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css" />
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://js.sentry-cdn.com/3c602fc817b942cbaf82608c5d9450fe.min.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
   <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
   <link rel="icon" type="image/png" href="assets/img/favicon.png">
 </head>
@@ -41,7 +44,8 @@
         <div class="field">
           <label class="label">Strekkode eller tekst</label>
           <div class="control">
-            <input class="input" type="text" name="barcode" placeholder="Skriv inn strekkode eller tekst" required autofocus />
+            <input class="input" type="text" name="barcode" id="barcodeInput" placeholder="Skriv inn strekkode eller tekst"
+              required autofocus />
           </div>
         </div>
         <div class="field">
@@ -59,7 +63,6 @@
       <strong>Lagerføringssystem</strong> av <a href="https://github.com/Coderaxx/">Jesper Grimstad</a>.
     </div>
   </footer>
-  <script src="https://unpkg.com/instascan@1.0.1"></script>
   <script>
     async function countInventory() {
       const count = {
@@ -109,9 +112,6 @@
     const barcodeForm = document.getElementById("barcodeForm");
     const resultElement = document.getElementById("result");
 
-    // Create a new instance of Instascan Scanner
-    const scanner = new Instascan.Scanner({ video: document.getElementById("preview") });
-
     barcodeForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const barcode = e.target.elements.barcode.value;
@@ -138,7 +138,8 @@
                 const itemInfo = {
                   brand: item.brand,
                   model: item.model,
-                  location: itemLocation
+                  location: itemLocation,
+                  articleNumber: item.articleNumber, // Legg til artikkelnummeret i itemInfo
                 };
 
                 itemsMap.set(itemLocation, itemInfo);
@@ -162,36 +163,13 @@
                 const content = document.createElement("div");
                 content.className = "content";
                 content.innerHTML = `
-                  <p><strong>Merke:</strong> ${item.brand}</p>
-                  <p><strong>Modell:</strong> ${item.model}</p>
                   <p><strong>Hylle:</strong> ${itemLocation.split(".")[1]}</p>
                   <p><strong>Full plassering:</strong> ${itemLocation}</p>
+                  <p><strong>Merke:</strong> ${item.brand}</p>
+                  <p><strong>Modell:</strong> ${item.model}</p>
+                  <p><strong>Artikkelnummer:</strong> ${item.articleNumber}</p>
+                  <p><strong>Strekkode:</strong><br><img src="https://barcode.tec-it.com/barcode.ashx?data=${item.barcode}&code=${item.barcode.length == 13 ? "EAN13" : "Code128"}" alt="Strekkode"></p>
                 `;
-
-                const barcodeContainer = document.createElement("div");
-                barcodeContainer.className = "barcode-container";
-
-                const canvas = document.createElement("canvas");
-                canvas.id = "barcodeCanvas";
-
-                const barcodeOptions = {
-                  bcid: "code128", // Strekkodetype (f.eks., code128, code39, qr, etc.)
-                  text: item.barcode, // Strekkodeverdi
-                  scale: 2, // Skaleringsfaktor for strekkodebildet (kan justeres etter behov)
-                  height: 50, // Høyde på strekkodebildet (kan justeres etter behov)
-                  includetext: true, // Angi om strekkodeteksten skal inkluderes i bildet
-                };
-
-                bwipjs.toCanvas(canvas, barcodeOptions, function (err, cvs) {
-                  if (err) {
-                    console.error(err);
-                    return;
-                  }
-
-                  barcodeContainer.appendChild(cvs);
-                });
-
-                content.appendChild(barcodeContainer);
 
                 mediaContent.appendChild(title);
                 mediaContent.appendChild(content);
@@ -217,35 +195,40 @@
       }
     });
 
-    // Check if the device supports media devices and getUserMedia
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      // Use camera for barcode scanning
-      Instascan.Camera.getCameras()
-        .then(function (cameras) {
-          // Check if any cameras are found
-          if (cameras.length > 0) {
-            // Use the back camera by default
-            const selectedCamera = cameras[cameras.length - 1];
+    // Sjekk om brukeren er på en mobil enhet
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-            // Start scanning using the selected camera
-            scanner.start(selectedCamera);
-          } else {
-            console.warn("No cameras found.");
-          }
-        })
-        .catch(function (error) {
-          console.error("Error accessing camera:", error);
+    // Hvis brukeren er på mobil, legg til støtte for skanning av strekkode med kamera
+    if (isMobile) {
+      const barcodeInput = document.getElementById("barcodeInput");
+
+      // Legg til event listener for å åpne kamera ved klikk på input-feltet
+      barcodeInput.addEventListener("click", () => {
+        openCamera();
+      });
+
+      // Funksjon for å åpne kamera og skanne strekkoden
+      function openCamera() {
+        const barcodeScanner = new Instascan.Scanner({ video: document.getElementById("preview") });
+
+        barcodeScanner.addListener("scan", function (content) {
+          barcodeInput.value = content;
+          barcodeScanner.stop();
         });
-    } else {
-      console.warn("Media devices not supported or getUserMedia not available.");
-    }
 
-    // Listen for scan events
-    scanner.addListener("scan", function (content) {
-      // Update the barcode input value with the scanned content
-      barcodeForm.elements.barcode.value = content;
-      barcodeForm.dispatchEvent(new Event("submit"));
-    });
+        Instascan.Camera.getCameras()
+          .then(function (cameras) {
+            if (cameras.length > 0) {
+              barcodeScanner.start(cameras[0]);
+            } else {
+              console.error("No cameras found.");
+            }
+          })
+          .catch(function (error) {
+            console.error(error);
+          });
+      }
+    }
   </script>
 </body>
 
