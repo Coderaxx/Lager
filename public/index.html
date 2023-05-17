@@ -2,199 +2,251 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lagerføringssystem</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css" />
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://js.sentry-cdn.com/3c602fc817b942cbaf82608c5d9450fe.min.js" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
-    <link rel="icon" type="image/png" href="assets/img/favicon.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lagerføringssystem</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css" />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://js.sentry-cdn.com/3c602fc817b942cbaf82608c5d9450fe.min.js" crossorigin="anonymous"></script>
+  <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+  <link rel="icon" type="image/png" href="assets/img/favicon.png">
 </head>
 
 <body>
-    <section class="section">
-        <div class="container">
-            <nav class="level is-mobile">
-                <div class="level-item has-text-centered">
-                    <div>
-                        <p class="heading">Hyller</p>
-                        <p class="title" id="shelfCount">-</p>
-                    </div>
-                </div>
-                <div class="level-item has-text-centered">
-                    <div>
-                        <p class="heading">Etasjer</p>
-                        <p class="title" id="levelCount">-</p>
-                    </div>
-                </div>
-                <div class="level-item has-text-centered">
-                    <div>
-                        <p class="heading">Lagerbeholdning</p>
-                        <p class="title" id="itemCount">-</p>
-                    </div>
-                </div>
-            </nav>
-            <hr>
-            <h1 class="title">Lagerføringssystem OneCo-lager</h1>
-            <form id="barcodeForm" class="box">
-                <div class="field">
-                    <label class="label">Strekkode eller tekst</label>
-                    <div class="control">
-                        <input class="input" type="text" name="barcode" placeholder="Skriv inn strekkode eller tekst"
-                            required autofocus />
-                    </div>
-                </div>
-                <div class="field">
-                    <div class="control">
-                        <button class="button is-primary">Søk</button>
-                    </div>
-                </div>
-            </form>
-            <br>
-            <div id="result" class="notification is-hidden"></div>
+  <section class="section">
+    <div class="container">
+      <nav class="level is-mobile">
+        <div class="level-item has-text-centered">
+          <div>
+            <p class="heading">Hyller</p>
+            <p class="title" id="shelfCount">-</p>
+          </div>
         </div>
-    </section>
-    <footer class="footer">
-        <div class="content has-text-centered">
-            <strong>Lagerføringssystem</strong> av <a href="https://github.com/Coderaxx/">Jesper Grimstad</a>.
+        <div class="level-item has-text-centered">
+          <div>
+            <p class="heading">Etasjer</p>
+            <p class="title" id="levelCount">-</p>
+          </div>
         </div>
-    </footer>
-    <script>
-        async function countInventory() {
-            const count = {
-                itemCount: 0,
-                shelfCount: 0,
-                levelCount: 0,
-            };
+        <div class="level-item has-text-centered">
+          <div>
+            <p class="heading">Lagerbeholdning</p>
+            <p class="title" id="itemCount">-</p>
+          </div>
+        </div>
+      </nav>
+      <hr>
+      <h1 class="title">Lagerføringssystem OneCo-lager</h1>
+      <form id="barcodeForm" class="box">
+        <div class="field">
+          <label class="label">Strekkode eller tekst</label>
+          <div class="control">
+            <input class="input" type="text" name="barcode" placeholder="Skriv inn strekkode eller tekst" required autofocus />
+          </div>
+        </div>
+        <div class="field">
+          <div class="control">
+            <button class="button is-primary">Søk</button>
+          </div>
+        </div>
+      </form>
+      <br>
+      <div id="result" class="notification is-hidden"></div>
+    </div>
+  </section>
+  <footer class="footer">
+    <div class="content has-text-centered">
+      <strong>Lagerføringssystem</strong> av <a href="https://github.com/Coderaxx/">Jesper Grimstad</a>.
+    </div>
+  </footer>
+  <script src="https://unpkg.com/instascan@1.0.1"></script>
+  <script>
+    async function countInventory() {
+      const count = {
+        itemCount: 0,
+        shelfCount: 0,
+        levelCount: 0,
+      };
 
-            try {
-                const response = await fetch("/inventory");
-                const data = await response.json();
+      try {
+        const response = await fetch("/inventory");
+        const data = await response.json();
 
-                if (response.ok) {
-                    for (const category of data.categories) {
-                        for (const shelf of category.shelves) {
-                            count.shelfCount += 1;
+        if (response.ok) {
+          for (const category of data.categories) {
+            for (const shelf of category.shelves) {
+              count.shelfCount += 1;
 
-                            for (const level of shelf.levels) {
-                                count.levelCount += 1;
-                                count.itemCount += level.items.length;
-                            }
-                        }
-                    }
-                }
-            } catch (error) {
-                console.error(error);
+              for (const level of shelf.levels) {
+                count.levelCount += 1;
+                count.itemCount += level.items.length;
+              }
             }
-
-            return count;
+          }
         }
+      } catch (error) {
+        console.error(error);
+      }
 
-        $(document).ready(async () => {
-            const itemCount = document.getElementById("itemCount");
-            const shelfCount = document.getElementById("shelfCount");
-            const levelCount = document.getElementById("levelCount");
+      return count;
+    }
 
-            try {
-                const count = await countInventory();
-                itemCount.textContent = count.itemCount;
-                shelfCount.textContent = count.shelfCount;
-                levelCount.textContent = count.levelCount;
-            } catch (error) {
-                console.error(error);
+    $(document).ready(async () => {
+      const itemCount = document.getElementById("itemCount");
+      const shelfCount = document.getElementById("shelfCount");
+      const levelCount = document.getElementById("levelCount");
+
+      try {
+        const count = await countInventory();
+        itemCount.textContent = count.itemCount;
+        shelfCount.textContent = count.shelfCount;
+        levelCount.textContent = count.levelCount;
+      } catch (error) {
+        console.error(error);
+      }
+    });
+
+    const barcodeForm = document.getElementById("barcodeForm");
+    const resultElement = document.getElementById("result");
+
+    // Create a new instance of Instascan Scanner
+    const scanner = new Instascan.Scanner({ video: document.getElementById("preview") });
+
+    barcodeForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const barcode = e.target.elements.barcode.value;
+
+      try {
+        const response = await fetch(`/inventory/search/${barcode}`);
+        const data = await response.json();
+
+        if (response.ok) {
+          resultElement.innerHTML = "";
+
+          const itemsMap = new Map();
+
+          const columns = document.createElement("div");
+          columns.className = "columns is-multiline";
+
+          for (const location in data) {
+            const locationItems = Array.isArray(data[location]) ? data[location] : [data[location]];
+
+            for (const item of locationItems) {
+              const itemLocation = item.location;
+
+              if (!itemsMap.has(itemLocation)) {
+                const itemInfo = {
+                  brand: item.brand,
+                  model: item.model,
+                  location: itemLocation
+                };
+
+                itemsMap.set(itemLocation, itemInfo);
+
+                const column = document.createElement("div");
+                column.className = "column is-one-third";
+
+                const box = document.createElement("div");
+                box.className = "box";
+
+                const media = document.createElement("article");
+                media.className = "media";
+
+                const mediaContent = document.createElement("div");
+                mediaContent.className = "media-content";
+
+                const title = document.createElement("p");
+                title.className = "title is-4";
+                title.textContent = `${item.brand} ${item.model}`;
+
+                const content = document.createElement("div");
+                content.className = "content";
+                content.innerHTML = `
+                  <p><strong>Merke:</strong> ${item.brand}</p>
+                  <p><strong>Modell:</strong> ${item.model}</p>
+                  <p><strong>Hylle:</strong> ${itemLocation.split(".")[1]}</p>
+                  <p><strong>Full plassering:</strong> ${itemLocation}</p>
+                `;
+
+                const barcodeContainer = document.createElement("div");
+                barcodeContainer.className = "barcode-container";
+
+                const canvas = document.createElement("canvas");
+                canvas.id = "barcodeCanvas";
+
+                const barcodeOptions = {
+                  bcid: "code128", // Strekkodetype (f.eks., code128, code39, qr, etc.)
+                  text: item.barcode, // Strekkodeverdi
+                  scale: 2, // Skaleringsfaktor for strekkodebildet (kan justeres etter behov)
+                  height: 50, // Høyde på strekkodebildet (kan justeres etter behov)
+                  includetext: true, // Angi om strekkodeteksten skal inkluderes i bildet
+                };
+
+                bwipjs.toCanvas(canvas, barcodeOptions, function (err, cvs) {
+                  if (err) {
+                    console.error(err);
+                    return;
+                  }
+
+                  barcodeContainer.appendChild(cvs);
+                });
+
+                content.appendChild(barcodeContainer);
+
+                mediaContent.appendChild(title);
+                mediaContent.appendChild(content);
+                media.appendChild(mediaContent);
+                box.appendChild(media);
+                column.appendChild(box);
+                columns.appendChild(column);
+              }
             }
+          }
+
+          resultElement.appendChild(columns);
+
+          resultElement.classList.remove("is-hidden", "is-danger");
+          resultElement.classList.add("is-success");
+        } else {
+          resultElement.classList.remove("is-hidden", "is-success");
+          resultElement.classList.add("is-danger");
+          resultElement.textContent = data.message;
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    });
+
+    // Check if the device supports media devices and getUserMedia
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      // Use camera for barcode scanning
+      Instascan.Camera.getCameras()
+        .then(function (cameras) {
+          // Check if any cameras are found
+          if (cameras.length > 0) {
+            // Use the back camera by default
+            const selectedCamera = cameras[cameras.length - 1];
+
+            // Start scanning using the selected camera
+            scanner.start(selectedCamera);
+          } else {
+            console.warn("No cameras found.");
+          }
+        })
+        .catch(function (error) {
+          console.error("Error accessing camera:", error);
         });
+    } else {
+      console.warn("Media devices not supported or getUserMedia not available.");
+    }
 
-        const barcodeForm = document.getElementById("barcodeForm");
-        const resultElement = document.getElementById("result");
-
-        barcodeForm.addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const barcode = e.target.elements.barcode.value;
-
-            try {
-                const response = await fetch(`/inventory/search/${barcode}`);
-                const data = await response.json();
-
-                if (response.ok) {
-                    resultElement.innerHTML = "";
-
-                    const itemsMap = new Map();
-
-                    const columns = document.createElement("div");
-                    columns.className = "columns is-multiline";
-
-                    for (const location in data) {
-                        const locationItems = Array.isArray(data[location]) ? data[location] : [data[location]];
-
-                        for (const item of locationItems) {
-                            const itemLocation = item.location;
-
-                            if (!itemsMap.has(itemLocation)) {
-                                const itemInfo = {
-                                    brand: item.brand,
-                                    model: item.model,
-                                    location: itemLocation,
-                                    articleNumber: item.articleNumber, // Legg til artikkelnummeret i itemInfo
-                                };
-
-                                itemsMap.set(itemLocation, itemInfo);
-
-                                const column = document.createElement("div");
-                                column.className = "column is-one-third";
-
-                                const box = document.createElement("div");
-                                box.className = "box";
-
-                                const media = document.createElement("article");
-                                media.className = "media";
-
-                                const mediaContent = document.createElement("div");
-                                mediaContent.className = "media-content";
-
-                                const title = document.createElement("p");
-                                title.className = "title is-4";
-                                title.textContent = `${item.brand} ${item.model}`;
-
-                                const content = document.createElement("div");
-                                content.className = "content";
-                                content.innerHTML = `
-                                    <p><strong>Hylle:</strong> ${itemLocation.split(".")[1]}</p>
-                                    <p><strong>Full plassering:</strong> ${itemLocation}</p>
-                                    <p><strong>Merke:</strong> ${item.brand}</p>
-                                    <p><strong>Modell:</strong> ${item.model}</p>
-                                    <p><strong>Artikkelnummer:</strong> ${item.articleNumber}</p>
-                                    <p><strong>Strekkode:</strong><br><img src="https://barcode.tec-it.com/barcode.ashx?data=${item.barcode}&code=${item.barcode.length == 13 ? "EAN13":"Code128"}" alt="Strekkode"></p>
-                                    `;
-
-                                mediaContent.appendChild(title);
-                                mediaContent.appendChild(content);
-                                media.appendChild(mediaContent);
-                                box.appendChild(media);
-                                column.appendChild(box);
-                                columns.appendChild(column);
-                            }
-                        }
-                    }
-
-                    resultElement.appendChild(columns);
-
-                    resultElement.classList.remove("is-hidden", "is-danger");
-                    resultElement.classList.add("is-success");
-                } else {
-                    resultElement.classList.remove("is-hidden", "is-success");
-                    resultElement.classList.add("is-danger");
-                    resultElement.textContent = data.message;
-                }
-            } catch (error) {
-                console.error(error);
-            }
-        });
-    </script>
+    // Listen for scan events
+    scanner.addListener("scan", function (content) {
+      // Update the barcode input value with the scanned content
+      barcodeForm.elements.barcode.value = content;
+      barcodeForm.dispatchEvent(new Event("submit"));
+    });
+  </script>
 </body>
 
 </html>
