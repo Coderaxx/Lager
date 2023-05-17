@@ -111,9 +111,22 @@ $(document).ready(() => {
     // Lytt til innsending av skjema for å legge til en ny plassering
     addLocationForm.addEventListener("submit", (e) => {
         e.preventDefault();
-        const [shelf, section, level] = locationInput.value.trim().split(".");
-        if (shelf && section && level) {
-            addLocation(shelf, section, level);
+        const location = locationInput.value.trim();
+        if (location) {
+            const locationParts = location.split(".");
+            if (locationParts.length === 2) {
+                const shelf = locationParts[0];
+                const section = locationParts[1];
+                const level = "1";
+                addLocation(shelf, section, level);
+            } else if (locationParts.length === 3) {
+                const shelf = locationParts[0];
+                const section = locationParts[1];
+                const level = locationParts[2];
+                addLocation(shelf, section, level);
+            } else {
+                console.error("Feil format på plassering");
+            }
         }
     });
 
