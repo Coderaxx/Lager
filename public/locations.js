@@ -34,7 +34,7 @@ $(document).ready(() => {
                 for (const levelName in levels) {
                     const row = document.createElement("tr");
                     const sectionCell = document.createElement("td");
-                    sectionCell.textContent = sectionName;
+                    sectionCell.textContent = shelfName + "." + sectionName;
                     const levelCell = document.createElement("td");
                     levelCell.textContent = levelName;
                     const actionCell = document.createElement("td");
