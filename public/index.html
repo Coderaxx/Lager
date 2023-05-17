@@ -6,11 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lagerføringssystem</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://js.sentry-cdn.com/3c602fc817b942cbaf82608c5d9450fe.min.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
 
     <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
     <link rel="icon" type="image/png" href="assets/img/favicon.png">
@@ -49,12 +48,9 @@
                             required autofocus />
                     </div>
                 </div>
-                <div class="field is-grouped">
+                <div class="field">
                     <div class="control">
                         <button class="button is-primary">Søk</button>
-                    </div>
-                    <div class="control">
-                        <button id="scanButton" class="button is-link">Skann</button>
                     </div>
                 </div>
             </form>
@@ -172,7 +168,7 @@
                                     <p><strong>Merke:</strong> ${item.brand}</p>
                                     <p><strong>Modell:</strong> ${item.model}</p>
                                     <p><strong>Artikkelnummer:</strong> ${item.articleNumber}</p>
-                                    <p><strong>Strekkode:</strong><br><img src="https://barcode.tec-it.com/barcode.ashx?data=${item.barcode}&code=${item.barcode.length == 13 ? "EAN13":"Code128"}" alt="Strekkode"></p>
+                                    <p><strong>Strekkode:</strong><br><img src="https://barcode.tec-it.com/barcode.ashx?data=${item.barcode}&code=${item.barcode.length == 13 ? "EAN13" : "Code128"}" alt="Strekkode"></p>
                                     `;
 
                                 mediaContent.appendChild(title);
@@ -197,29 +193,6 @@
             } catch (error) {
                 console.error(error);
             }
-        });
-
-        const scanButton = document.getElementById("scanButton");
-
-        scanButton.addEventListener("click", () => {
-            const scanner = new Instascan.Scanner({ video: document.getElementById("preview") });
-
-            scanner.addListener("scan", (content) => {
-                barcodeForm.elements.barcode.value = content;
-                barcodeForm.submit();
-            });
-
-            Instascan.Camera.getCameras()
-                .then(function (cameras) {
-                    if (cameras.length > 0) {
-                        scanner.start(cameras[0]);
-                    } else {
-                        console.error("No cameras found.");
-                    }
-                })
-                .catch(function (error) {
-                    console.error(error);
-                });
         });
     </script>
 </body>
