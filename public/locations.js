@@ -3,59 +3,37 @@ $(document).ready(() => {
     const locationInput = document.getElementById("locationInput");
     const locationsContainer = document.getElementById("locationsTableBody");
 
-    // Oppdater plasseringstabellene
-    function updateLocationsTables(locations) {
+    // Oppdater plasseringstabellen
+    function updateLocationsTable(locations) {
+        console.log("Updating locations table:", locations);
         locationsContainer.innerHTML = "";
 
-        for (const shelfName in locations) {
-            const shelfTable = document.createElement("table");
-            shelfTable.classList.add("table", "is-hoverable", "is-striped", "is-fullwidth");
+        const shelves = Object.keys(locations);
+        for (const shelf of shelves) {
+            const levels = Object.keys(locations[shelf]);
+            for (const level of levels) {
+                const row = document.createElement("tr");
+                const sectionCell = document.createElement("td");
+                sectionCell.textContent = shelf;
+                const levelCell = document.createElement("td");
+                levelCell.textContent = level;
+                const actionCell = document.createElement("td");
+                const deleteButton = document.createElement("button");
+                deleteButton.textContent = "Slett";
+                deleteButton.classList.add("button", "is-danger", "is-small");
+                deleteButton.addEventListener("click", () => {
+                    deleteLocation(shelf, level);
+                });
 
-            const tableHead = document.createElement("thead");
-            const headRow = document.createElement("tr");
-            const sectionHead = document.createElement("th");
-            sectionHead.textContent = "Seksjon";
-            const levelHead = document.createElement("th");
-            levelHead.textContent = "Etasje";
-            const actionHead = document.createElement("th");
-            actionHead.textContent = "";
-
-            headRow.appendChild(sectionHead);
-            headRow.appendChild(levelHead);
-            headRow.appendChild(actionHead);
-            tableHead.appendChild(headRow);
-            shelfTable.appendChild(tableHead);
-
-            const tableBody = document.createElement("tbody");
-
-            const sections = locations[shelfName];
-            for (const sectionName in sections) {
-                const levels = sections[sectionName];
-                for (const levelName in levels) {
-                    const row = document.createElement("tr");
-                    const sectionCell = document.createElement("td");
-                    sectionCell.textContent = shelfName + "." + sectionName;
-                    const levelCell = document.createElement("td");
-                    levelCell.textContent = levelName;
-                    const actionCell = document.createElement("td");
-                    const deleteButton = document.createElement("button");
-                    deleteButton.textContent = "Slett";
-                    deleteButton.classList.add("button", "is-danger", "is-small");
-                    deleteButton.addEventListener("click", () => {
-                        deleteLocation(shelfName, sectionName, levelName);
-                    });
-
-                    actionCell.appendChild(deleteButton);
-                    row.appendChild(sectionCell);
-                    row.appendChild(levelCell);
-                    row.appendChild(actionCell);
-                    tableBody.appendChild(row);
-                }
+                actionCell.appendChild(deleteButton);
+                row.appendChild(sectionCell);
+                row.appendChild(levelCell);
+                row.appendChild(actionCell);
+                locationsContainer.appendChild(row);
             }
-
-            shelfTable.appendChild(tableBody);
-            locationsContainer.appendChild(shelfTable);
         }
+
+        locationsContainer.appendChild(tableBody);
     }
 
     // Hent eksisterende plasseringer fra serveren
@@ -63,17 +41,21 @@ $(document).ready(() => {
         try {
             const response = await axios.get("/locations");
             const data = response.data;
-            updateLocationsTables(data);
+            console.log("Received locations data:", data);
+            if (Object.keys(data).length > 0) {
+                updateLocationsTable(data);
+            } else {
+                console.error("No categories found in data");
+            }
         } catch (error) {
             Sentry.captureException(error);
             console.error("Feil ved henting av plasseringer:", error);
-            Sentry.captureException(error);
         }
     }
 
     // Legg til en ny plassering
-    async function addLocation(shelf, section, level) {
-        const location = `${shelf}.${section}.${level}`;
+    async function addLocation(shelf, level) {
+        const location = `${shelf}.${level}`;
 
         try {
             const response = await axios.post("/locations", { location });
@@ -91,8 +73,8 @@ $(document).ready(() => {
     }
 
     // Slett en plassering
-    async function deleteLocation(shelf, section, level) {
-        const location = `${shelf}.${section}.${level}`;
+    async function deleteLocation(shelf, level) {
+        const location = `${shelf}.${level}`;
 
         try {
             const response = await axios.delete(`/locations/${location}`);
@@ -111,19 +93,14 @@ $(document).ready(() => {
     // Lytt til innsending av skjema for å legge til en ny plassering
     addLocationForm.addEventListener("submit", (e) => {
         e.preventDefault();
+        console.log("Form submitted");
         const location = locationInput.value.trim();
         if (location) {
             const locationParts = location.split(".");
             if (locationParts.length === 2) {
                 const shelf = locationParts[0];
-                const section = locationParts[1];
-                const level = "1";
-                addLocation(shelf, section, level);
-            } else if (locationParts.length === 3) {
-                const shelf = locationParts[0];
-                const section = locationParts[1];
-                const level = locationParts[2];
-                addLocation(shelf, section, level);
+                const level = locationParts[1];
+                addLocation(shelf, level);
             } else {
                 console.error("Feil format på plassering");
             }
@@ -131,5 +108,6 @@ $(document).ready(() => {
     });
 
     // Hent og vis plasseringer ved lasting av siden
+    console.log("Fetching locations...");
     getLocations();
 });
