@@ -1,5 +1,5 @@
 const express = require("express");
-const app = express();
+const myApp = express();
 const PORT = process.env.PORT || 5000;
 const path = require("path");
 const fs = require("fs");
@@ -15,28 +15,28 @@ Sentry.init({
 });
 
 // Angi sti til den offentlige mappen
-app.use(express.static(path.join(__dirname, "public")));
+myApp.use(express.static(path.join(__dirname, "public")));
 
 // Håndter GET-forespørsel for /add
-app.get("/add", (req, res) => {
+myApp.get("/add", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "add-item.html"));
 });
 
 // Håndter GET-forespørsel for /delete
-app.get("/delete", (req, res) => {
+myApp.get("/delete", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "delete-item.html"));
 });
 
-app.get("/location", (req, res) => {
+myApp.get("/location", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "locations.html"));
 });
 
-app.listen(PORT, () => {
+myApp.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
 
-app.use(express.json());
-app.use(express.static("public"));
+myApp.use(express.json());
+myApp.use(express.static("public"));
 
 let inventory = readInventoryFromFile();
 
@@ -72,7 +72,8 @@ function searchInventory(query) {
           for (const item of items) {
             if (
               item.barcode === query ||
-              `${item.brand} ${item.model}`.toLowerCase().includes(query.toLowerCase())
+              `${item.brand} ${item.model}`.toLowerCase().includes(query.toLowerCase()) ||
+              `${category.name}.${shelf.name}${level.name}` === query
             ) {
               results.push({ location: `${category.name}.${shelf.name}.${level.name}`, ...item });
             }
@@ -80,7 +81,8 @@ function searchInventory(query) {
         } else {
           if (
             items.barcode === query ||
-            `${items.brand} ${items.model}`.toLowerCase().includes(query.toLowerCase())
+            `${items.brand} ${items.model}`.toLowerCase().includes(query.toLowerCase()) ||
+            `${category.name}.${shelf.name}${level.name}` === query
           ) {
             results.push({ location: `${category.name}.${shelf.name}.${level.name}`, ...items });
           }
@@ -92,14 +94,14 @@ function searchInventory(query) {
 }
 
 // Håndter GET-forespørsel for /locations
-app.get("/locations", (req, res) => {
+myApp.get("/locations", (req, res) => {
   const inventoryData = readInventoryFromFile();
   const locations = getAllLocations(inventoryData);
   res.json(locations);
 });
 
 // Håndter POST-forespørsel for /add-location
-app.post("/add-location", (req, res) => {
+myApp.post("/add-location", (req, res) => {
   const { category, shelf, level } = req.body;
 
   const categoryObj = inventory.categories.find((c) => c.name === category);
@@ -123,7 +125,7 @@ app.post("/add-location", (req, res) => {
 });
 
 // Håndter GET-forespørsel for /remove-location
-app.get("/remove-location/:location", (req, res) => {
+myApp.get("/remove-location/:location", (req, res) => {
   const { location } = req.params;
   const [category, shelf, level] = location.split(".");
 
@@ -145,7 +147,7 @@ app.get("/remove-location/:location", (req, res) => {
   res.status(404).json({ message: "Plassering ikke funnet" });
 });
 
-app.get("/inventory/search/:query", (req, res) => {
+myApp.get("/inventory/search/:query", (req, res) => {
   const { query } = req.params;
 
   const results = searchInventory(query);
@@ -157,12 +159,12 @@ app.get("/inventory/search/:query", (req, res) => {
   }
 });
 
-app.get("/inventory", (req, res) => {
+myApp.get("/inventory", (req, res) => {
   const inventoryData = readInventoryFromFile();
   res.json(inventoryData);
 });
 
-app.post("/inventory/:location", (req, res) => {
+myApp.post("/inventory/:location", (req, res) => {
   const newItem = req.body;
   const { location } = req.params;
   const [category, shelfLevel] = location.split(".");
@@ -200,7 +202,7 @@ app.post("/inventory/:location", (req, res) => {
 });
 
 // Håndter GET-forespørsel for /inventory/:location
-app.get("/inventory/:location", (req, res) => {
+myApp.get("/inventory/:location", (req, res) => {
   let { location } = req.params;
 
   // Sjekk om plasseringen er i ønsket format, ellers konverter den
@@ -242,7 +244,7 @@ function convertToFullLocationFormat(location) {
   return `${category}.${shelf}.${level}`;
 }
 
-app.delete("/inventory/:barcode", (req, res) => {
+myApp.delete("/inventory/:barcode", (req, res) => {
   const { barcode } = req.params;
 
   let itemFound = false;
@@ -275,12 +277,12 @@ app.delete("/inventory/:barcode", (req, res) => {
 });
 
 // Håndter feil ved 404-not found
-app.use((req, res, next) => {
+myApp.use((req, res, next) => {
   res.status(404).json({ message: "Ressurs ikke funnet" });
 });
 
 // Håndter generelle feil
-app.use((err, req, res, next) => {
+myApp.use((err, req, res, next) => {
   console.error("Server error:", err);
   res.status(500).json({ message: "Noe gikk galt på serveren" });
 });

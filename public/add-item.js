@@ -14,6 +14,7 @@ $(document).ready(async () => {
   const barcodeInput = document.getElementById("barcodeInput");
   const brandInput = document.getElementById("brandInput");
   const modelInput = document.getElementById("modelInput");
+  const imageInput = document.getElementById("imagePreview");
   const articleNumberInput = document.getElementById("articleNumberInput");
   const itemInputFields = document.getElementById("itemInputFields");
 
@@ -115,9 +116,12 @@ $(document).ready(async () => {
           axios.get(`https://go-upc.com/api/v1/code/${barcode}?key=7c4850dda436605482d38eb52bd77580b94c0495aed963b1df4d7006b1b1eefd`)
             .then((response) => {
               if (response.status === 200) {
-                const { brand, name } = response.data.product;
+                const { brand, name, imageUrl } = response.data.product;
                 brandInput.value = brand;
                 modelInput.value = name;
+                if (imageUrl.length > 0) {
+                  imageInput.value = imageUrl;
+                }
                 modelInput.focus();
               } else {
                 throw new Error("Ingen match funnet for strekkoden");
@@ -169,10 +173,12 @@ $(document).ready(async () => {
     const barcode = barcodeInput.value;
     const brand = brandInput.value;
     const model = modelInput.value;
+    const image = imageInput.value;
     const articleNumber = articleNumberInput.value;
     const newItem = {
       brand,
       model,
+      image,
       barcode,
       articleNumber,
       location,

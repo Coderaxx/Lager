@@ -20,7 +20,7 @@
                     <label class="label">Scan hyllen/plasseringen</label>
                     <div class="control">
                         <input class="input" type="text" id="locationInput" placeholder="Scann hylleplassering (f.eks. H21.A1)"
-                            required autofocus/>
+                            required autofocus onclick="this.select();"/>
                     </div>
                 </div>
                 <div id="itemInputFields" style="display: none;">
@@ -46,6 +46,11 @@
                         <label class="label">Artikkelnummer</label>
                         <div class="control">
                             <input class="input" type="text" id="articleNumberInput" placeholder="Skriv inn artikkelnummer" />
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="control">
+                            <input class="input is-hidden" type="text" id="imagePreview" />
                         </div>
                     </div>
                     <div class="field">

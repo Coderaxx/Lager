@@ -58,11 +58,11 @@
             <div id="result" class="notification is-hidden"></div>
         </div>
     </section>
-    <footer class="footer">
+    <!--<footer class="footer">
         <div class="content has-text-centered">
             <strong>Lagerføringssystem</strong> av <a href="https://github.com/Coderaxx/">Jesper Grimstad</a>.
         </div>
-    </footer>
+    </footer>-->
     <script>
         async function countInventory() {
             const count = {
@@ -129,6 +129,11 @@
                     columns.className = "columns is-multiline";
 
                     for (const location in data) {
+
+                        const title = document.createElement("div");
+                        title.className = "title is-3";
+                        title.textContent = location;
+
                         const locationItems = Array.isArray(data[location]) ? data[location] : [data[location]];
 
                         for (const item of locationItems) {
@@ -185,10 +190,12 @@
 
                     resultElement.classList.remove("is-hidden", "is-danger");
                     resultElement.classList.add("is-success");
+                    barcodeForm.reset();
                 } else {
                     resultElement.classList.remove("is-hidden", "is-success");
                     resultElement.classList.add("is-danger");
                     resultElement.textContent = data.message;
+                    barcodeForm.reset();
                 }
             } catch (error) {
                 console.error(error);
