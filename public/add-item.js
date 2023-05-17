@@ -14,6 +14,7 @@ $(document).ready(async () => {
   const barcodeInput = document.getElementById("barcodeInput");
   const brandInput = document.getElementById("brandInput");
   const modelInput = document.getElementById("modelInput");
+  const articleNumberInput = document.getElementById("articleNumberInput");
   const itemInputFields = document.getElementById("itemInputFields");
 
   // Funksjon for å sjekke om en streng er i riktig plasseringsformat
@@ -111,12 +112,12 @@ $(document).ready(async () => {
         Sentry.captureException(error);
         if (error === "Ingen match funnet for strekkoden") {
           // Søk etter varen i API-et
-          axios.get(`https://brocade.io/api/items/${barcode}`)
+          axios.get(`https://go-upc.com/api/v1/code/${barcode}?key=7c4850dda436605482d38eb52bd77580b94c0495aed963b1df4d7006b1b1eefd`)
             .then((response) => {
               if (response.status === 200) {
-                const { brand, model } = response.data;
+                const { brand, name } = response.data.product;
                 brandInput.value = brand;
-                modelInput.value = model;
+                modelInput.value = name;
                 modelInput.focus();
               } else {
                 throw new Error("Ingen match funnet for strekkoden");

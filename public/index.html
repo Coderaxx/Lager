@@ -8,6 +8,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://js.sentry-cdn.com/3c602fc817b942cbaf82608c5d9450fe.min.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
     <link rel="icon" type="image/png" href="assets/img/favicon.png">
 </head>
@@ -62,130 +65,135 @@
     </footer>
     <script>
         async function countInventory() {
-                const count = {
-                    itemCount: 0,
-                    shelfCount: 0,
-                    levelCount: 0,
-                };
+            const count = {
+                itemCount: 0,
+                shelfCount: 0,
+                levelCount: 0,
+            };
 
-                try {
-                    const response = await fetch("/inventory");
-                    const data = await response.json();
+            try {
+                const response = await fetch("/inventory");
+                const data = await response.json();
 
-                    if (response.ok) {
-                        for (const category of data.categories) {
-                            for (const shelf of category.shelves) {
-                                count.shelfCount += 1;
+                if (response.ok) {
+                    for (const category of data.categories) {
+                        for (const shelf of category.shelves) {
+                            count.shelfCount += 1;
 
-                                for (const level of shelf.levels) {
-                                    count.levelCount += 1;
-                                    count.itemCount += level.items.length;
-                                }
+                            for (const level of shelf.levels) {
+                                count.levelCount += 1;
+                                count.itemCount += level.items.length;
                             }
                         }
                     }
-                } catch (error) {
-                    console.error(error);
                 }
-
-                return count;
+            } catch (error) {
+                console.error(error);
             }
 
-            $(document).ready(async () => {
-                const itemCount = document.getElementById("itemCount");
-                const shelfCount = document.getElementById("shelfCount");
-                const levelCount = document.getElementById("levelCount");
+            return count;
+        }
 
-                try {
-                    const count = await countInventory();
-                    itemCount.textContent = count.itemCount;
-                    shelfCount.textContent = count.shelfCount;
-                    levelCount.textContent = count.levelCount;
-                } catch (error) {
-                    console.error(error);
-                }
-            });
+        $(document).ready(async () => {
+            const itemCount = document.getElementById("itemCount");
+            const shelfCount = document.getElementById("shelfCount");
+            const levelCount = document.getElementById("levelCount");
 
-            const barcodeForm = document.getElementById("barcodeForm");
-            const resultElement = document.getElementById("result");
+            try {
+                const count = await countInventory();
+                itemCount.textContent = count.itemCount;
+                shelfCount.textContent = count.shelfCount;
+                levelCount.textContent = count.levelCount;
+            } catch (error) {
+                console.error(error);
+            }
+        });
 
-            barcodeForm.addEventListener("submit", async (e) => {
-                e.preventDefault();
-                const barcode = e.target.elements.barcode.value;
+        const barcodeForm = document.getElementById("barcodeForm");
+        const resultElement = document.getElementById("result");
 
-                try {
-                    const response = await fetch(`/inventory/search/${barcode}`);
-                    const data = await response.json();
+        barcodeForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const barcode = e.target.elements.barcode.value;
 
-                    if (response.ok) {
-                        resultElement.innerHTML = "";
+            try {
+                const response = await fetch(`/inventory/search/${barcode}`);
+                const data = await response.json();
 
-                        const itemsMap = new Map();
+                if (response.ok) {
+                    resultElement.innerHTML = "";
 
-                        const columns = document.createElement("div");
-                        columns.className = "columns is-multiline";
+                    const itemsMap = new Map();
 
-                        for (const location in data) {
-                            const locationItems = Array.isArray(data[location]) ? data[location] : [data[location]];
+                    const columns = document.createElement("div");
+                    columns.className = "columns is-multiline";
 
-                            for (const item of locationItems) {
-                                const itemLocation = item.location;
+                    for (const location in data) {
+                        const locationItems = Array.isArray(data[location]) ? data[location] : [data[location]];
 
-                                if (!itemsMap.has(itemLocation)) {
-                                    const itemInfo = {
-                                        brand: item.brand,
-                                        model: item.model,
-                                        location: itemLocation
-                                    };
+                        for (const item of locationItems) {
+                            const itemLocation = item.location;
 
-                                    itemsMap.set(itemLocation, itemInfo);
+                            if (!itemsMap.has(itemLocation)) {
+                                const itemInfo = {
+                                    brand: item.brand,
+                                    model: item.model,
+                                    location: itemLocation,
+                                    articleNumber: item.articleNumber, // Legg til artikkelnummeret i itemInfo
+                                };
 
-                                    const column = document.createElement("div");
-                                    column.className = "column is-one-third";
+                                itemsMap.set(itemLocation, itemInfo);
 
-                                    const box = document.createElement("div");
-                                    box.className = "box";
+                                const column = document.createElement("div");
+                                column.className = "column is-one-third";
 
-                                    const media = document.createElement("article");
-                                    media.className = "media";
+                                const box = document.createElement("div");
+                                box.className = "box";
 
-                                    const mediaContent = document.createElement("div");
-                                    mediaContent.className = "media-content";
+                                const media = document.createElement("article");
+                                media.className = "media";
 
-                                    const title = document.createElement("p");
-                                    title.className = "title is-4";
-                                    title.textContent = `${item.brand} ${item.model}`;
+                                const mediaContent = document.createElement("div");
+                                mediaContent.className = "media-content";
 
-                                    const content = document.createElement("div");
-                                    content.className = "content";
-                                    content.innerHTML = `
+                                const title = document.createElement("p");
+                                title.className = "title is-4";
+                                title.textContent = `${item.brand} ${item.model}`;
+
+                                const content = document.createElement("div");
+                                content.className = "content";
+                                content.innerHTML = `
                                     <p><strong>Hylle:</strong> ${itemLocation.split(".")[1]}</p>
                                     <p><strong>Full plassering:</strong> ${itemLocation}</p>
+                                    <p><strong>Merke:</strong> ${item.brand}</p>
+                                    <p><strong>Modell:</strong> ${item.model}</p>
+                                    <p><strong>Artikkelnummer:</strong> ${item.articleNumber}</p>
+                                    <p><strong>Strekkode:</strong><br><img src="https://barcode.tec-it.com/barcode.ashx?data=${item.barcode}&code=${item.barcode.length == 13 ? "EAN13":"Code128"}" alt="Strekkode"></p>
                                     `;
 
-                                    mediaContent.appendChild(title);
-                                    mediaContent.appendChild(content);
-                                    media.appendChild(mediaContent);
-                                    box.appendChild(media);
-                                    column.appendChild(box);
-                                    columns.appendChild(column);
-                                }
+                                mediaContent.appendChild(title);
+                                mediaContent.appendChild(content);
+                                media.appendChild(mediaContent);
+                                box.appendChild(media);
+                                column.appendChild(box);
+                                columns.appendChild(column);
                             }
                         }
-
-                        resultElement.appendChild(columns);
-
-                        resultElement.classList.remove("is-hidden", "is-danger");
-                        resultElement.classList.add("is-success");
-                    } else {
-                        resultElement.classList.remove("is-hidden", "is-success");
-                        resultElement.classList.add("is-danger");
-                        resultElement.textContent = data.message;
                     }
-                } catch (error) {
-                    console.error(error);
+
+                    resultElement.appendChild(columns);
+
+                    resultElement.classList.remove("is-hidden", "is-danger");
+                    resultElement.classList.add("is-success");
+                } else {
+                    resultElement.classList.remove("is-hidden", "is-success");
+                    resultElement.classList.add("is-danger");
+                    resultElement.textContent = data.message;
                 }
-            });
+            } catch (error) {
+                console.error(error);
+            }
+        });
     </script>
 </body>
 
