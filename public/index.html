@@ -41,12 +41,14 @@
       <hr>
       <h1 class="title">Lagerføringssystem OneCo-lager</h1>
       <form id="barcodeForm" class="box">
-        <div class="field">
-          <label class="label">Strekkode eller tekst</label>
+        <div class="field has-addons">
           <div class="control">
-            <input class="input" type="text" name="barcode" id="barcodeInput" placeholder="Skriv inn strekkode eller tekst"
-              required autofocus />
+            <input class="input" type="text" name="barcode" placeholder="Skriv inn strekkode eller tekst" required autofocus />
           </div>
+          <div class="control">
+            <button id="scanButton" class="button is-primary" type="button">Scan</button>
+          </div>
+          <div id="preview" class="is-hidden"></div>
         </div>
         <div class="field">
           <div class="control">
@@ -110,6 +112,7 @@
     });
 
     const barcodeForm = document.getElementById("barcodeForm");
+    const scanButton = document.getElementById("scanButton");
     const resultElement = document.getElementById("result");
 
     barcodeForm.addEventListener("submit", async (e) => {
@@ -168,8 +171,8 @@
                   <p><strong>Merke:</strong> ${item.brand}</p>
                   <p><strong>Modell:</strong> ${item.model}</p>
                   <p><strong>Artikkelnummer:</strong> ${item.articleNumber}</p>
-                  <p><strong>Strekkode:</strong><br><img src="https://barcode.tec-it.com/barcode.ashx?data=${item.barcode}&code=${item.barcode.length == 13 ? "EAN13" : "Code128"}" alt="Strekkode"></p>
-                `;
+                  <p><strong>Strekkode:</strong><br><img src="https://barcode.tec-it.com/barcode.ashx?data=${item.barcode}&code=${item.barcode.length == 13 ? "EAN13":"Code128"}" alt="Strekkode"></p>
+                  `;
 
                 mediaContent.appendChild(title);
                 mediaContent.appendChild(content);
@@ -195,40 +198,32 @@
       }
     });
 
-    // Sjekk om brukeren er på en mobil enhet
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    // Funksjon for å åpne kameraet for scanning
+    function openCamera() {
+      const scanner = new Instascan.Scanner({ video: document.getElementById("preview") });
 
-    // Hvis brukeren er på mobil, legg til støtte for skanning av strekkode med kamera
-    if (isMobile) {
-      const barcodeInput = document.getElementById("barcodeInput");
-
-      // Legg til event listener for å åpne kamera ved klikk på input-feltet
-      barcodeInput.addEventListener("click", () => {
-        openCamera();
+      scanner.addListener("scan", function (content) {
+        document.getElementById("barcodeForm").elements.barcode.value = content;
+        document.getElementById("barcodeForm").submit();
       });
 
-      // Funksjon for å åpne kamera og skanne strekkoden
-      function openCamera() {
-        const barcodeScanner = new Instascan.Scanner({ video: document.getElementById("preview") });
-
-        barcodeScanner.addListener("scan", function (content) {
-          barcodeInput.value = content;
-          barcodeScanner.stop();
+      Instascan.Camera.getCameras()
+        .then(function (cameras) {
+          if (cameras.length > 0) {
+            scanner.start(cameras[0]);
+          } else {
+            console.error("No cameras found.");
+          }
+        })
+        .catch(function (error) {
+          console.error(error);
         });
-
-        Instascan.Camera.getCameras()
-          .then(function (cameras) {
-            if (cameras.length > 0) {
-              barcodeScanner.start(cameras[0]);
-            } else {
-              console.error("No cameras found.");
-            }
-          })
-          .catch(function (error) {
-            console.error(error);
-          });
-      }
     }
+
+    // Lytter for klikk på scan-knappen
+    scanButton.addEventListener("click", function () {
+      openCamera();
+    });
   </script>
 </body>
 
