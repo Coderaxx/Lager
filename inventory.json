@@ -108,28 +108,7 @@
             },
             {
               "name": "4",
-              "items": [
-                {
-                  "brand": "Skruf",
-                  "model": "Super White No54 Fresh S4",
-                  "barcode": "73301960023391",
-                  "location": "H21.E4"
-                },
-                {
-                  "brand": "FIXX",
-                  "model": "Borskr 4.2X19 EZ PAN PH elforzinket borskjær FIXX 500",
-                  "barcode": "7333123000866",
-                  "articleNumber": "1531741",
-                  "location": "H21.E4"
-                },
-                {
-                  "brand": "Pepsi",
-                  "model": "Pepsi Max",
-                  "barcode": "7044610874685",
-                  "articleNumber": "",
-                  "location": "H21.E4"
-                }
-              ]
+              "items": []
             }
           ]
         },
