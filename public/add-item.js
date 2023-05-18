@@ -42,7 +42,7 @@ $(document).ready(async () => {
             searchInventoryByShortBarcode(barcode.substring(0, 7))
             .then((response) => {
               if (response.ok) {
-                console.log(response);ssss
+                console.log(response);
                 return response.json();
               }
             })
