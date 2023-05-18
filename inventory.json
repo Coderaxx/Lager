@@ -313,32 +313,7 @@
           "levels": [
             {
               "name": "1",
-              "items": [
-                {
-                  "brand": "Pepsi",
-                  "model": "Pepsi Max",
-                  "image": "https://go-upc.s3.amazonaws.com/images/68719500.jpeg",
-                  "barcode": "7044610874685",
-                  "articleNumber": "",
-                  "location": "H21.N1"
-                },
-                {
-                  "brand": "FIXX",
-                  "model": "Borrskruv Kullrig",
-                  "image": "https://go-upc.s3.amazonaws.com/images/68718739.jpeg",
-                  "barcode": "7333123000842",
-                  "articleNumber": "",
-                  "location": "H21.N1"
-                },
-                {
-                  "brand": "Skruf",
-                  "model": "Skruf Super White No54 Fresh S4 - 17, 3g",
-                  "image": "https://go-upc.s3.amazonaws.com/images/68718776.jpeg",
-                  "barcode": "7330196002339",
-                  "articleNumber": "",
-                  "location": "H21.N1"
-                }
-              ]
+              "items": []
             },
             {
               "name": "2",
@@ -393,6 +368,38 @@
             {
               "name": "1",
               "items": [
+                {
+                  "brand": "Pepsi",
+                  "model": "Pepsi Max",
+                  "image": "https://go-upc.s3.amazonaws.com/images/68719500.jpeg",
+                  "barcode": "7044610874685",
+                  "articleNumber": "",
+                  "location": "H21.P1"
+                },
+                {
+                  "brand": "Pepsi",
+                  "model": "Pepsi Max",
+                  "image": "https://go-upc.s3.amazonaws.com/images/68718776.jpeg",
+                  "barcode": "7044610874685",
+                  "articleNumber": "",
+                  "location": "H21.P1"
+                },
+                {
+                  "brand": "7330196002339",
+                  "model": "Skruf Super White No54 Fresh S4 - 17, 3g",
+                  "image": "https://go-upc.s3.amazonaws.com/images/68718776.jpeg",
+                  "barcode": "7330196002339",
+                  "articleNumber": "",
+                  "location": "H21.P1"
+                },
+                {
+                  "brand": "Pepsi",
+                  "model": "Pepsi Max",
+                  "image": "",
+                  "barcode": "7044610874685",
+                  "articleNumber": "",
+                  "location": "H21.P1"
+                },
                 {
                   "brand": "Pepsi",
                   "model": "Pepsi Max",

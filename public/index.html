@@ -13,6 +13,24 @@
 
     <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
     <link rel="icon" type="image/png" href="assets/img/favicon.png">
+    <style type="text/css">
+        .image-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 150px;
+            height: 150px;
+            border: 1px solid #000;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .product-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+    </style>
 </head>
 
 <body>
@@ -94,7 +112,8 @@
             return count;
         }
 
-        $(document).ready(async () => {
+        //Sett denne funksjonen til å kjøre hvert sekund.
+        setInterval(async () => {
             const itemCount = document.getElementById("itemCount");
             const shelfCount = document.getElementById("shelfCount");
             const levelCount = document.getElementById("levelCount");
@@ -107,7 +126,7 @@
             } catch (error) {
                 console.error(error);
             }
-        });
+        }, 1000);
 
         const barcodeForm = document.getElementById("barcodeForm");
         const resultElement = document.getElementById("result");
@@ -129,11 +148,6 @@
                     columns.className = "columns is-multiline";
 
                     for (const location in data) {
-
-                        const title = document.createElement("div");
-                        title.className = "title is-3";
-                        title.textContent = location;
-
                         const locationItems = Array.isArray(data[location]) ? data[location] : [data[location]];
 
                         for (const item of locationItems) {
@@ -143,43 +157,71 @@
                                 const itemInfo = {
                                     brand: item.brand,
                                     model: item.model,
+                                    image: item.imageUrl,
                                     location: itemLocation,
-                                    articleNumber: item.articleNumber, // Legg til artikkelnummeret i itemInfo
+                                    articleNumber: item.articleNumber,
                                 };
 
                                 itemsMap.set(itemLocation, itemInfo);
 
                                 const column = document.createElement("div");
-                                column.className = "column is-one-third";
+                                column.className = "column is-half"; // Bruk halvparten av bredden på hver rad
 
                                 const box = document.createElement("div");
                                 box.className = "box";
 
-                                const media = document.createElement("article");
-                                media.className = "media";
-
-                                const mediaContent = document.createElement("div");
-                                mediaContent.className = "media-content";
-
-                                const title = document.createElement("p");
-                                title.className = "title is-4";
-                                title.textContent = `${item.brand} ${item.model}`;
-
                                 const content = document.createElement("div");
-                                content.className = "content";
-                                content.innerHTML = `
-                                    <p><strong>Hylle:</strong> ${itemLocation.split(".")[1]}</p>
-                                    <p><strong>Full plassering:</strong> ${itemLocation}</p>
-                                    <p><strong>Merke:</strong> ${item.brand}</p>
-                                    <p><strong>Modell:</strong> ${item.model}</p>
-                                    <p><strong>Artikkelnummer:</strong> ${item.articleNumber}</p>
-                                    <p><strong>Strekkode:</strong><br><img src="https://barcode.tec-it.com/barcode.ashx?data=${item.barcode}&code=${item.barcode.length == 13 ? "EAN13" : "Code128"}" alt="Strekkode"></p>
-                                    `;
+                                content.className = "columns";
 
-                                mediaContent.appendChild(title);
-                                mediaContent.appendChild(content);
-                                media.appendChild(mediaContent);
-                                box.appendChild(media);
+                                const leftSide = document.createElement("div");
+                                leftSide.className = "column is-half"; // Venstre side
+
+                                const rightSide = document.createElement("div");
+                                rightSide.className = "column is-half"; // Høyre side
+
+                                if (item.image.length > 0) {
+                                    const imageContainer = document.createElement("div");
+                                    imageContainer.className = "image-container";
+
+                                    const image = document.createElement("img");
+                                    image.src = item.image;
+                                    image.alt = `Bilde av ${item.brand} ${item.model}`;
+                                    image.className = "product-image";
+
+                                    imageContainer.appendChild(image);
+                                    leftSide.appendChild(imageContainer);
+                                }
+
+                                const brandModel = document.createElement("p");
+                                brandModel.innerHTML = `<strong>Merke:</strong> ${item.brand}<br><strong>Modell:</strong> ${item.model}`;
+
+                                leftSide.appendChild(brandModel);
+
+                                const articleNumber = document.createElement("p");
+                                articleNumber.innerHTML = `<strong>Art. nr.:</strong> ${item.articleNumber}`;
+
+                                leftSide.appendChild(articleNumber);
+
+                                const barcodeImage = document.createElement("img");
+                                barcodeImage.src = `https://barcode.tec-it.com/barcode.ashx?data=${item.barcode}&code=${item.barcode.length == 13 ? "EAN13" : "Code128"}`;
+                                barcodeImage.alt = "Strekkode";
+
+                                rightSide.appendChild(barcodeImage);
+
+                                const shelf = document.createElement("p");
+                                shelf.innerHTML = `<strong>Hylle:</strong> ${itemLocation.split(".")[1]}`;
+
+                                rightSide.appendChild(shelf);
+
+                                const fullLocation = document.createElement("p");
+                                fullLocation.innerHTML = `<strong>Full plassering:</strong> ${itemLocation}`;
+
+                                rightSide.appendChild(fullLocation);
+
+                                content.appendChild(leftSide);
+                                content.appendChild(rightSide);
+
+                                box.appendChild(content);
                                 column.appendChild(box);
                                 columns.appendChild(column);
                             }
