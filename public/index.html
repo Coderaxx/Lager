@@ -30,6 +30,12 @@
             max-height: 100%;
             object-fit: contain;
         }
+
+        .columns.is-vcentered {
+            -webkit-box-align: center;
+            -ms-flex-align: center;
+            align-items: center;
+        }
     </style>
 </head>
 
@@ -165,19 +171,25 @@
                                 itemsMap.set(itemLocation, itemInfo);
 
                                 const column = document.createElement("div");
-                                column.className = "column is-half"; // Bruk halvparten av bredden på hver rad
+                                column.className = "column is-half"; // Bruk en fjerdedel av bredden på hver rad
 
                                 const box = document.createElement("div");
                                 box.className = "box";
 
                                 const content = document.createElement("div");
-                                content.className = "columns";
+                                content.className = "columns is-multiline";
 
-                                const leftSide = document.createElement("div");
-                                leftSide.className = "column is-half"; // Venstre side
+                                const topLeft = document.createElement("div");
+                                topLeft.className = "column is-half";
 
-                                const rightSide = document.createElement("div");
-                                rightSide.className = "column is-half"; // Høyre side
+                                const topRight = document.createElement("div");
+                                topRight.className = "column is-half";
+
+                                const bottomLeft = document.createElement("div");
+                                bottomLeft.className = "column is-half";
+
+                                const bottomRight = document.createElement("div");
+                                bottomRight.className = "column is-half";
 
                                 if (item.image.length > 0) {
                                     const imageContainer = document.createElement("div");
@@ -189,37 +201,45 @@
                                     image.className = "product-image";
 
                                     imageContainer.appendChild(image);
-                                    leftSide.appendChild(imageContainer);
+                                    topLeft.appendChild(imageContainer);
                                 }
-
-                                const brandModel = document.createElement("p");
-                                brandModel.innerHTML = `<strong>Merke:</strong> ${item.brand}<br><strong>Modell:</strong> ${item.model}`;
-
-                                leftSide.appendChild(brandModel);
-
-                                const articleNumber = document.createElement("p");
-                                articleNumber.innerHTML = `<strong>Art. nr.:</strong> ${item.articleNumber}`;
-
-                                leftSide.appendChild(articleNumber);
 
                                 const barcodeImage = document.createElement("img");
                                 barcodeImage.src = `https://barcode.tec-it.com/barcode.ashx?data=${item.barcode}&code=${item.barcode.length == 13 ? "EAN13" : "Code128"}`;
                                 barcodeImage.alt = "Strekkode";
+                                barcodeImage.className = "is-flex is-vcentered is-centered";
 
-                                rightSide.appendChild(barcodeImage);
+                                topRight.appendChild(barcodeImage);
+
+                                const brandModel = document.createElement("p");
+                                brandModel.innerHTML = `<strong>Merke:</strong> ${item.brand}<br><strong>Modell:</strong> ${item.model}`;
+
+                                bottomLeft.appendChild(brandModel);
+
+                                const articleNumber = document.createElement("p");
+                                articleNumber.innerHTML = `<strong>Art. nr.:</strong> ${item.articleNumber}`;
+
+                                bottomLeft.appendChild(articleNumber);
 
                                 const shelf = document.createElement("p");
                                 shelf.innerHTML = `<strong>Hylle:</strong> ${itemLocation.split(".")[1]}`;
 
-                                rightSide.appendChild(shelf);
+                                bottomRight.appendChild(shelf);
 
                                 const fullLocation = document.createElement("p");
                                 fullLocation.innerHTML = `<strong>Full plassering:</strong> ${itemLocation}`;
 
-                                rightSide.appendChild(fullLocation);
+                                bottomRight.appendChild(fullLocation);
 
-                                content.appendChild(leftSide);
-                                content.appendChild(rightSide);
+                                const barcode = document.createElement("p");
+                                barcode.innerHTML = `<strong>Strekkode:</strong> ${item.barcode}`;
+
+                                bottomRight.appendChild(barcode);
+
+                                content.appendChild(topLeft);
+                                content.appendChild(topRight);
+                                content.appendChild(bottomLeft);
+                                content.appendChild(bottomRight);
 
                                 box.appendChild(content);
                                 column.appendChild(box);
