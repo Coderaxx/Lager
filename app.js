@@ -5,6 +5,7 @@ const path = require("path");
 const fs = require("fs");
 const Sentry = require("@sentry/node");
 
+/*
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const uri = "mongodb+srv://coderax:dJp4F1u9@kVgpzJ^E9Gr@cluster0.xlok50g.mongodb.net/?retryWrites=true&w=majority";
 
@@ -30,7 +31,7 @@ async function run() {
   }
 }
 run().catch(console.dir);
-
+*/
 
 Sentry.init({
   dsn: "https://3c602fc817b942cbaf82608c5d9450fe@o4505183347081216.ingest.sentry.io/4505183347081216",
