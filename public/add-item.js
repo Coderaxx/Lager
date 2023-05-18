@@ -47,8 +47,36 @@ $(document).ready(async () => {
         .then((data) => {
           const matchingItem = data.find((item) => item.barcode === barcode);
           if (matchingItem) {
-            const { brand, model } = matchingItem;
-            resolve({ brand, model });
+            const { brand, model, image } = matchingItem;
+            resolve({ brand, model, image });
+          } else {
+            reject("Ingen match funnet for strekkoden");
+          }
+        })
+        .catch((error) => {
+          reject(error.message);
+          Sentry.captureException(error);
+        });
+    });
+  }
+
+  function searchInventoryByShortBarcode(barcode) {
+    return new Promise((resolve, reject) => {
+      fetch(`/inventory/search/${barcode}`)
+        .then((response) => {
+          if (response.ok) {
+            return response.json();
+          } else if (response.status === 404) {
+            throw new Error("Ingen match funnet for strekkoden");
+          } else {
+            throw new Error("Noe gikk galt ved søk i lageret");
+          }
+        })
+        .then((data) => {
+          const matchingItem = data.find((item) => item.barcode === barcode);
+          if (matchingItem) {
+            const { brand, model, image } = matchingItem;
+            resolve({ brand, model, image });
           } else {
             reject("Ingen match funnet for strekkoden");
           }
@@ -104,9 +132,10 @@ $(document).ready(async () => {
     barcodeInput.value = barcode;
     brandInput.focus();
     searchInventoryByBarcode(barcode)
-      .then(({ brand, model }) => {
+      .then(({ brand, model, image }) => {
         brandInput.value = brand;
         modelInput.value = model;
+        imageInput.value = image;
         modelInput.focus();
       })
       .catch((error) => {

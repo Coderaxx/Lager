@@ -62,34 +62,100 @@ function saveInventoryToFile(inventory) {
 
 function searchInventory(query) {
   const results = [];
+  const visitedItems = new Set();
+  const visitedLocations = new Set();
 
-  for (const category of inventory.categories) {
-    for (const shelf of category.shelves) {
-      for (const level of shelf.levels) {
-        const items = level.items;
+  const getCountOfItem = (item, items) => {
+    if (Array.isArray(items)) {
+      return items.filter((i) => JSON.stringify(i) === JSON.stringify(item)).length;
+    }
+    return 1;
+  };
 
-        if (Array.isArray(items)) {
-          for (const item of items) {
-            if (
-              item.barcode === query ||
-              `${item.brand} ${item.model}`.toLowerCase().includes(query.toLowerCase()) ||
-              `${category.name}.${shelf.name}${level.name}` === query
-            ) {
-              results.push({ location: `${category.name}.${shelf.name}.${level.name}`, ...item });
+  // Check if query is 7 digits
+  if (query.length === 7 && /^\d+$/.test(query)) {
+    for (const category of inventory.categories) {
+      for (const shelf of category.shelves) {
+        for (const level of shelf.levels) {
+          const items = level.items;
+
+          if (Array.isArray(items)) {
+            const itemLocation = `${category.name}.${shelf.name}.${level.name}`;
+            const uniqueItemsInLocation = new Set();
+
+            for (const item of items) {
+              const itemBarcode = item.barcode.toString();
+              if (itemBarcode.startsWith(query)) {
+                const itemKey = JSON.stringify(item);
+
+                if (!visitedItems.has(itemKey) && !uniqueItemsInLocation.has(itemKey)) {
+                  visitedItems.add(itemKey);
+                  uniqueItemsInLocation.add(itemKey);
+                  results.push({ location: itemLocation, ...item, quantity: getCountOfItem(item, items) });
+                }
+              }
+            }
+          } else {
+            const itemLocation = `${category.name}.${shelf.name}.${level.name}`;
+            const item = items;
+            const itemBarcode = item.barcode.toString();
+            if (itemBarcode.startsWith(query)) {
+              const itemKey = JSON.stringify(item);
+
+              if (!visitedItems.has(itemKey) && !visitedLocations.has(itemLocation)) {
+                visitedItems.add(itemKey);
+                visitedLocations.add(itemLocation);
+                results.push({ location: itemLocation, ...item, quantity: getCountOfItem(item, items) });
+              }
             }
           }
-        } else {
-          if (
-            items.barcode === query ||
-            `${items.brand} ${items.model}`.toLowerCase().includes(query.toLowerCase()) ||
-            `${category.name}.${shelf.name}${level.name}` === query
-          ) {
-            results.push({ location: `${category.name}.${shelf.name}.${level.name}`, ...items });
+        }
+      }
+    }
+  } else {
+    // Regular search
+    for (const category of inventory.categories) {
+      for (const shelf of category.shelves) {
+        for (const level of shelf.levels) {
+          const items = level.items;
+
+          if (Array.isArray(items)) {
+            const itemLocation = `${category.name}.${shelf.name}.${level.name}`;
+            const uniqueItemsInLocation = new Set();
+
+            for (const item of items) {
+              const itemKey = JSON.stringify(item);
+
+              if (
+                (query && (item.barcode === query || `${item.brand} ${item.model}`.toLowerCase().includes(query.toLowerCase()) || `${category.name}.${shelf.name}${level.name}` === query))
+              ) {
+                if (!visitedItems.has(itemKey) && !uniqueItemsInLocation.has(itemKey)) {
+                  visitedItems.add(itemKey);
+                  uniqueItemsInLocation.add(itemKey);
+                  results.push({ location: itemLocation, ...item, quantity: getCountOfItem(item, items) });
+                }
+              }
+            }
+          } else {
+            const itemLocation = `${category.name}.${shelf.name}.${level.name}`;
+            const item = items;
+            const itemKey = JSON.stringify(item);
+
+            if (
+              (query && (item.barcode === query || `${item.brand} ${item.model}`.toLowerCase().includes(query.toLowerCase()) || `${category.name}.${shelf.name}${level.name}` === query))
+            ) {
+              if (!visitedItems.has(itemKey) && !visitedLocations.has(itemLocation)) {
+                visitedItems.add(itemKey);
+                visitedLocations.add(itemLocation);
+                results.push({ location: itemLocation, ...item, quantity: getCountOfItem(item, items) });
+              }
+            }
           }
         }
       }
     }
   }
+
   return results;
 }
 
@@ -155,7 +221,7 @@ myApp.get("/inventory/search/:query", (req, res) => {
   if (results.length > 0) {
     res.status(200).json(results);
   } else {
-    res.status(404).json({ message: "Ingen varer funnet" });
+    res.status(404).json({ message: `Ingen varer funnet i søk etter ${query}` });
   }
 });
 

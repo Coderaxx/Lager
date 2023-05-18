@@ -184,7 +184,16 @@
           "levels": [
             {
               "name": "1",
-              "items": []
+              "items": [
+                {
+                  "brand": "FIXX",
+                  "model": "Borskr 4.2X19 EZ PAN PH elforzinket borskjær FIXX 500",
+                  "image": "",
+                  "barcode": "7333123000866",
+                  "articleNumber": "1531741",
+                  "location": "H21.I1"
+                }
+              ]
             },
             {
               "name": "2",
@@ -367,24 +376,7 @@
           "levels": [
             {
               "name": "1",
-              "items": [
-                {
-                  "brand": "Pepsi",
-                  "model": "Pepsi Max",
-                  "image": "https://go-upc.s3.amazonaws.com/images/68719500.jpeg",
-                  "barcode": "7044610874685",
-                  "articleNumber": "",
-                  "location": "H21.P1"
-                },
-                {
-                  "brand": "FIXX",
-                  "model": "Borrskruv Kullrig",
-                  "image": "https://go-upc.s3.amazonaws.com/images/68718739.jpeg",
-                  "barcode": "7333123000842",
-                  "articleNumber": "",
-                  "location": "H21.P1"
-                }
-              ]
+              "items": []
             }
           ]
         }
