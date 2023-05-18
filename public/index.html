@@ -30,12 +30,6 @@
             max-height: 100%;
             object-fit: contain;
         }
-
-        .columns.is-vcentered {
-            -webkit-box-align: center;
-            -ms-flex-align: center;
-            align-items: center;
-        }
     </style>
 </head>
 
@@ -204,11 +198,16 @@
                                     topLeft.appendChild(imageContainer);
                                 }
 
+                                const barcode = document.createElement("p");
+                                barcode.innerHTML = `<center><strong>Strekkode:</strong><br><br></center>`;
                                 const barcodeImage = document.createElement("img");
                                 barcodeImage.src = `https://barcode.tec-it.com/barcode.ashx?data=${item.barcode}&code=${item.barcode.length == 13 ? "EAN13" : "Code128"}`;
                                 barcodeImage.alt = "Strekkode";
-                                barcodeImage.className = "is-flex is-vcentered is-centered";
+                                barcodeImage.style.display = "align-self: center; block;";
+                                barcodeImage.style.margin = "auto";
+                                //barcodeImage.style.marginTop = "25%";
 
+                                topRight.appendChild(barcode);
                                 topRight.appendChild(barcodeImage);
 
                                 const brandModel = document.createElement("p");
@@ -230,11 +229,6 @@
                                 fullLocation.innerHTML = `<strong>Full plassering:</strong> ${itemLocation}`;
 
                                 bottomRight.appendChild(fullLocation);
-
-                                const barcode = document.createElement("p");
-                                barcode.innerHTML = `<strong>Strekkode:</strong> ${item.barcode}`;
-
-                                bottomRight.appendChild(barcode);
 
                                 content.appendChild(topLeft);
                                 content.appendChild(topRight);
