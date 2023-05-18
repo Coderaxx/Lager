@@ -32,67 +32,40 @@ $(document).ready(async () => {
     }
   }
 
-  function searchInventoryByBarcode(barcode) {
-    return new Promise((resolve, reject) => {
-      fetch(`/inventory/search/${barcode}`)
-        .then((response) => {
-          if (response.ok) {
-            return response.json();
-          } else if (response.status === 404) {
-            searchInventoryByShortBarcode(barcode.substring(0, 7))
-            .then((response) => {
-              if (response.ok) {
-                console.log(response);
-                return response.json();
-              }
-            })
-            .then((data) => {
-              console.log(data);
-              if (result) {
-                console.log(result);
-                const { brand } = result.brand;
-                console.log(brand);
-                resolve( { brand });
-              } else {
-                reject("Ingen match funnet for strekkoden");
-              }
-            })
-            .catch((error) => {
-              reject(error.message);
-              Sentry.captureException(error);
-            });
-            //throw new Error("Ingen match funnet for strekkoden");
-          } else {
-            throw new Error("Noe gikk galt ved søk i lageret");
-          }
-        })
-        .then((data) => {
-          const matchingItem = data.find((item) => item.barcode === barcode);
-          if (matchingItem) {
-            const { brand, model, image } = matchingItem;
-            resolve({ brand, model, image });
-          } else {
-            reject("Ingen match funnet for strekkoden");
-          }
-        })
-        .catch((error) => {
-          reject(error.message);
-          Sentry.captureException(error);
-        });
-    });
+  async function searchInventoryByBarcode(barcode) {
+    try {
+      const response = await fetch(`/inventory/search/${barcode}`);
+      if (response.ok) {
+        const data = await response.json();
+        const matchingItem = data.find((item) => item.barcode === barcode);
+        if (matchingItem) {
+          const { brand, model, image } = matchingItem;
+          return { brand, model, image };
+        } else {
+          throw new Error("Ingen match funnet for strekkoden");
+        }
+      } else if (response.status === 404) {
+        const brand = await searchInventoryByShortBarcode(barcode.substring(0, 7));
+        if (brand) {
+          return { brand, model: "", image: "" };
+        } else {
+          throw new Error("Ingen match funnet for strekkoden");
+        }
+      } else {
+        throw new Error("Noe gikk galt ved søk i lageret");
+      }
+    } catch (error) {
+      Sentry.captureException(error);
+      throw error;
+    }
   }
 
   async function searchInventoryByShortBarcode(barcode) {
     const response = await fetch(`/inventory/search/${barcode}`);
     if (response.ok) {
       const data = await response.json();
-      const matchingItem = data.find((item) => item.barcode === barcode);
-      if (matchingItem) {
-        const brand = matchingItem;
-        return brand;
-      } else {
-        return null;
-      }
+      const brand = data[0].brand;
+      return brand;
     } else if (response.status === 404) {
       return null;
     } else {
@@ -139,44 +112,52 @@ $(document).ready(async () => {
   });
 
 
-  barcodeInput.addEventListener("change", () => {
+  barcodeInput.addEventListener("change", async () => {
     const barcode = barcodeInput.value;
     barcodeInput.value = barcode;
     brandInput.focus();
-    searchInventoryByBarcode(barcode)
+    let shouldCallGoUpc = true;
+
+    await searchInventoryByBarcode(barcode)
       .then(({ brand, model, image }) => {
         brandInput.value = brand;
         modelInput.value = model;
         imageInput.value = image;
         modelInput.focus();
+        shouldCallGoUpc = false; // Sett til false siden en match ble funnet
       })
       .catch((error) => {
         Sentry.captureException(error);
         if (error === "Ingen match funnet for strekkoden") {
           // Søk etter varen i API-et
-          axios.get(`https://go-upc.com/api/v1/code/${barcode}?key=7c4850dda436605482d38eb52bd77580b94c0495aed963b1df4d7006b1b1eefd`)
-            .then((response) => {
-              if (response.status === 200) {
-                const { brand, name, imageUrl } = response.data.product;
-                brandInput.value = brand;
-                modelInput.value = name;
-                if (imageUrl.length > 0) {
-                  imageInput.value = imageUrl;
-                }
-                modelInput.focus();
-              } else {
-                throw new Error("Ingen match funnet for strekkoden");
-              }
-            })
-            .catch((error) => {
-              Sentry.captureException(error);
-              console.error("Feil ved søk etter strekkode:", error);
-              brandInput.value = "";
-              modelInput.value = "";
-              brandInput.focus();
-            });
+          shouldCallGoUpc = true; // Sett til true siden ingen match ble funnet
         }
       });
+
+    if (shouldCallGoUpc) {
+      axios
+        .get(`https://go-upc.com/api/v1/code/${barcode}?key=7c4850dda436605482d38eb52bd77580b94c0495aed963b1df4d7006b1b1eefd`)
+        .then((response) => {
+          if (response.status === 200) {
+            const { brand, name, imageUrl } = response.data.product;
+            brandInput.value = brand;
+            modelInput.value = name;
+            if (imageUrl.length > 0) {
+              imageInput.value = imageUrl;
+            }
+            modelInput.focus();
+          } else {
+            throw new Error("Ingen match funnet for strekkoden");
+          }
+        })
+        .catch((error) => {
+          Sentry.captureException(error);
+          console.error("Feil ved søk etter strekkode:", error);
+          brandInput.value = "";
+          modelInput.value = "";
+          brandInput.focus();
+        });
+    }
   });
 
   brandInput.addEventListener("change", () => {

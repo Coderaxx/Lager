@@ -10,6 +10,8 @@
     <script src="https://js.sentry-cdn.com/3c602fc817b942cbaf82608c5d9450fe.min.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0/umd/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@zxing/browser@0/umd/zxing-browser.min.js"></script>
 
     <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
     <link rel="icon" type="image/png" href="assets/img/favicon.png">
@@ -63,13 +65,16 @@
                     <label class="label">Strekkode eller tekst</label>
                     <div class="control">
                         <input class="input" type="text" name="barcode" id="barcode"
-                            placeholder="Skriv inn strekkode eller tekst" required autofocus />
+                            placeholder="Skriv inn strekkode eller tekst" required autofocus autocomplete="off"
+                            onblur="this.focus()" />
                     </div>
                 </div>
                 <div class="field">
                     <div class="control">
                         <button class="button is-primary">Søk</button>
+                        <button id="scanButton" class="button is-info">Skann</button>
                     </div>
+                    <div id="barcodeScanner"></div>
                 </div>
             </form>
             <br>
@@ -82,6 +87,39 @@
         </div>
     </footer>-->
     <script>
+        function openBarcodeScanner() {
+            const codeReader = new ZXing.BrowserBarcodeReader();
+
+            // Åpne mobilkameraet og start strekkodeskanning
+            codeReader
+                .decodeOnceFromVideoDevice(undefined, 'barcodeScanner')
+                .then((result) => {
+                    const barcode = result.text;
+                    // Utfør handling med den skannede strekkoden, for eksempel søk
+                    searchInventoryByBarcode(barcode)
+                        .then(({ brand, model, image }) => {
+                            brandInput.value = brand;
+                            modelInput.value = model;
+                            imageInput.value = image;
+                            modelInput.focus();
+                        })
+                        .catch((error) => {
+                            Sentry.captureException(error);
+                            console.error("Feil ved søk etter strekkode:", error);
+                            brandInput.value = "";
+                            modelInput.value = "";
+                            brandInput.focus();
+                        });
+                })
+                .catch((error) => {
+                    console.error("Feil ved skanning av strekkode:", error);
+                });
+        }
+
+        // Lytt etter klikk på "Skann" -knappen
+        const scanButton = document.getElementById("scanButton");
+        scanButton.addEventListener("click", openBarcodeScanner);
+
         async function countInventory() {
             const count = {
                 itemCount: 0,
@@ -156,7 +194,7 @@
                         const itemCount = item.quantity;
 
                         const column = document.createElement("div");
-                        column.className = "column is-half"; // Bruk en fjerdedel av bredden på hver rad
+                        column.className = "column is-one-third"; // Bruk en fjerdedel av bredden på hver rad
 
                         const box = document.createElement("div");
                         box.className = "box";
@@ -192,7 +230,7 @@
                         }
 
                         const barcode = document.createElement("p");
-                        barcode.innerHTML = `<center><strong>Strekkode:</strong><br><br></center>`;
+                        barcode.innerHTML = `<center><strong>Strekkode</strong></center><br>`;
                         const barcodeImage = document.createElement("img");
                         barcodeImage.src = `https://barcode.tec-it.com/barcode.ashx?data=${item.barcode}&code=${item.barcode.length == 13 ? "EAN13" : "Code128"}`;
                         barcodeImage.alt = "Strekkode";
