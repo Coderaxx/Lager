@@ -39,7 +39,29 @@ $(document).ready(async () => {
           if (response.ok) {
             return response.json();
           } else if (response.status === 404) {
-            throw new Error("Ingen match funnet for strekkoden");
+            searchInventoryByShortBarcode(barcode.substring(0, 7))
+            .then((response) => {
+              if (response.ok) {
+                console.log(response);ssss
+                return response.json();
+              }
+            })
+            .then((data) => {
+              console.log(data);
+              if (result) {
+                console.log(result);
+                const { brand } = result.brand;
+                console.log(brand);
+                resolve( { brand });
+              } else {
+                reject("Ingen match funnet for strekkoden");
+              }
+            })
+            .catch((error) => {
+              reject(error.message);
+              Sentry.captureException(error);
+            });
+            //throw new Error("Ingen match funnet for strekkoden");
           } else {
             throw new Error("Noe gikk galt ved søk i lageret");
           }
@@ -60,32 +82,22 @@ $(document).ready(async () => {
     });
   }
 
-  function searchInventoryByShortBarcode(barcode) {
-    return new Promise((resolve, reject) => {
-      fetch(`/inventory/search/${barcode}`)
-        .then((response) => {
-          if (response.ok) {
-            return response.json();
-          } else if (response.status === 404) {
-            throw new Error("Ingen match funnet for strekkoden");
-          } else {
-            throw new Error("Noe gikk galt ved søk i lageret");
-          }
-        })
-        .then((data) => {
-          const matchingItem = data.find((item) => item.barcode === barcode);
-          if (matchingItem) {
-            const { brand, model, image } = matchingItem;
-            resolve({ brand, model, image });
-          } else {
-            reject("Ingen match funnet for strekkoden");
-          }
-        })
-        .catch((error) => {
-          reject(error.message);
-          Sentry.captureException(error);
-        });
-    });
+  async function searchInventoryByShortBarcode(barcode) {
+    const response = await fetch(`/inventory/search/${barcode}`);
+    if (response.ok) {
+      const data = await response.json();
+      const matchingItem = data.find((item) => item.barcode === barcode);
+      if (matchingItem) {
+        const brand = matchingItem;
+        return brand;
+      } else {
+        return null;
+      }
+    } else if (response.status === 404) {
+      return null;
+    } else {
+      return null;
+    }
   }
 
   const oldLocation = locationInput.value;

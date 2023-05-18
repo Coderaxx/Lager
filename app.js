@@ -91,7 +91,7 @@ function searchInventory(query) {
                 if (!visitedItems.has(itemKey) && !uniqueItemsInLocation.has(itemKey)) {
                   visitedItems.add(itemKey);
                   uniqueItemsInLocation.add(itemKey);
-                  results.push({ location: itemLocation, ...item, quantity: getCountOfItem(item, items) });
+                  results.push({ brand: item.brand });
                 }
               }
             }
@@ -105,7 +105,7 @@ function searchInventory(query) {
               if (!visitedItems.has(itemKey) && !visitedLocations.has(itemLocation)) {
                 visitedItems.add(itemKey);
                 visitedLocations.add(itemLocation);
-                results.push({ location: itemLocation, ...item, quantity: getCountOfItem(item, items) });
+                results.push({ brand: item.brand });
               }
             }
           }
