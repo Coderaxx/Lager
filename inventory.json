@@ -305,7 +305,48 @@
             },
             {
               "name": "2",
-              "items": []
+              "items": [
+                {
+                  "brand": "FIXX",
+                  "model": "Borskr 4.2X13 EZ PAN PH elforzinket borskjær FIXX 500",
+                  "image": "https://go-upc.s3.amazonaws.com/images/68718739.jpeg",
+                  "barcode": "7333123000842",
+                  "articleNumber": "",
+                  "location": "H21.M2"
+                },
+                {
+                  "brand": "FIXX",
+                  "model": "Borskr 4.2X13 EZ PAN PH elforzinket borskjær FIXX 500",
+                  "image": "https://go-upc.s3.amazonaws.com/images/68718739.jpeg",
+                  "barcode": "7333123000842",
+                  "articleNumber": "",
+                  "location": "H21.M2"
+                },
+                {
+                  "brand": "FIXX",
+                  "model": "Borskr 4.2X13 EZ PAN PH elforzinket borskjær FIXX 500",
+                  "image": "https://go-upc.s3.amazonaws.com/images/68718739.jpeg",
+                  "barcode": "7333123000842",
+                  "articleNumber": "",
+                  "location": "H21.M2"
+                },
+                {
+                  "brand": "FIXX",
+                  "model": "Borskr 4.2X13 EZ PAN PH elforzinket borskjær FIXX 500",
+                  "image": "https://go-upc.s3.amazonaws.com/images/68718739.jpeg",
+                  "barcode": "7333123000842",
+                  "articleNumber": "",
+                  "location": "H21.M2"
+                },
+                {
+                  "brand": "FIXX",
+                  "model": "Borskr 4.2X13 EZ PAN PH elforzinket borskjær FIXX 500",
+                  "image": "https://go-upc.s3.amazonaws.com/images/68718739.jpeg",
+                  "barcode": "7333123000842",
+                  "articleNumber": "",
+                  "location": "H21.M2"
+                }
+              ]
             },
             {
               "name": "3",

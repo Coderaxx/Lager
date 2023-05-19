@@ -6,7 +6,7 @@ const fs = require("fs");
 const Sentry = require("@sentry/node");
 
 const { MongoClient, ServerApiVersion } = require('mongodb');
-const uri = "mongodb+srv://coderax:dJp4F1u9@kVgpzJ^E9Gr@cluster0.xlok50g.mongodb.net/?retryWrites=true&w=majority";
+const uri = "mongodb+srv://coderax:BurlroaD50!@cluster0.xlok50g.mongodb.net/?retryWrites=true&w=majority";
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -17,12 +17,12 @@ const client = new MongoClient(uri, {
   }
 });
 
-async function run() {
+async function run(query) {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
+    await client.db("inventory").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
@@ -77,9 +77,15 @@ function readInventoryFromFile() {
   }
 }
 
-function saveInventoryToFile(inventory) {
+async function saveInventoryToFile(inventory) {
   try {
     fs.writeFileSync("inventory.json", JSON.stringify(inventory, null, 2));
+    await client.connect();
+    //oppdater database med inventory. tolk plassering, og plasser riktig inn i mongodb
+    //finn riktig plassering i database, og plasser data i riktig plassering
+    
+    console.log(`New listing created with the following id: ${result.insertedId}`);
+    await client.close();
   } catch (error) {
     console.error("Error writing inventory file:", error);
     Sentry.captureException(error);
