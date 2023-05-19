@@ -76,7 +76,7 @@
                 </div>
             </form>
             <br>
-            <div id="result" class="notification is-hidden"></div>
+            <div id="result" class="notification is-hidden is-mobile"></div>
         </div>
     </section>
     <!--<footer class="footer">
@@ -151,7 +151,7 @@
                     resultElement.innerHTML = "";
 
                     const columns = document.createElement("div");
-                    columns.className = "columns is-multiline is-full";
+                    columns.className = "columns is-multiline is-mobile";
 
                     for (const item of data) {
                         const itemLocation = item.location;
@@ -159,13 +159,13 @@
                         const itemCount = item.quantity;
 
                         const column = document.createElement("div");
-                        column.className = "column is-one-third is-full"; // Bruk en fjerdedel av bredden på hver rad
+                        column.className = "column is-two-quarters"; // Bruk en fjerdedel av bredden på hver rad
 
                         const box = document.createElement("div");
                         box.className = "box";
 
                         const content = document.createElement("div");
-                        content.className = "columns is-multiline is-full";
+                        content.className = "columns is-multiline";
 
                         const topLeft = document.createElement("div");
                         topLeft.className = "column is-half";
