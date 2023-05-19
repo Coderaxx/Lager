@@ -72,9 +72,7 @@
                 <div class="field">
                     <div class="control">
                         <button class="button is-primary">Søk</button>
-                        <button id="scanButton" class="button is-info">Skann</button>
                     </div>
-                    <div id="barcodeScanner"></div>
                 </div>
             </form>
             <br>
@@ -87,39 +85,6 @@
         </div>
     </footer>-->
     <script>
-        function openBarcodeScanner() {
-            const codeReader = new ZXing.BrowserBarcodeReader();
-
-            // Åpne mobilkameraet og start strekkodeskanning
-            codeReader
-                .decodeOnceFromVideoDevice(undefined, 'barcodeScanner')
-                .then((result) => {
-                    const barcode = result.text;
-                    // Utfør handling med den skannede strekkoden, for eksempel søk
-                    searchInventoryByBarcode(barcode)
-                        .then(({ brand, model, image }) => {
-                            brandInput.value = brand;
-                            modelInput.value = model;
-                            imageInput.value = image;
-                            modelInput.focus();
-                        })
-                        .catch((error) => {
-                            Sentry.captureException(error);
-                            console.error("Feil ved søk etter strekkode:", error);
-                            brandInput.value = "";
-                            modelInput.value = "";
-                            brandInput.focus();
-                        });
-                })
-                .catch((error) => {
-                    console.error("Feil ved skanning av strekkode:", error);
-                });
-        }
-
-        // Lytt etter klikk på "Skann" -knappen
-        const scanButton = document.getElementById("scanButton");
-        scanButton.addEventListener("click", openBarcodeScanner);
-
         async function countInventory() {
             const count = {
                 itemCount: 0,
@@ -186,7 +151,7 @@
                     resultElement.innerHTML = "";
 
                     const columns = document.createElement("div");
-                    columns.className = "columns is-multiline";
+                    columns.className = "columns is-multiline is-full";
 
                     for (const item of data) {
                         const itemLocation = item.location;
@@ -194,13 +159,13 @@
                         const itemCount = item.quantity;
 
                         const column = document.createElement("div");
-                        column.className = "column is-one-third"; // Bruk en fjerdedel av bredden på hver rad
+                        column.className = "column is-one-third is-full"; // Bruk en fjerdedel av bredden på hver rad
 
                         const box = document.createElement("div");
                         box.className = "box";
 
                         const content = document.createElement("div");
-                        content.className = "columns is-multiline";
+                        content.className = "columns is-multiline is-full";
 
                         const topLeft = document.createElement("div");
                         topLeft.className = "column is-half";

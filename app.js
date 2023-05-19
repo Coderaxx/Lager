@@ -17,7 +17,7 @@ const client = new MongoClient(uri, {
   }
 });
 
-async function run(query) {
+async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
@@ -80,12 +80,6 @@ function readInventoryFromFile() {
 async function saveInventoryToFile(inventory) {
   try {
     fs.writeFileSync("inventory.json", JSON.stringify(inventory, null, 2));
-    await client.connect();
-    //oppdater database med inventory. tolk plassering, og plasser riktig inn i mongodb
-    //finn riktig plassering i database, og plasser data i riktig plassering
-    
-    console.log(`New listing created with the following id: ${result.insertedId}`);
-    await client.close();
   } catch (error) {
     console.error("Error writing inventory file:", error);
     Sentry.captureException(error);
