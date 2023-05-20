@@ -64,10 +64,10 @@ $(document).ready(async () => {
   async function searchOnninenByBarcode(barcode) {
     const config = {
       headers: {
-        "Accept": "application/json, text/plain, */*",
-        "Accept-Encoding": "gzip, deflate, br",
-        "Accept-Language": "nb-NO,nb;q=0.9,en-US;q=0.8,en;q=0.7",
-        "Cache-Control": "no-cache",
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Method': 'GET',
+        'Accept-Encoding': 'gzip, deflate, br',
       },
     };
     axios.get(`https://onninen.no/rest/v2/search/suggestion?term=${barcode}`, config)
