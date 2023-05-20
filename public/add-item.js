@@ -17,6 +17,9 @@ $(document).ready(async () => {
   const imageInput = document.getElementById("imagePreview");
   const articleNumberInput = document.getElementById("articleNumberInput");
   const itemInputFields = document.getElementById("itemInputFields");
+  const searchButton = document.getElementById("searchButton");
+
+  let checked = false;
 
   // Funksjon for å sjekke om en streng er i riktig plasseringsformat
   function isValidLocationFormat(input) {
@@ -33,23 +36,31 @@ $(document).ready(async () => {
   }
 
   async function searchInventoryByBarcode(barcode) {
+    checked = true;
     try {
       const response = await fetch(`/inventory/search/${barcode}`);
       if (response.ok) {
         const data = await response.json();
-        const matchingItem = data.find((item) => item.barcode === barcode);
+        const matchingItem = data.find((item) => item.barcode === barcode || item.articleNumber === barcode);
         if (matchingItem) {
-          const { brand, model, image } = matchingItem;
-          return { brand, model, image };
+          const { barcode, brand, model, image, articleNumber } = matchingItem;
+          return { barcode, brand, model, image, articleNumber };
         } else {
           throw new Error("Ingen match funnet for strekkoden");
         }
       } else if (response.status === 404) {
-        const brand = await searchInventoryByShortBarcode(barcode.substring(0, 7));
-        if (brand) {
-          return { brand, model: "", image: "" };
+        const checkOnninen = await searchOnninenByBarcode(barcode);
+        if (checkOnninen) {
+          const brand = checkOnninen.brand.name;
+          const model = checkOnninen.displayName;
+          const image = checkOnninen.imageUrl;
+          const ean = checkOnninen.productCodes.find((productCode) => productCode.type === "ean").value;
+          const articleNumber = checkOnninen.productCodes.find((productCode) => productCode.type === "elec").value;
+
+          document.getElementById("barcodeInput").value = ean;
+
+          return { barcode: ean, brand, model, image, articleNumber };
         } else {
-          const checkOnninen = await searchOnninenByBarcode(barcode);
           throw new Error("Ingen match funnet for strekkoden");
         }
       } else {
@@ -62,60 +73,37 @@ $(document).ready(async () => {
   }
 
   async function searchOnninenByBarcode(barcode) {
-    const config = {
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Method': 'GET',
-        'Accept-Encoding': 'gzip, deflate, br',
-      },
-    };
-    axios.get(`https://onninen.no/rest/v2/search/suggestion?term=${barcode}`, config)
-      .then((response) => {
-        if (response.status === 200) {
-          console.log(response);
-          const data = response.data;
-          const productCodes = data.productCodes;
-          if (productCodes) {
-            axios.get(`https://www.onninen.no/rest/v1/product/${productCodes[0]}`, config)
-              .then((response) => {
-                if (response.status === 200) {
-                  const data = response.data;
-                  const brand = data.brand.name;
-                  const model = data.displayName;
-                  const image = data.imageUrl;
-                  return { brand, model, image };
-                } else {
-                  throw new Error("Ingen match funnet for strekkoden");
-                }
-              })
-              .catch((error) => {
-                Sentry.captureException(error);
-                throw error;
-              });
+    checked = true;
+    const proxyUrl = "https://cors-anywhere.herokuapp.com/";
+    //showLoadingIndicator(barcode); // Viser indikatoren før du starter forespørselen
+    try {
+      const response = await axios.get(`${proxyUrl}https://onninen.no/rest/v2/search/suggestion?term=${barcode}`);
+      if (response.status === 200) {
+        const data = response.data;
+        const productCodes = data.productCodes;
+        if (productCodes.length > 0) {
+          const productResponse = await axios.get(`${proxyUrl}https://onninen.no/rest/v1/product/${productCodes[0]}`);
+          if (productResponse.status === 200) {
+            const productData = productResponse.data;
+            Swal.close(); // Lukker indikatoren når forespørselen er fullført
+            showAlert("Fant produktdata hos Onninnen!", "success");
+            return productData;
           } else {
+            Swal.close(); // Lukker indikatoren når forespørselen er fullført
             throw new Error("Ingen match funnet for strekkoden");
           }
         } else {
+          Swal.close(); // Lukker indikatoren når forespørselen er fullført
           throw new Error("Ingen match funnet for strekkoden");
         }
-      })
-      .catch((error) => {
-        Sentry.captureException(error);
-        throw error;
-      });
-  }
-
-  async function searchInventoryByShortBarcode(barcode) {
-    const response = await fetch(`/inventory/search/${barcode}`);
-    if (response.ok) {
-      const data = await response.json();
-      const brand = data[0].brand;
-      return brand;
-    } else if (response.status === 404) {
-      return null;
-    } else {
-      return null;
+      } else {
+        Swal.close(); // Lukker indikatoren når forespørselen er fullført
+        throw new Error("Ingen match funnet for strekkoden");
+      }
+    } catch (error) {
+      Swal.close(); // Lukker indikatoren når forespørselen er fullført
+      Sentry.captureException(error);
+      throw error;
     }
   }
 
@@ -157,20 +145,64 @@ $(document).ready(async () => {
     locationInput.value = input.toUpperCase();
   });
 
+  barcodeInput.addEventListener("paste", () => {
+    setTimeout(() => {
+      const event = new Event("change"); // Opprett en ny "change"-hendelse
+      barcodeInput.dispatchEvent(event); // Utløs "change"-hendelsen
+      checked = true;
+    }, 0);
+  });
+
+  barcodeInput.addEventListener("input", () => {
+    brandInput.value = "";
+    modelInput.value = "";
+    articleNumberInput.value = "";
+    imageInput.value = "";
+  });
+
+  searchButton.addEventListener("click", async () => {
+    const event = new Event("change"); // Opprett en ny "change"-hendelse
+    barcodeInput.dispatchEvent(event); // Utløs "change"-hendelsen
+    checked = true;
+  });
 
   barcodeInput.addEventListener("change", async () => {
+    if (checked == true) {
+      checked = false;
+      return;
+    }
     const barcode = barcodeInput.value;
     barcodeInput.value = barcode;
-    brandInput.focus();
     let shouldCallGoUpc = true;
+    const barcodeInputDiv = document.getElementById("barcodeInputDiv");
+    const brandInputDiv = document.getElementById("brandInputDiv");
+    const modelInputDiv = document.getElementById("modelInputDiv");
+    const articleNumberInputDiv = document.getElementById("articleNumberInputDiv");
+
+    barcodeInputDiv.classList.add("is-loading");
+    brandInputDiv.classList.add("is-loading");
+    modelInputDiv.classList.add("is-loading");
+    articleNumberInputDiv.classList.add("is-loading");
+
+    barcodeInput.setAttribute("placeholder", "Laster...");
+    brandInput.setAttribute("placeholder", "Laster...");
+    modelInput.setAttribute("placeholder", "Laster...");
+    articleNumberInput.setAttribute("placeholder", "Laster...");
 
     await searchInventoryByBarcode(barcode)
-      .then(({ brand, model, image }) => {
+      .then(({ barcode, brand, model, image, articleNumber }) => {
+        barcodeInput.value = barcode;
         brandInput.value = brand;
         modelInput.value = model;
         imageInput.value = image;
-        modelInput.focus();
+        articleNumberInput.value = articleNumber;
+        articleNumberInput.focus();
         shouldCallGoUpc = false; // Sett til false siden en match ble funnet
+        barcodeInputDiv.classList.remove("is-loading");
+        brandInputDiv.classList.remove("is-loading");
+        modelInputDiv.classList.remove("is-loading");
+        articleNumberInputDiv.classList.remove("is-loading");
+        checked = false;
       })
       .catch((error) => {
         Sentry.captureException(error);
@@ -185,12 +217,20 @@ $(document).ready(async () => {
         .get(`https://go-upc.com/api/v1/code/${barcode}?key=7c4850dda436605482d38eb52bd77580b94c0495aed963b1df4d7006b1b1eefd`)
         .then((response) => {
           if (response.status === 200) {
+            barcodeInput.setAttribute("placeholder", "Skann strekkode/elnummer...");
+            brandInput.setAttribute("placeholder", "Skriv inn merke...");
+            modelInput.setAttribute("placeholder", "Skriv inn modell...");
+            articleNumberInput.setAttribute("placeholder", "Skriv inn artikkelnummer...");
             const { brand, name, imageUrl } = response.data.product;
             brandInput.value = brand;
             modelInput.value = name;
             if (imageUrl.length > 0) {
               imageInput.value = imageUrl;
             }
+            barcodeInputDiv.classList.remove("is-loading");
+            brandInputDiv.classList.remove("is-loading");
+            modelInputDiv.classList.remove("is-loading");
+            articleNumberInputDiv.classList.remove("is-loading");
             modelInput.focus();
           } else {
             throw new Error("Ingen match funnet for strekkoden");
@@ -259,6 +299,7 @@ $(document).ready(async () => {
           axios.post(`/inventory/${location}`, newItem)
             .then((response) => {
               if (response.status === 201) {
+                checked = false;
                 showAlert("Suksess!\r\nVare lagt til!", "success");
                 if (location) {
                   itemInputFields.style.display = "block";

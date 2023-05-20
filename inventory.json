@@ -104,7 +104,16 @@
             },
             {
               "name": "3",
-              "items": []
+              "items": [
+                {
+                  "brand": "MILWAUKEE",
+                  "model": "Bor/skrutrekker M18 CBLDD-502C",
+                  "image": "https://onninen-file-storage.imgix.net/4933464556_1.jpg",
+                  "barcode": "4058546225018",
+                  "articleNumber": "8804198",
+                  "location": "H21.E3"
+                }
+              ]
             },
             {
               "name": "4",
@@ -288,48 +297,7 @@
             },
             {
               "name": "2",
-              "items": [
-                {
-                  "brand": "FIXX",
-                  "model": "Borrskruv Kullrig",
-                  "image": "https://go-upc.s3.amazonaws.com/images/68718739.jpeg",
-                  "barcode": "7333123000842",
-                  "articleNumber": "1531739",
-                  "location": "H21.M2"
-                },
-                {
-                  "brand": "FIXX",
-                  "model": "Borrskruv Kullrig",
-                  "image": "https://go-upc.s3.amazonaws.com/images/68718739.jpeg",
-                  "barcode": "7333123000842",
-                  "articleNumber": "1531739",
-                  "location": "H21.M2"
-                },
-                {
-                  "brand": "FIXX",
-                  "model": "Borrskruv Kullrig",
-                  "image": "https://go-upc.s3.amazonaws.com/images/68718739.jpeg",
-                  "barcode": "7333123000842",
-                  "articleNumber": "1531739",
-                  "location": "H21.M2"
-                },
-                {
-                  "brand": "FIXX",
-                  "model": "Borrskruv Kullrig",
-                  "image": "https://go-upc.s3.amazonaws.com/images/68718739.jpeg",
-                  "barcode": "7333123000842",
-                  "articleNumber": "1531739",
-                  "location": "H21.M2"
-                },
-                {
-                  "brand": "Pepsi",
-                  "model": "Pepsi Max",
-                  "image": "https://go-upc.s3.amazonaws.com/images/68719500.jpeg",
-                  "barcode": "7044610874685",
-                  "articleNumber": "",
-                  "location": "H21.M2"
-                }
-              ]
+              "items": []
             },
             {
               "name": "3",

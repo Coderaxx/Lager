@@ -24,28 +24,31 @@
                     </div>
                 </div>
                 <div id="itemInputFields" style="display: none;">
-                    <div class="field">
-                        <label class="label">Scan varen</label>
+                    <label class="label">Skann varen</label>
+                    <div class="field has-addons">
+                        <div class="control is-expanded" id="barcodeInputDiv">
+                            <input class="input" type="text" id="barcodeInput" placeholder="Skann strekkode/elnummer..." required onclick="this.select();" />
+                        </div>
                         <div class="control">
-                            <input class="input" type="text" id="barcodeInput" placeholder="Scann varen" required onclick="this.select();" />
+                            <a class="button is-info" id="searchButton">Søk</a>
                         </div>
                     </div>
                     <div class="field">
                         <label class="label">Merke</label>
-                        <div class="control">
-                            <input class="input" type="text" id="brandInput" placeholder="Skriv inn merke" required />
+                        <div class="control" id="brandInputDiv">
+                            <input class="input" type="text" id="brandInput" placeholder="Skriv inn merke..." required />
                         </div>
                     </div>
                     <div class="field">
                         <label class="label">Modell</label>
-                        <div class="control">
-                            <input class="input" type="text" id="modelInput" placeholder="Skriv inn modell" required />
+                        <div class="control" id="modelInputDiv">
+                            <input class="input" type="text" id="modelInput" placeholder="Skriv inn modell..." required />
                         </div>
                     </div>
                     <div class="field">
                         <label class="label">Artikkelnummer</label>
-                        <div class="control">
-                            <input class="input" type="text" id="articleNumberInput" placeholder="Skriv inn artikkelnummer" />
+                        <div class="control" id="articleNumberInputDiv">
+                            <input class="input" type="text" id="articleNumberInput" placeholder="Skriv inn artikkelnummer..." />
                         </div>
                     </div>
                     <div class="field">
@@ -76,6 +79,19 @@
         });
     </script>
     <script type="module" src="add-item.js"></script>
+    <script type="text/javascript">
+        function showLoadingIndicator(barcode) {
+            Swal.fire({
+                title: 'Sjekker produktinfo for ' + barcode,
+                text: 'Vennligst vent...',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+        }
+    </script>
 </body>
 
 </html>

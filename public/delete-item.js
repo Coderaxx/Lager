@@ -15,12 +15,13 @@ $(document).ready(() => {
 
     // Hjelpefunksjon for å opprette en rad i tabellen
     function createTableRow(item, location) {
-      const { brand, model, barcode, location: itemLocation } = item;
+      const { brand, model, barcode, articleNumber, location: itemLocation } = item;
 
       const row = $("<tr></tr>");
       row.append(`<td>${brand}</td>`);
       row.append(`<td>${model}</td>`);
       row.append(`<td>${barcode}</td>`);
+      row.append(`<td>${articleNumber}</td>`);
       row.append(`<td>${itemLocation}</td>`);
 
       const deleteButton = $(`<button class="button is-danger">Slett</button>`);
