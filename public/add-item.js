@@ -49,6 +49,7 @@ $(document).ready(async () => {
         if (brand) {
           return { brand, model: "", image: "" };
         } else {
+          const checkOnninen = await searchOnninenByBarcode(barcode);
           throw new Error("Ingen match funnet for strekkoden");
         }
       } else {
@@ -58,6 +59,49 @@ $(document).ready(async () => {
       Sentry.captureException(error);
       throw error;
     }
+  }
+
+  async function searchOnninenByBarcode(barcode) {
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      },
+    };
+    axios.get(`https://www.onninen.no/rest/v2/search/suggestion?term=${barcode}`, config)
+      .then((response) => {
+        if (response.status === 200) {
+          console.log(response);
+          const data = response.data;
+          const productCodes = data.productCodes;
+          if (productCodes) {
+            axios.get(`https://www.onninen.no/rest/v1/product/${productCodes[0]}`, config)
+              .then((response) => {
+                if (response.status === 200) {
+                  const data = response.data;
+                  const brand = data.brand.name;
+                  const model = data.displayName;
+                  const image = data.imageUrl;
+                  return { brand, model, image };
+                } else {
+                  throw new Error("Ingen match funnet for strekkoden");
+                }
+              })
+              .catch((error) => {
+                Sentry.captureException(error);
+                throw error;
+              });
+          } else {
+            throw new Error("Ingen match funnet for strekkoden");
+          }
+        } else {
+          throw new Error("Ingen match funnet for strekkoden");
+        }
+      })
+      .catch((error) => {
+        Sentry.captureException(error);
+        throw error;
+      });
   }
 
   async function searchInventoryByShortBarcode(barcode) {
