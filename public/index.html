@@ -80,9 +80,8 @@
                     </div>
                 </div>
             </form>
-            <br>
-            <video id="video" width="100%" height="100%" style="object-fit: cover;"></video>
             <div id="result" class="notification is-hidden is-mobile"></div>
+            <video id="video" width="100%" height="100%" style="object-fit: cover;"></video>
         </div>
     </section>
     <!--<footer class="footer">
@@ -104,11 +103,11 @@
                         codeReader.decodeFromVideoDevice(selectedDeviceId, 'video', (result, err) => {
                             if (result) {
                                 console.log(result);
-                                document.getElementById('result').textContent = result.text;
+                                document.getElementById('barcode').textContent = result.text;
                             }
                             if (err && !(err instanceof ZXing.NotFoundException)) {
                                 console.error(err);
-                                document.getElementById('result').textContent = err;
+                                document.getElementById('barcode').textContent = err;
                             }
                         });
                         console.log(`Started continous decode from camera with id ${selectedDeviceId}`);
