@@ -290,14 +290,6 @@
               "name": "2",
               "items": [
                 {
-                  "brand": "Milwaukee",
-                  "model": "Cordless Drill Driver M18 CBLDD-502C",
-                  "image": "https://go-upc.s3.amazonaws.com/images/68857864.jpeg",
-                  "barcode": "4058546225018",
-                  "articleNumber": "648027",
-                  "location": "H21.M2"
-                },
-                {
                   "brand": "FIXX",
                   "model": "Borrskruv Kullrig",
                   "image": "https://go-upc.s3.amazonaws.com/images/68718739.jpeg",
