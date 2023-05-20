@@ -74,6 +74,12 @@
                         <button class="button is-primary">Søk</button>
                     </div>
                 </div>
+                <div class="field">
+                    <div class="control">
+                        <button class="button is-info" type="button" onclick="startScanner()">Skann</button>
+                    </div>
+                    
+                </div>
             </form>
             <br>
             <div id="result" class="notification is-hidden is-mobile"></div>
@@ -85,6 +91,62 @@
         </div>
     </footer>-->
     <script>
+        //Funksjon for å starte kameraet og skanne strekkoder.
+        async function startScanner() {
+            const codeReader = new ZXing.BrowserMultiFormatReader();
+            const videoInputDevices = await codeReader.listVideoInputDevices();
+            let selectedDeviceId = videoInputDevices[0].deviceId;
+
+            if (videoInputDevices.length > 1) {
+                const selection = await Swal.fire({
+                    title: "Velg kamera",
+                    input: "select",
+                    inputOptions: videoInputDevices.reduce((options, device) => {
+                        options[device.deviceId] = device.label;
+                        return options;
+                    }, {}),
+                    inputPlaceholder: "Velg kamera",
+                    showCancelButton: true,
+                    confirmButtonText: "Velg",
+                    cancelButtonText: "Avbryt",
+                    inputValidator: (value) => {
+                        if (!value) {
+                            return "Du må velge et kamera";
+                        }
+                    },
+                });
+
+                if (selection.isConfirmed) {
+                    selectedDeviceId = selection.value;
+                }
+            }
+
+            const constraints = {
+                video: {
+                    deviceId: selectedDeviceId,
+                },
+            };
+
+            const video = document.getElementById("video");
+            const stream = await navigator.mediaDevices.getUserMedia(constraints);
+            video.srcObject = stream;
+            video.play();
+
+            const resultElement = document.getElementById("result");
+            const resultText = document.getElementById("resultText");
+
+            codeReader.decodeFromVideoElement(video, (result, err) => {
+                if (result) {
+                    resultElement.classList.remove("is-hidden");
+                    resultText.textContent = result.text;
+                }
+
+                if (err) {
+                    console.error(err);
+                }
+            });
+        }
+
         async function countInventory() {
             const count = {
                 itemCount: 0,
