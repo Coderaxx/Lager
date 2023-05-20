@@ -103,11 +103,11 @@
                         codeReader.decodeFromVideoDevice(selectedDeviceId, 'video', (result, err) => {
                             if (result) {
                                 console.log(result);
-                                document.getElementById('barcode').textContent = result.text;
+                                document.getElementById('barcode').value = result.text;
                             }
                             if (err && !(err instanceof ZXing.NotFoundException)) {
                                 console.error(err);
-                                document.getElementById('barcode').textContent = err;
+                                document.getElementById('barcode').value = err;
                             }
                         });
                         console.log(`Started continous decode from camera with id ${selectedDeviceId}`);
