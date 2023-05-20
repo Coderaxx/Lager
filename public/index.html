@@ -103,6 +103,7 @@
                             if (result) {
                                 console.log(result);
                                 document.getElementById("barcode").value = result.text;
+                                codeReader.reset();
                             }
                             if (err && !(err instanceof ZXing.NotFoundException)) {
                                 console.error(err);
