@@ -99,7 +99,7 @@
                     const sourceSelect = document.getElementById('sourceSelect');
                     selectedDeviceId = videoInputDevices[0].deviceId;
 
-                    document.getElementById('startScanner').addEventListener('mousedown', () => {
+                    document.getElementById('startScanner').addEventListener('click', () => {
                         codeReader.decodeFromVideoDevice(selectedDeviceId, 'video', (result, err) => {
                             if (result) {
                                 console.log(result);
