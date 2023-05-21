@@ -5,6 +5,24 @@ const path = require("path");
 const fs = require("fs");
 const Sentry = require("@sentry/node");
 const jquery = require("jquery");
+const { auth } = require('express-openid-connect');
+const { requiresAuth } = require('express-openid-connect');
+
+const config = {
+  authRequired: true,
+  auth0Logout: true,
+  secret: 'a long, randomly-generated string stored in env',
+  baseURL: 'http://localhost:5000',
+  clientID: 'vQUaYlG05TYDSYhoRKwdiTWiTYgfDmOk',
+  issuerBaseURL: 'https://quiet-art-1684.eu.auth0.com'
+};
+
+// auth router attaches /login, /logout, and /callback routes to the baseURL
+myApp.use(auth(config));
+
+myApp.get('/profile', requiresAuth(), (req, res) => {
+  res.send(JSON.stringify(req.oidc.user));
+});
 
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const uri = "mongodb+srv://coderax:BurlroaD50!@cluster0.xlok50g.mongodb.net/?retryWrites=true&w=majority";

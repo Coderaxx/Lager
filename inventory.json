@@ -329,6 +329,33 @@
                   "barcode": "7070920009592",
                   "articleNumber": "2017321",
                   "location": "H21.L3"
+                },
+                {
+                  "brand": "ABB Electrification",
+                  "model": "KOBLINGSBOKS AP9 HVIT IP65",
+                  "image": "https://efobasen.no/API/Produktfiler/Skalert?id=696873&w=1000&h=1000&m=5",
+                  "brandImage": "https://efobasen.no/API/Firmalogoer/Skalert?id=843629&w=1000&h=1000&m=5",
+                  "barcode": "6410016125095",
+                  "articleNumber": "1241010",
+                  "location": "H21.L3"
+                },
+                {
+                  "brand": "Easee",
+                  "model": "Easee Home Black",
+                  "image": "https://efobasen.no/API/Produktfiler/Skalert?id=870521&w=1000&h=1000&m=5",
+                  "brandImage": "https://efobasen.no/API/Firmalogoer/Skalert?id=1416730&w=1000&h=1000&m=5",
+                  "barcode": "7090052310021",
+                  "articleNumber": "6600973",
+                  "location": "H21.L3"
+                },
+                {
+                  "brand": "Zaptec",
+                  "model": "Zaptec Pro 7,4-22 kW IT/TN",
+                  "image": "https://efobasen.no/API/Produktfiler/Skalert?id=1472668&w=1000&h=1000&m=5",
+                  "brandImage": "",
+                  "barcode": "7090038510179",
+                  "articleNumber": "1501502",
+                  "location": "H21.L3"
                 }
               ]
             }
