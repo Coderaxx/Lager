@@ -104,16 +104,7 @@
             },
             {
               "name": "3",
-              "items": [
-                {
-                  "brand": "MILWAUKEE",
-                  "model": "Bor/skrutrekker M18 CBLDD-502C",
-                  "image": "https://onninen-file-storage.imgix.net/4933464556_1.jpg",
-                  "barcode": "4058546225018",
-                  "articleNumber": "8804198",
-                  "location": "H21.E3"
-                }
-              ]
+              "items": []
             },
             {
               "name": "4",

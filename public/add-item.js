@@ -107,6 +107,62 @@ $(document).ready(async () => {
     }
   }
 
+  async function searchEFOByBarcode(barcode) {
+    checked = true;
+    const proxyUrl = "https://cors-anywhere.herokuapp.com/";
+    //showLoadingIndicator(barcode); // Viser indikatoren før du starter forespørselen
+    try {
+      const options = {
+        body: {
+          "Statusvalg": [
+            1,
+            8
+          ],
+          "Page": 1,
+          "Pagesize": 50,
+          "Search": "4058546225018"
+        },
+        headers: {
+          "Accept": "application/json, text/plain, */*",
+          "Content-Type": "application/json",
+          "Cookie": "auth=OoARyra%2F1geHE6egattDtOzT2uBAktUEYjsjd%2FwIiey7yAoa6p%2BrkLQFxVMPErxHjNVr0nyDDaZj19xQEqB%2Bjw%3D%3D",
+          "Ngversionstamp": "9ff4110df53bdd101a328392d666e6fa"
+        }
+      };
+      const response = await axios.post(`${proxyUrl}https://efobasen.no/API/VisProdukt/HentProduktinfo`, options);
+      if (response.status === 200) {
+        const data = response.data;
+        if (data.length > 0) {
+          const options = {
+            body: {
+              "Produktnr": 8804198,
+            }
+          };
+          const productResponse = await axios.post(`${proxyUrl}https://efobasen.no/API/VisProdukt/HentProduktinfo`, options);
+          if (productResponse.status === 200) {
+            const productData = productResponse.data;
+            Swal.close(); // Lukker indikatoren når forespørselen er fullført
+            showAlert("Fant produktdata hos EFO!", "success");
+            return productData;
+          } else {
+            Swal.close(); // Lukker indikatoren når forespørselen er fullført
+            throw new Error("Ingen match funnet for strekkoden");
+          }
+        } else {
+          Swal.close(); // Lukker indikatoren når forespørselen er fullført
+          throw new Error("Ingen match funnet for strekkoden");
+        }
+      } else {
+        Swal.close(); // Lukker indikatoren når forespørselen er fullført
+        throw new Error("Ingen match funnet for strekkoden");
+      }
+    } catch (error) {
+      Swal.close(); // Lukker indikatoren når forespørselen er fullført
+      Sentry.captureException(error);
+      throw error;
+    }
+  }
+
   const oldLocation = locationInput.value;
 
   locationInput.addEventListener("change", () => {

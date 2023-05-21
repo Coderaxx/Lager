@@ -4,6 +4,7 @@ const PORT = process.env.PORT || 5000;
 const path = require("path");
 const fs = require("fs");
 const Sentry = require("@sentry/node");
+const jquery = require("jquery");
 
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const uri = "mongodb+srv://coderax:BurlroaD50!@cluster0.xlok50g.mongodb.net/?retryWrites=true&w=majority";
@@ -60,6 +61,8 @@ myApp.get("/location", (req, res) => {
 myApp.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
+myApp.use('/lib/jquery', express.static(path.join(__dirname, 'node_modules/jquery/dist')));
 
 myApp.use(express.json());
 myApp.use(express.static("public"));
