@@ -275,7 +275,62 @@
             },
             {
               "name": "3",
-              "items": []
+              "items": [
+                {
+                  "brand": "MILWAUKEE",
+                  "model": "BOR/SKRUTREKKER M18 CBLDD-502C",
+                  "image": "https://efobasen.no/API/Produktfiler/Skalert?id=613665&w=1000&h=1000&m=5",
+                  "brandImage": "",
+                  "barcode": "4058546225018",
+                  "articleNumber": "8804198",
+                  "location": "H21.L3"
+                },
+                {
+                  "brand": "MILWAUKEE",
+                  "model": "STØVSUGER M18 VC2",
+                  "image": "https://efobasen.no/API/Produktfiler/Skalert?id=600456&w=1000&h=1000&m=5",
+                  "brandImage": "",
+                  "barcode": "4058546219741",
+                  "articleNumber": "8840028",
+                  "location": "H21.L3"
+                },
+                {
+                  "brand": "BOSCH",
+                  "model": "MULTICUTTER GOP 18V-28 SOLO L-BOXX",
+                  "image": "https://efobasen.no/API/Produktfiler/Skalert?id=862358&w=1000&h=1000&m=5",
+                  "brandImage": "",
+                  "barcode": "3165140842587",
+                  "articleNumber": "8801813",
+                  "location": "H21.L3"
+                },
+                {
+                  "brand": "MILWAUKEE",
+                  "model": "BAJONETTSAG M18 FHZ-0X",
+                  "image": "https://efobasen.no/API/Produktfiler/Skalert?id=611183&w=1000&h=1000&m=5",
+                  "brandImage": "",
+                  "barcode": "4058546030599",
+                  "articleNumber": "8840030",
+                  "location": "H21.L3"
+                },
+                {
+                  "brand": "Makita",
+                  "model": "BORSKRUTREKKER 18V DDF485RTJ",
+                  "image": "https://efobasen.no/API/Produktfiler/Skalert?id=120102&w=1000&h=1000&m=5",
+                  "brandImage": "",
+                  "barcode": "088381866439",
+                  "articleNumber": "8818366",
+                  "location": "H21.L3"
+                },
+                {
+                  "brand": "ABIKO 2,5 BLÅ C   100 STK",
+                  "model": "ISOL. ENDEHYLSE 2,5 MM2 - 8 MM",
+                  "image": "https://efobasen.no/API/Produktfiler/Skalert?id=242663&w=1000&h=1000&m=5",
+                  "brandImage": "",
+                  "barcode": "7070920009592",
+                  "articleNumber": "2017321",
+                  "location": "H21.L3"
+                }
+              ]
             }
           ]
         },

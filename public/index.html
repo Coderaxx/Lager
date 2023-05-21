@@ -20,8 +20,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 150px;
-            height: 150px;
+            width: 140px;
+            height: 140px;
             border: 1px solid #000;
             border-radius: 5px;
             margin-bottom: 10px;
@@ -31,6 +31,13 @@
             max-width: 100%;
             max-height: 100%;
             object-fit: contain;
+        }
+
+        .image img {
+            width: auto;
+            height: auto;
+            max-width: 100%;
+            max-height: 100%;
         }
     </style>
 </head>
@@ -185,7 +192,7 @@
                     resultElement.innerHTML = "";
 
                     const columns = document.createElement("div");
-                    columns.className = "columns is-multiline is-mobile";
+                    columns.className = "columns is-multiline is-centered";
 
                     for (const item of data) {
                         const itemLocation = item.location;
@@ -193,86 +200,125 @@
                         const itemCount = item.quantity;
 
                         const column = document.createElement("div");
-                        column.className = "column is-half"; // Bruk en fjerdedel av bredden på hver rad
+                        column.className = "column is-one-third"; // Bruk en fjerdedel av bredden på hver rad
 
-                        const box = document.createElement("div");
-                        box.className = "box";
+                        const card = document.createElement("div");
+                        card.className = "card";
 
-                        const content = document.createElement("div");
-                        content.className = "columns is-multiline";
-
-                        const topLeft = document.createElement("div");
-                        topLeft.className = "column is-half";
-
-                        const topRight = document.createElement("div");
-                        topRight.className = "column is-half";
-
-                        const HR = document.createElement("hr");
-
-                        const bottomLeft = document.createElement("div");
-                        bottomLeft.className = "column is-half";
-
-                        const bottomRight = document.createElement("div");
-                        bottomRight.className = "column is-half";
+                        const cardImage = document.createElement("div");
+                        cardImage.className = "card-image";
 
                         if (item.image.length > 0) {
-                            const imageContainer = document.createElement("div");
-                            imageContainer.className = "image-container";
+                            const figure = document.createElement("figure");
+                            figure.className = "image is-flex is-align-items-center is-justify-content-center";
 
                             const image = document.createElement("img");
                             image.src = item.image;
                             image.alt = `Bilde av ${item.brand} ${item.model}`;
-                            image.className = "product-image";
+                            image.style.maxHeight = "300px";
 
-                            imageContainer.appendChild(image);
-                            topLeft.appendChild(imageContainer);
+                            figure.appendChild(image);
+                            cardImage.appendChild(figure);
                         }
 
-                        const barcode = document.createElement("p");
-                        barcode.innerHTML = `<center><strong>Strekkode</strong></center><br>`;
-                        const barcodeImage = document.createElement("img");
-                        barcodeImage.src = `https://barcode.tec-it.com/barcode.ashx?data=${item.barcode}&code=${item.barcode.length == 13 ? "EAN13" : "Code128"}`;
-                        barcodeImage.alt = "Strekkode";
-                        barcodeImage.style.display = "align-self: center; block;";
-                        barcodeImage.style.margin = "auto";
-                        //barcodeImage.style.marginTop = "25%";
+                        card.appendChild(cardImage);
 
-                        topRight.appendChild(barcode);
-                        topRight.appendChild(barcodeImage);
+                        const cardContent = document.createElement("div");
+                        cardContent.className = "card-content";
 
-                        const brandModel = document.createElement("p");
-                        brandModel.innerHTML = `<strong>Merke:</strong> ${item.brand}<br><strong>Modell:</strong> ${item.model}`;
+                        const media = document.createElement("div");
+                        media.className = "media";
 
-                        bottomLeft.appendChild(brandModel);
+                        if (item.brandImage.length > 0) {
+                            const mediaLeft = document.createElement("div");
+                            mediaLeft.className = "media-left";
+
+                            const brandImageFig = document.createElement("figure");
+                            brandImageFig.className = "image is-48x48";
+
+                            const brandImage = document.createElement("img");
+                            brandImage.src = item.brandImage;
+                            brandImage.alt = `Logo av ${item.brandImage}`;
+
+                            brandImageFig.appendChild(brandImage);
+                            mediaLeft.appendChild(brandImageFig);
+                            media.appendChild(mediaLeft);
+                        }
+
+                        const mediaContent = document.createElement("div");
+                        mediaContent.className = "media-content";
+
+                        const title = document.createElement("p");
+                        title.className = "title is-4";
+                        title.textContent = `${item.brand}`;
+
+                        const subtitle = document.createElement("p");
+                        subtitle.className = "subtitle is-6";
+                        subtitle.textContent = `${item.model}`;
+
+                        mediaContent.appendChild(title);
+                        mediaContent.appendChild(subtitle);
+                        media.appendChild(mediaContent);
+
+                        cardContent.appendChild(media);
+
+                        const content = document.createElement("div");
+                        content.className = "content";
+
+                        const cardColumns = document.createElement("div");
+                        cardColumns.className = "columns";
+
+                        const cardColumnLeft = document.createElement("div");
+                        cardColumnLeft.className = "column is-half";
+
+                        const cardColumnRight = document.createElement("div");
+                        cardColumnRight.className = "column is-half is-right";
+
+                        cardColumns.appendChild(cardColumnLeft);
+                        cardColumns.appendChild(cardColumnRight);
 
                         const articleNumber = document.createElement("p");
-                        articleNumber.innerHTML = `<strong>Art. nr.:</strong> ${item.articleNumber}`;
-
-                        bottomLeft.appendChild(articleNumber);
+                        articleNumber.innerHTML = `<strong>El.nr.:</strong> ${item.articleNumber}`;
 
                         const shelf = document.createElement("p");
                         shelf.innerHTML = `<strong>Hylle:</strong> ${itemLocation.split(".")[1]}`;
 
-                        bottomRight.appendChild(shelf);
-
                         const fullLocation = document.createElement("p");
                         fullLocation.innerHTML = `<strong>Full plassering:</strong> ${itemLocation}`;
-
-                        bottomRight.appendChild(fullLocation);
 
                         const count = document.createElement("p");
                         count.innerHTML = `<strong>Antall:</strong> ${itemCount}`;
 
-                        bottomRight.appendChild(count);
+                        const footer = document.createElement("footer");
+                        footer.className = "card-footer";
+                        footer.style.alignItems = "center";
+                        footer.style.justifyContent = "center";
 
-                        content.appendChild(topLeft);
-                        content.appendChild(topRight);
-                        content.appendChild(HR);
-                        content.appendChild(bottomLeft);
-                        content.appendChild(bottomRight);
+                        const barcode = document.createElement("p");
+                        //barcode.innerHTML = `<strong>Strekkode</strong>`;
+                        barcode.style.marginTop = "1rem";
+                        barcode.style.marginBottom = "1rem";
+                        barcode.style.textAlign = "center";
+                        const barcodeImage = document.createElement("img");
+                        barcodeImage.src = `https://barcode.tec-it.com/barcode.ashx?data=${item.barcode}&code=${item.barcode.length == 13 ? "EAN13" : "Code128"}`;
+                        barcodeImage.alt = "Strekkode";
+                        barcodeImage.className = "image";
+                        barcodeImage.style.maxWidth = "250px";
 
-                        box.appendChild(content);
-                        column.appendChild(box);
+                        cardColumnLeft.appendChild(articleNumber);
+                        cardColumnLeft.appendChild(count);
+                        cardColumnRight.appendChild(shelf);
+                        cardColumnRight.appendChild(fullLocation);
+
+                        content.appendChild(cardColumns);
+                        barcode.appendChild(barcodeImage);
+                        footer.appendChild(barcode);
+
+                        cardContent.appendChild(content);
+                        card.appendChild(cardContent);
+                        card.appendChild(footer);
+
+                        column.appendChild(card);
                         columns.appendChild(column);
                     }
 

@@ -15,6 +15,7 @@ $(document).ready(async () => {
   const brandInput = document.getElementById("brandInput");
   const modelInput = document.getElementById("modelInput");
   const imageInput = document.getElementById("imagePreview");
+  const brandImageInput = document.getElementById("brandImagePreview");
   const articleNumberInput = document.getElementById("articleNumberInput");
   const itemInputFields = document.getElementById("itemInputFields");
   const searchButton = document.getElementById("searchButton");
@@ -43,23 +44,24 @@ $(document).ready(async () => {
         const data = await response.json();
         const matchingItem = data.find((item) => item.barcode === barcode || item.articleNumber === barcode);
         if (matchingItem) {
-          const { barcode, brand, model, image, articleNumber } = matchingItem;
-          return { barcode, brand, model, image, articleNumber };
+          const { barcode, brand, model, image, brandImage, articleNumber } = matchingItem;
+          return { barcode, brand, model, image, brandImage, articleNumber };
         } else {
           throw new Error("Ingen match funnet for strekkoden");
         }
       } else if (response.status === 404) {
-        const checkOnninen = await searchOnninenByBarcode(barcode);
-        if (checkOnninen) {
-          const brand = checkOnninen.brand.name;
-          const model = checkOnninen.displayName;
-          const image = checkOnninen.imageUrl;
-          const ean = checkOnninen.productCodes.find((productCode) => productCode.type === "ean").value;
-          const articleNumber = checkOnninen.productCodes.find((productCode) => productCode.type === "elec").value;
+        const checkEFO = await searchEFOByBarcode(barcode);
+        if (checkEFO) {
+          const brand = checkEFO.Produktinfo.Fabrikat;
+          const model = checkEFO.Produktinfo.Varetekst;
+          const image = `https://efobasen.no/API/Produktfiler/Skalert?id=${checkEFO.Produktinfo.Bilder[0]}&w=1000&h=1000&m=5`;
+          const brandImage = (checkEFO.Produktinfo.Leverandoer.FirmaLogofilId) ? `https://efobasen.no/API/Firmalogoer/Skalert?id=${checkEFO.Produktinfo.Leverandoer.FirmaLogofilId}&w=1000&h=1000&m=5` : null;
+          const ean = checkEFO.Produktskjema.Skjema.Grupper[0].Felter.find((Felter) => Felter.Navn === "gtin.nummer").Verdi;
+          const articleNumber = checkEFO.Produktinfo.Produktnr;
 
           document.getElementById("barcodeInput").value = ean;
 
-          return { barcode: ean, brand, model, image, articleNumber };
+          return { barcode: ean, brand, model, image, brandImage, articleNumber };
         } else {
           throw new Error("Ingen match funnet for strekkoden");
         }
@@ -74,7 +76,7 @@ $(document).ready(async () => {
 
   async function searchOnninenByBarcode(barcode) {
     checked = true;
-    const proxyUrl = "https://cors-anywhere.herokuapp.com/";
+    const proxyUrl = "https://cors-oneco.herokuapp.com/";
     //showLoadingIndicator(barcode); // Viser indikatoren før du starter forespørselen
     try {
       const response = await axios.get(`${proxyUrl}https://onninen.no/rest/v2/search/suggestion?term=${barcode}`);
@@ -109,55 +111,50 @@ $(document).ready(async () => {
 
   async function searchEFOByBarcode(barcode) {
     checked = true;
-    const proxyUrl = "https://cors-anywhere.herokuapp.com/";
+    const proxyUrl = "https://cors-oneco.herokuapp.com/";
     //showLoadingIndicator(barcode); // Viser indikatoren før du starter forespørselen
+
+    const options = {
+      body: {
+        "Statusvalg": [],
+        "Page": 1,
+        "Pagesize": 50,
+        "Search": barcode
+      }
+    };
+
     try {
-      const options = {
-        body: {
-          "Statusvalg": [
-            1,
-            8
-          ],
-          "Page": 1,
-          "Pagesize": 50,
-          "Search": "4058546225018"
-        },
-        headers: {
-          "Accept": "application/json, text/plain, */*",
-          "Content-Type": "application/json",
-          "Cookie": "auth=OoARyra%2F1geHE6egattDtOzT2uBAktUEYjsjd%2FwIiey7yAoa6p%2BrkLQFxVMPErxHjNVr0nyDDaZj19xQEqB%2Bjw%3D%3D",
-          "Ngversionstamp": "9ff4110df53bdd101a328392d666e6fa"
-        }
-      };
-      const response = await axios.post(`${proxyUrl}https://efobasen.no/API/VisProdukt/HentProduktinfo`, options);
+      const response = await axios.post(`${proxyUrl}https://efobasen.no/API/AlleProdukter/HentProdukter`, options.body);
       if (response.status === 200) {
         const data = response.data;
-        if (data.length > 0) {
-          const options = {
+        if (data.Produkter[0]) {
+          const product = data.Produkter[0].Produktnr;
+          const productOptions = {
             body: {
-              "Produktnr": 8804198,
+              "Produktnr": product,
             }
           };
-          const productResponse = await axios.post(`${proxyUrl}https://efobasen.no/API/VisProdukt/HentProduktinfo`, options);
-          if (productResponse.status === 200) {
-            const productData = productResponse.data;
-            Swal.close(); // Lukker indikatoren når forespørselen er fullført
-            showAlert("Fant produktdata hos EFO!", "success");
-            return productData;
-          } else {
-            Swal.close(); // Lukker indikatoren når forespørselen er fullført
-            throw new Error("Ingen match funnet for strekkoden");
+          try {
+            const productResponse = await axios.post(`${proxyUrl}https://efobasen.no/API/VisProdukt/HentProduktinfo`, productOptions.body);
+            if (productResponse.status === 200) {
+              const productData = productResponse.data;
+              // Swal.close(); // Lukker indikatoren når forespørselen er fullført
+              showAlert("Fant produktdata hos EFO!", "success");
+              return productData;
+            }
+          } catch (error) {
+            // Swal.close(); // Lukker indikatoren når forespørselen er fullført
+            Sentry.captureException(error);
+            throw error;
           }
         } else {
-          Swal.close(); // Lukker indikatoren når forespørselen er fullført
           throw new Error("Ingen match funnet for strekkoden");
         }
       } else {
-        Swal.close(); // Lukker indikatoren når forespørselen er fullført
         throw new Error("Ingen match funnet for strekkoden");
       }
     } catch (error) {
-      Swal.close(); // Lukker indikatoren når forespørselen er fullført
+      // Swal.close(); // Lukker indikatoren når forespørselen er fullført
       Sentry.captureException(error);
       throw error;
     }
@@ -240,17 +237,18 @@ $(document).ready(async () => {
     modelInputDiv.classList.add("is-loading");
     articleNumberInputDiv.classList.add("is-loading");
 
-    barcodeInput.setAttribute("placeholder", "Laster...");
-    brandInput.setAttribute("placeholder", "Laster...");
-    modelInput.setAttribute("placeholder", "Laster...");
-    articleNumberInput.setAttribute("placeholder", "Laster...");
+    //barcodeInput.setAttribute("placeholder", "Laster...");
+    //brandInput.setAttribute("placeholder", "Laster...");
+    //modelInput.setAttribute("placeholder", "Laster...");
+    //articleNumberInput.setAttribute("placeholder", "Laster...");
 
     await searchInventoryByBarcode(barcode)
-      .then(({ barcode, brand, model, image, articleNumber }) => {
+      .then(({ barcode, brand, model, image, brandImage, articleNumber }) => {
         barcodeInput.value = barcode;
         brandInput.value = brand;
         modelInput.value = model;
         imageInput.value = image;
+        brandImageInput.value = brandImage;
         articleNumberInput.value = articleNumber;
         articleNumberInput.focus();
         shouldCallGoUpc = false; // Sett til false siden en match ble funnet
@@ -338,11 +336,13 @@ $(document).ready(async () => {
     const brand = brandInput.value;
     const model = modelInput.value;
     const image = imageInput.value;
+    const brandImage = brandImageInput.value;
     const articleNumber = articleNumberInput.value;
     const newItem = {
       brand,
       model,
       image,
+      brandImage,
       barcode,
       articleNumber,
       location,
