@@ -83,11 +83,33 @@ function readInventoryFromFile() {
 async function saveInventoryToFile(inventory) {
   try {
     fs.writeFileSync("inventory.json", JSON.stringify(inventory, null, 2));
+    saveInventoryToDatabase(inventory);
   } catch (error) {
     console.error("Error writing inventory file:", error);
     Sentry.captureException(error);
   }
 }
+
+async function saveInventoryToDatabase(inventory) {
+  try {
+    const client = new MongoClient(uri);
+
+    await client.connect();
+
+    const db = client.db(dbName);
+    const collection = db.collection('inventory');
+
+    await collection.insertMany(inventory);
+
+    console.log('Inventory data saved to MongoDB.');
+
+    client.close();
+  } catch (error) {
+    console.error('Error saving inventory data to MongoDB:', error);
+    Sentry.captureException(error);
+  }
+}
+
 
 function searchInventory(query) {
   const results = [];
