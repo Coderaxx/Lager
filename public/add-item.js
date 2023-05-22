@@ -291,6 +291,10 @@ $(document).ready(async () => {
           }
         })
         .catch((error) => {
+          barcodeInputDiv.classList.remove("is-loading");
+          brandInputDiv.classList.remove("is-loading");
+          modelInputDiv.classList.remove("is-loading");
+          articleNumberInputDiv.classList.remove("is-loading");
           Sentry.captureException(error);
           console.error("Feil ved søk etter strekkode:", error);
           brandInput.value = "";
