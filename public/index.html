@@ -7,7 +7,7 @@
     <title>Lagerføringssystem</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!--<script src="https://js.sentry-cdn.com/3c602fc817b942cbaf82608c5d9450fe.min.js" crossorigin="anonymous"></script>-->
+    <script src="https://js.sentry-cdn.com/3c602fc817b942cbaf82608c5d9450fe.min.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0/umd/index.min.js"></script>
@@ -20,8 +20,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 140px;
-            height: 140px;
+            width: 150px;
+            height: 150px;
             border: 1px solid #000;
             border-radius: 5px;
             margin-bottom: 10px;
@@ -32,17 +32,29 @@
             max-height: 100%;
             object-fit: contain;
         }
-
-        .image img {
-            width: auto;
-            height: auto;
-            max-width: 100%;
-            max-height: 100%;
-        }
     </style>
 </head>
-
 <body>
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+            <a class="navbar-item" href="#">
+                <img src="img/logo.png" width="112" height="28">
+            </a>
+        </div>
+        <div id="navbarBasicExample" class="navbar-menu">
+            <div class="navbar-start">
+                <a class="navbar-item" href="/">
+                    Hjem
+                </a>
+                <a class="navbar-item" href="/add">
+                    Legg til vare
+                </a>
+                <a class="navbar-item" href="/delete">
+                    Fjern vare
+                </a>
+            </div>
+        </div>
+    </nav>
     <section class="section">
         <div class="container">
             <nav class="level is-mobile">
@@ -81,14 +93,9 @@
                         <button class="button is-primary">Søk</button>
                     </div>
                 </div>
-                <div class="field">
-                    <div class="control">
-                        <button class="button is-info" id="startScanner" type="button">Skann</button>
-                    </div>
-                </div>
             </form>
+            <br>
             <div id="result" class="notification is-hidden is-mobile"></div>
-            <video id="video" width="100%" height="100%" style="object-fit: cover;"></video>
         </div>
     </section>
     <!--<footer class="footer">
@@ -111,10 +118,10 @@
                                 console.log(result);
                                 document.getElementById("barcode").value = result.text;
                                 codeReader.reset();
-                                setTimeout(function() {
-  const event = new Event("submit");
-  document.getElementById("barcodeForm").dispatchEvent(event);
-}, 500);
+                                setTimeout(function () {
+                                    const event = new Event("submit");
+                                    document.getElementById("barcodeForm").dispatchEvent(event);
+                                }, 500);
                             }
                             if (err && !(err instanceof ZXing.NotFoundException)) {
                                 console.error(err);
@@ -196,7 +203,7 @@
                     resultElement.innerHTML = "";
 
                     const columns = document.createElement("div");
-                    columns.className = "columns is-multiline is-centered";
+                    columns.className = "columns is-multiline is-mobile";
 
                     for (const item of data) {
                         const itemLocation = item.location;
@@ -204,125 +211,86 @@
                         const itemCount = item.quantity;
 
                         const column = document.createElement("div");
-                        column.className = "column is-one-third"; // Bruk en fjerdedel av bredden på hver rad
+                        column.className = "column is-half"; // Bruk en fjerdedel av bredden på hver rad
 
-                        const card = document.createElement("div");
-                        card.className = "card";
+                        const box = document.createElement("div");
+                        box.className = "box";
 
-                        const cardImage = document.createElement("div");
-                        cardImage.className = "card-image";
+                        const content = document.createElement("div");
+                        content.className = "columns is-multiline";
+
+                        const topLeft = document.createElement("div");
+                        topLeft.className = "column is-half";
+
+                        const topRight = document.createElement("div");
+                        topRight.className = "column is-half";
+
+                        const HR = document.createElement("hr");
+
+                        const bottomLeft = document.createElement("div");
+                        bottomLeft.className = "column is-half";
+
+                        const bottomRight = document.createElement("div");
+                        bottomRight.className = "column is-half";
 
                         if (item.image.length > 0) {
-                            const figure = document.createElement("figure");
-                            figure.className = "image is-flex is-align-items-center is-justify-content-center";
+                            const imageContainer = document.createElement("div");
+                            imageContainer.className = "image-container";
 
                             const image = document.createElement("img");
                             image.src = item.image;
                             image.alt = `Bilde av ${item.brand} ${item.model}`;
-                            image.style.maxHeight = "300px";
+                            image.className = "product-image";
 
-                            figure.appendChild(image);
-                            cardImage.appendChild(figure);
+                            imageContainer.appendChild(image);
+                            topLeft.appendChild(imageContainer);
                         }
 
-                        card.appendChild(cardImage);
+                        const barcode = document.createElement("p");
+                        barcode.innerHTML = `<center><strong>Strekkode</strong></center><br>`;
+                        const barcodeImage = document.createElement("img");
+                        barcodeImage.src = `https://barcode.tec-it.com/barcode.ashx?data=${item.barcode}&code=${item.barcode.length == 13 ? "EAN13" : "Code128"}`;
+                        barcodeImage.alt = "Strekkode";
+                        barcodeImage.style.display = "align-self: center; block;";
+                        barcodeImage.style.margin = "auto";
+                        //barcodeImage.style.marginTop = "25%";
 
-                        const cardContent = document.createElement("div");
-                        cardContent.className = "card-content";
+                        topRight.appendChild(barcode);
+                        topRight.appendChild(barcodeImage);
 
-                        const media = document.createElement("div");
-                        media.className = "media";
+                        const brandModel = document.createElement("p");
+                        brandModel.innerHTML = `<strong>Merke:</strong> ${item.brand}<br><strong>Modell:</strong> ${item.model}`;
 
-                        if (item.brandImage.length > 0) {
-                            const mediaLeft = document.createElement("div");
-                            mediaLeft.className = "media-left";
-
-                            const brandImageFig = document.createElement("figure");
-                            brandImageFig.className = "image is-48x48 is-flex is-align-items-center is-justify-content-center";
-
-                            const brandImage = document.createElement("img");
-                            brandImage.src = item.brandImage;
-                            brandImage.alt = `Logo av ${item.brandImage}`;
-
-                            brandImageFig.appendChild(brandImage);
-                            mediaLeft.appendChild(brandImageFig);
-                            media.appendChild(mediaLeft);
-                        }
-
-                        const mediaContent = document.createElement("div");
-                        mediaContent.className = "media-content";
-
-                        const title = document.createElement("p");
-                        title.className = "title is-4";
-                        title.textContent = `${item.brand}`;
-
-                        const subtitle = document.createElement("p");
-                        subtitle.className = "subtitle is-6";
-                        subtitle.textContent = `${item.model}`;
-
-                        mediaContent.appendChild(title);
-                        mediaContent.appendChild(subtitle);
-                        media.appendChild(mediaContent);
-
-                        cardContent.appendChild(media);
-
-                        const content = document.createElement("div");
-                        content.className = "content";
-
-                        const cardColumns = document.createElement("div");
-                        cardColumns.className = "columns";
-
-                        const cardColumnLeft = document.createElement("div");
-                        cardColumnLeft.className = "column is-half";
-
-                        const cardColumnRight = document.createElement("div");
-                        cardColumnRight.className = "column is-half";
-
-                        cardColumns.appendChild(cardColumnLeft);
-                        cardColumns.appendChild(cardColumnRight);
+                        bottomLeft.appendChild(brandModel);
 
                         const articleNumber = document.createElement("p");
-                        articleNumber.innerHTML = `<strong>El.nr.:</strong> ${item.articleNumber}`;
+                        articleNumber.innerHTML = `<strong>Art. nr.:</strong> ${item.articleNumber}`;
+
+                        bottomLeft.appendChild(articleNumber);
 
                         const shelf = document.createElement("p");
                         shelf.innerHTML = `<strong>Hylle:</strong> ${itemLocation.split(".")[1]}`;
 
+                        bottomRight.appendChild(shelf);
+
                         const fullLocation = document.createElement("p");
                         fullLocation.innerHTML = `<strong>Full plassering:</strong> ${itemLocation}`;
+
+                        bottomRight.appendChild(fullLocation);
 
                         const count = document.createElement("p");
                         count.innerHTML = `<strong>Antall:</strong> ${itemCount}`;
 
-                        const footer = document.createElement("footer");
-                        footer.className = "card-footer";
-                        footer.style.alignItems = "center";
-                        footer.style.justifyContent = "center";
+                        bottomRight.appendChild(count);
 
-                        const barcode = document.createElement("p");
-                        //barcode.innerHTML = `<strong>Strekkode</strong>`;
-                        barcode.style.marginTop = "1rem";
-                        barcode.style.marginBottom = "1rem";
-                        barcode.style.textAlign = "center";
-                        const barcodeImage = document.createElement("img");
-                        barcodeImage.src = `https://barcode.tec-it.com/barcode.ashx?data=${item.barcode}&code=${item.barcode.length == 13 ? "EAN13" : "Code128"}`;
-                        barcodeImage.alt = "Strekkode";
-                        barcodeImage.className = "image";
-                        barcodeImage.style.maxWidth = "250px";
+                        content.appendChild(topLeft);
+                        content.appendChild(topRight);
+                        content.appendChild(HR);
+                        content.appendChild(bottomLeft);
+                        content.appendChild(bottomRight);
 
-                        cardColumnLeft.appendChild(articleNumber);
-                        cardColumnLeft.appendChild(count);
-                        cardColumnRight.appendChild(shelf);
-                        cardColumnRight.appendChild(fullLocation);
-
-                        content.appendChild(cardColumns);
-                        barcode.appendChild(barcodeImage);
-                        footer.appendChild(barcode);
-
-                        cardContent.appendChild(content);
-                        card.appendChild(cardContent);
-                        card.appendChild(footer);
-
-                        column.appendChild(card);
+                        box.appendChild(content);
+                        column.appendChild(box);
                         columns.appendChild(column);
                     }
 
