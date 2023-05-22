@@ -111,6 +111,7 @@
                                 console.log(result);
                                 document.getElementById("barcode").value = result.text;
                                 codeReader.reset();
+                                document.getElementById("barcodeForm").submit();
                             }
                             if (err && !(err instanceof ZXing.NotFoundException)) {
                                 console.error(err);
