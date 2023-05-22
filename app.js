@@ -96,8 +96,8 @@ async function saveInventoryToDatabase(inventory) {
 
     await client.connect();
 
-    const db = client.db(dbName);
-    const collection = db.collection('inventory');
+    const db = client.db('Inventory');
+    const collection = db.collection('H21');
 
     await collection.insertMany(inventory);
 
