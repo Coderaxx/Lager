@@ -6,7 +6,7 @@
             "prefix": "\"version\": \"",
             "sufix": "\"",
             "primary": true,
-            "useWorkspacePath": false
+            "useWorkspacePath": true
         }
     ]
 }
