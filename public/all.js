@@ -28,10 +28,24 @@ $(document).ready(() => {
             const response = await axios.get("/inventory");
             const data = response.data;
             console.log("Received items data:", data);
-            if (data && Array.isArray(data) && data.length > 0) {
-                updateItemsTable(data);
+            if (data.categories && Array.isArray(data.categories) && data.categories.length > 0) {
+                const items = [];
+                for (const category of data.categories) {
+                    for (const shelf of category.shelves) {
+                        for (const level of shelf.levels) {
+                            if (level.items && Array.isArray(level.items) && level.items.length > 0) {
+                                items.push(...level.items);
+                            }
+                        }
+                    }
+                }
+                if (items.length > 0) {
+                    updateItemsTable(items);
+                } else {
+                    console.error("No items found in data");
+                }
             } else {
-                console.error("No items found in data");
+                console.error("No categories found in data");
             }
         } catch (error) {
             Sentry.captureException(error);
