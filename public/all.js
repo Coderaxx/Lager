@@ -11,7 +11,7 @@ $(document).ready(() => {
 
             const row = document.createElement("tr");
             const nameCell = document.createElement("td");
-            nameCell.textContent = item.brand + " " + item.name;
+            nameCell.textContent = item.brand + " " + item.model;
             const barcodeCell = document.createElement("td");
             barcodeCell.textContent = item.barcode;
             const articleNumberCell = document.createElement("td");
