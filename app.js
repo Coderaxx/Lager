@@ -58,6 +58,10 @@ myApp.get("/location", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "locations.html"));
 });
 
+myApp.get("/all", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "all.html"));
+});
+
 myApp.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

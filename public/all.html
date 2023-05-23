@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Lagerføringssystem - Alle varer</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+    <link rel="icon" type="image/png" href="assets/img/favicon.png">
+    <style>
+        .add-location-form {
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+            <a class="navbar-item" href="#">
+                <img src="/assets/img/logo.png" width="112" height="28">
+            </a>
+            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false"
+                data-target="navbarBasicExample">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
+        </div>
+        <div id="navbarBasicExample" class="navbar-menu">
+            <div class="navbar-start">
+                <a class="navbar-item" href="/">
+                    Hjem
+                </a>
+                <a class="navbar-item" href="/add">
+                    Legg til vare
+                </a>
+                <a class="navbar-item" href="/delete">
+                    Fjern vare
+                </a>
+            </div>
+        </div>
+    </nav>
+    <section class="section">
+        <div class="container">
+            <h1 class="title">Alle varer</h1>
+            <table id="itemTable" class="table is-hoverable is-striped is-fullwidth">
+                <thead>
+                    <tr>
+                        <th>Seksjon</th>
+                        <th>Etasje</th>
+                        <th>Slett</th>
+                    </tr>
+                </thead>
+                <tbody id="itemTableBody" class="is-centered"></tbody>
+            </table>
+        </div>
+    </section>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://js.sentry-cdn.com/3c602fc817b942cbaf82608c5d9450fe.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        Sentry.init({
+            // Set tracesSampleRate to 1.0 to capture 100%
+            // of transactions for performance monitoring.
+            // We recommend adjusting this value in production
+            tracesSampleRate: 1.0,
+        });
+    </script>
+    <script src="all.js"></script>
+</body>
+
+</html>
