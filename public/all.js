@@ -6,18 +6,23 @@ $(document).ready(() => {
         console.log("Updating items table:", items);
         itemContainer.innerHTML = "";
 
-        for (const item of items) {
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
+
             const row = document.createElement("tr");
             const nameCell = document.createElement("td");
-            nameCell.textContent = item.name;
-            const descriptionCell = document.createElement("td");
-            descriptionCell.textContent = item.description;
-            const quantityCell = document.createElement("td");
-            quantityCell.textContent = item.quantity;
+            nameCell.textContent = item.brand + " " + item.name;
+            const barcodeCell = document.createElement("td");
+            barcodeCell.textContent = item.barcode;
+            const articleNumberCell = document.createElement("td");
+            articleNumberCell.textContent = item.articleNumber;
+            const locationCell = document.createElement("td");
+            locationCell.textContent = item.location;
 
             row.appendChild(nameCell);
-            row.appendChild(descriptionCell);
-            row.appendChild(quantityCell);
+            row.appendChild(barcodeCell);
+            row.appendChild(articleNumberCell);
+            row.appendChild(locationCell);
             itemContainer.appendChild(row);
         }
     }
