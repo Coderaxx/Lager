@@ -131,7 +131,7 @@ async function saveInventoryToDatabase(inventory) {
             articleNumber: item?.articleNumber || ''
           };
 
-          await collection.insertOne(newItem);
+          await collection.shelf.level.insertOne(newItem);
         }
       }
     }
