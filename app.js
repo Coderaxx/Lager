@@ -107,31 +107,25 @@ async function saveInventoryToDatabase(inventory) {
     const shelves = inventory?.shelves || [];
 
     for (const shelf of shelves) {
-      console.log('Processing shelf:', shelf);
-
       const levels = shelf?.levels || [];
 
       for (const level of levels) {
-        console.log('Processing level:', level);
-
         const items = level?.items || [];
 
         for (const item of items) {
-          console.log('Processing item:', item);
-
           // Generer en unik ID for varen
           const itemId = uuidv4();
 
           const newItem = {
             _id: itemId,
-            location: item.location || '',
+            location: `${shelf.name}.${level.name}`,
             brand: item?.brand || '',
             model: item?.model || '',
             barcode: item?.barcode || '',
             articleNumber: item?.articleNumber || ''
           };
 
-          await collection.shelf.level.insertOne(newItem);
+          await collection.insertOne(newItem);
         }
       }
     }
