@@ -88,7 +88,6 @@ function readInventoryFromFile() {
 async function saveInventoryToFile(inventory) {
   try {
     fs.writeFileSync("inventory.json", JSON.stringify(inventory, null, 2));
-    saveInventoryToDatabase(inventory);
   } catch (error) {
     console.error("Error writing inventory file:", error);
     Sentry.captureException(error);
@@ -96,6 +95,7 @@ async function saveInventoryToFile(inventory) {
 }
 
 async function saveInventoryToDatabase(inventory) {
+  console.log(JSON.stringify(inventory));
   try {
     const client = new MongoClient(uri);
 
@@ -104,28 +104,17 @@ async function saveInventoryToDatabase(inventory) {
     const db = client.db('Inventory');
     const collection = db.collection('H21');
 
-    const shelves = inventory?.shelves || [];
-
-    for (const shelf of shelves) {
-      const levels = shelf?.levels || [];
-
-      for (const level of levels) {
-        const items = level?.items || [];
-
-        for (const item of items) {
-          // Generer en unik ID for varen
-          const itemId = uuidv4();
-
+    for (const shelf of inventory.categories.shelves) {
+      for (const level of shelf.levels) {
+        for (const item of level.items) {
           const newItem = {
-            _id: itemId,
             location: `${shelf.name}.${level.name}`,
-            brand: item?.brand || '',
-            model: item?.model || '',
-            barcode: item?.barcode || '',
-            articleNumber: item?.articleNumber || ''
+            ...item
           };
 
           await collection.insertOne(newItem);
+
+          console.log('Item saved:', newItem);
         }
       }
     }
@@ -299,6 +288,7 @@ myApp.post("/inventory/:location", (req, res) => {
   levelObj.items.push(newItem);
 
   saveInventoryToFile(inventory);
+  saveInventoryToDatabase(inventory);
 
   res.status(201).json({ message: "Vare lagt til" });
 });
