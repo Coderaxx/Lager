@@ -23,7 +23,7 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
     // Send a ping to confirm a successful connection
-    await client.db("inventory").command({ ping: 1 });
+    await client.db("Inventory").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
@@ -103,7 +103,34 @@ async function saveInventoryToDatabase(inventory) {
     const db = client.db('Inventory');
     const collection = db.collection('H21');
 
-    await collection.insertMany(inventory);
+    for (const category of inventory.categories) {
+      for (const shelf of category.shelves) {
+        const shelfName = shelf.name;
+
+        for (const level of shelf.levels) {
+          const levelName = level.name;
+
+          for (const item of level.items) {
+            const location = `${shelfName}.${levelName}`;
+
+            const newItem = {
+              brand: item.brand,
+              model: item.model,
+              image: item.image,
+              brandImage: item.brandImage,
+              barcode: item.barcode,
+              articleNumber: item.articleNumber
+            };
+
+            await collection.updateOne(
+              { location: location },
+              { $push: { items: newItem } },
+              { upsert: true }
+            );
+          }
+        }
+      }
+    }
 
     console.log('Inventory data saved to MongoDB.');
 
@@ -113,7 +140,6 @@ async function saveInventoryToDatabase(inventory) {
     Sentry.captureException(error);
   }
 }
-
 
 function searchInventory(query) {
   const results = [];
