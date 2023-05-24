@@ -370,7 +370,17 @@
             },
             {
               "name": "2",
-              "items": []
+              "items": [
+                {
+                  "brand": "HellermannTyton",
+                  "model": "Skiltetikett 60mm x 30mm hv",
+                  "image": "https://efobasen.no/API/Produktfiler/Skalert?id=632564&w=1000&h=1000&m=5",
+                  "brandImage": "https://efobasen.no/API/Firmalogoer/Skalert?id=1&w=1000&h=1000&m=5",
+                  "barcode": "4031026454658",
+                  "articleNumber": "1809018",
+                  "location": "H21.M2"
+                }
+              ]
             },
             {
               "name": "3",
