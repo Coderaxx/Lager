@@ -267,7 +267,7 @@ myApp.get("/inventory", (req, res) => {
 myApp.post("/inventory/:location", (req, res) => {
   const newItem = req.body;
   const { location } = req.params;
-  const [shelfName, levelName] = location.split(".");
+  const [category, shelfLevel, shelfName, levelName] = location.split(".");
   const shelf = shelfLevel.charAt(0);
   const level = shelfLevel.substr(1);
 

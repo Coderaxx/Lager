@@ -107,6 +107,15 @@
                   "barcode": "4031026613154",
                   "articleNumber": "1800500",
                   "location": "H21.A1"
+                },
+                {
+                  "brand": "HellermannTyton",
+                  "model": "Termoskriver TT431",
+                  "image": "https://efobasen.no/API/Produktfiler/Skalert?id=632615&w=1000&h=1000&m=5",
+                  "brandImage": "https://efobasen.no/API/Firmalogoer/Skalert?id=1&w=1000&h=1000&m=5",
+                  "barcode": "4031026613154",
+                  "articleNumber": "1800500",
+                  "location": "H21.A1"
                 }
               ]
             },
