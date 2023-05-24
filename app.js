@@ -5,6 +5,7 @@ const path = require("path");
 const fs = require("fs");
 const Sentry = require("@sentry/node");
 const jquery = require("jquery");
+const { v4: uuidv4 } = require('uuid');
 
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const uri = "mongodb+srv://coderax:BurlroaD50!@cluster0.xlok50g.mongodb.net/?retryWrites=true&w=majority";
@@ -103,30 +104,35 @@ async function saveInventoryToDatabase(inventory) {
     const db = client.db('Inventory');
     const collection = db.collection('H21');
 
-    for (const shelf of inventory.shelves) {
-      const shelfName = shelf.name;
+    const shelves = inventory?.shelves || [];
 
-      for (const level of shelf.levels) {
-        const levelName = level.name;
+    for (const shelf of shelves) {
+      console.log('Processing shelf:', shelf);
 
-        const location = `${shelfName}.${levelName}`;
+      const levels = shelf?.levels || [];
 
-        const items = level.items.map(item => {
-          return {
-            brand: item.brand,
-            model: item.model,
-            image: item.image,
-            brandImage: item.brandImage,
-            barcode: item.barcode,
-            articleNumber: item.articleNumber
+      for (const level of levels) {
+        console.log('Processing level:', level);
+
+        const items = level?.items || [];
+
+        for (const item of items) {
+          console.log('Processing item:', item);
+
+          // Generer en unik ID for varen
+          const itemId = uuidv4();
+
+          const newItem = {
+            _id: itemId,
+            location: item.location || '',
+            brand: item?.brand || '',
+            model: item?.model || '',
+            barcode: item?.barcode || '',
+            articleNumber: item?.articleNumber || ''
           };
-        });
 
-        await collection.updateOne(
-          { location: location },
-          { $set: { items: items } },
-          { upsert: true }
-        );
+          await collection.insertOne(newItem);
+        }
       }
     }
 
