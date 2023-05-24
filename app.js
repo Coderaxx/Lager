@@ -103,32 +103,30 @@ async function saveInventoryToDatabase(inventory) {
     const db = client.db('Inventory');
     const collection = db.collection('H21');
 
-    for (const category of inventory.categories) {
-      for (const shelf of category.shelves) {
-        const shelfName = shelf.name;
+    for (const shelf of inventory.shelves) {
+      const shelfName = shelf.name;
 
-        for (const level of shelf.levels) {
-          const levelName = level.name;
+      for (const level of shelf.levels) {
+        const levelName = level.name;
 
-          for (const item of level.items) {
-            const location = `${shelfName}.${levelName}`;
+        const location = `${shelfName}.${levelName}`;
 
-            const newItem = {
-              brand: item.brand,
-              model: item.model,
-              image: item.image,
-              brandImage: item.brandImage,
-              barcode: item.barcode,
-              articleNumber: item.articleNumber
-            };
+        const items = level.items.map(item => {
+          return {
+            brand: item.brand,
+            model: item.model,
+            image: item.image,
+            brandImage: item.brandImage,
+            barcode: item.barcode,
+            articleNumber: item.articleNumber
+          };
+        });
 
-            await collection.updateOne(
-              { location: location },
-              { $push: { items: newItem } },
-              { upsert: true }
-            );
-          }
-        }
+        await collection.updateOne(
+          { location: location },
+          { $set: { items: items } },
+          { upsert: true }
+        );
       }
     }
 
