@@ -269,7 +269,7 @@ myApp.get("/inventory", (req, res) => {
 myApp.post("/inventory/:location", (req, res) => {
   const newItem = req.body;
   const { location } = req.params;
-  const [category, shelfLevel] = location.split(".");
+  const [shelfName, levelName] = location.split(".");
   const shelf = shelfLevel.charAt(0);
   const level = shelfLevel.substr(1);
 
@@ -297,6 +297,8 @@ myApp.post("/inventory/:location", (req, res) => {
 
   newItem.location = location;
   levelObj.items.push(newItem);
+
+  saveInventoryToDatabase(shelfName, levelName, newItem);
 
   saveInventoryToFile(inventory);
 
