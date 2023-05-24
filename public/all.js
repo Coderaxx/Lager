@@ -6,8 +6,21 @@ $(document).ready(() => {
         console.log("Updating items table:", items);
         itemContainer.innerHTML = "";
 
+        let currentLocation = null;
+
         for (let i = 0; i < items.length; i++) {
             const item = items[i];
+
+            if (item.location !== currentLocation) {
+                const locationRow = document.createElement("tr");
+                const locationHeader = document.createElement("th");
+                locationHeader.setAttribute("colspan", "4");
+                locationHeader.textContent = "PLASSERING: " + item.location;
+                locationRow.appendChild(locationHeader);
+                itemContainer.appendChild(locationRow);
+
+                currentLocation = item.location;
+            }
 
             const row = document.createElement("tr");
             const nameCell = document.createElement("td");
