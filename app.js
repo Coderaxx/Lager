@@ -95,7 +95,7 @@ async function saveInventoryToFile(inventory) {
   }
 }
 
-async function saveInventoryToDatabase(inventory) {
+async function saveInventoryToDatabase(shelfName, levelName, item) {
   try {
     const client = new MongoClient(uri);
 
@@ -104,31 +104,30 @@ async function saveInventoryToDatabase(inventory) {
     const db = client.db('Inventory');
     const collection = db.collection('H21');
 
-    const shelves = inventory?.shelves || [];
+    const shelfQuery = { "name": shelfName };
+    const levelQuery = { "name": levelName };
 
-    for (const shelf of shelves) {
-      const levels = shelf?.levels || [];
-
-      for (const level of levels) {
-        const items = level?.items || [];
-
-        for (const item of items) {
-          // Generer en unik ID for varen
-          const itemId = uuidv4();
-
-          const newItem = {
-            _id: itemId,
-            location: `${shelf.name}.${level.name}`,
-            brand: item?.brand || '',
-            model: item?.model || '',
-            barcode: item?.barcode || '',
-            articleNumber: item?.articleNumber || ''
-          };
-
-          await collection.insertOne(newItem);
-        }
-      }
+    const shelf = await collection.findOne(shelfQuery);
+    if (!shelf) {
+      console.error(`Shelf '${shelfName}' not found.`);
+      return;
     }
+
+    const level = shelf.levels.find(l => l.name === levelName);
+    if (!level) {
+      console.error(`Level '${levelName}' not found in shelf '${shelfName}'.`);
+      return;
+    }
+
+    const newItem = {
+      ...item
+    };
+
+    level.items.push(newItem);
+
+    await collection.updateOne(shelfQuery, { $set: shelf });
+
+    console.log('Item saved:', newItem);
 
     console.log('Inventory data saved to MongoDB.');
 
