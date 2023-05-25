@@ -1,0 +1,13 @@
+{
+    "auto-version-increment.git.commit": "Update to v{version}",
+    "auto-version-increment.version.file": [
+        {
+            "path": "package.json",
+            "prefix": "\"version\": \"",
+            "sufix": "\"",
+            "primary": true,
+            "useWorkspacePath": true
+        }
+    ],
+    "cptx.OpenAiApiKey": "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"
+}
