@@ -73,7 +73,9 @@ myApp.use(express.json());
 myApp.use(express.static("public"));
 
 //let inventory = readInventoryFromFile();
-let inventory = getInventoryFromDatabase();
+let inventory = getInventoryFromDatabase().then((result) => {
+  inventory = result[0];
+});
 
 async function readInventoryFromFile() {
   try {
@@ -95,13 +97,13 @@ async function getInventoryFromDatabase() {
     const db = client.db('Inventory');
     const collection = db.collection('H21');
 
-    const result = await collection.findOne({});
+    const result = await collection.find({}).toArray();
     if (!result) {
       console.error('No inventory data found in MongoDB.');
       return null;
     }
 
-    console.log('Inventory data retrieved from MongoDB:', result);
+    client.close();
 
     return result;
 
@@ -109,8 +111,6 @@ async function getInventoryFromDatabase() {
     console.error('Error getting inventory data from MongoDB:', error);
     Sentry.captureException(error);
     return null;
-  } finally {
-    client.close();
   }
 }
 
@@ -169,7 +169,7 @@ async function saveInventoryToDatabase(shelfName, levelName, item) {
   }
 }
 
-async function deleteItemFromInventory(itemId) {
+async function deleteItemFromDb(itemId) {
   try {
     const client = new MongoClient(uri);
 
@@ -203,46 +203,44 @@ function searchInventory(query) {
 
   const getCountOfItem = (item, items) => {
     if (Array.isArray(items)) {
-      return items.filter((i) => JSON.stringify(i) === JSON.stringify(item)).length;
+      return items.filter((i) => i.barcode === item.barcode).length;
     }
     return 1;
   };
 
-  for (const category of inventory.categories) {
-    for (const shelf of category.shelves) {
-      for (const level of shelf.levels) {
-        const items = level.items;
+  for (const category of inventory.shelves) {
+    for (const shelf of category.levels) {
+      const items = shelf.items;
 
-        if (Array.isArray(items)) {
-          const itemLocation = `${category.name}.${shelf.name}.${level.name}`;
-          const uniqueItemsInLocation = new Set();
+      if (Array.isArray(items)) {
+        const itemLocation = `H21.${category.name}${shelf.name}`;
+        const uniqueItemsInLocation = new Set();
 
-          for (const item of items) {
-            const itemKey = JSON.stringify(item);
-
-            if (
-              (query && (item.barcode === query || item.articleNumber === query || `${item.brand} ${item.model}`.toLowerCase().includes(query.toLowerCase()) || `${category.name}.${shelf.name}${level.name}` === query))
-            ) {
-              if (!visitedItems.has(itemKey) && !uniqueItemsInLocation.has(itemKey)) {
-                visitedItems.add(itemKey);
-                uniqueItemsInLocation.add(itemKey);
-                results.push({ barcode: item.barcode, location: itemLocation, ...item, quantity: getCountOfItem(item, items) });
-              }
-            }
-          }
-        } else {
-          const itemLocation = `${category.name}.${shelf.name}.${level.name}`;
-          const item = items;
-          const itemKey = JSON.stringify(item);
+        for (const item of items) {
+          const itemKey = item._id;
 
           if (
-            (query && (item.barcode === query || item.articleNumber === query || `${item.brand} ${item.model}`.toLowerCase().includes(query.toLowerCase()) || `${category.name}.${shelf.name}${level.name}` === query))
+            (query && (item.barcode === query || item.articleNumber === query || `${item.brand} ${item.model}`.toLowerCase().includes(query.toLowerCase()) || itemLocation === query))
           ) {
-            if (!visitedItems.has(itemKey) && !visitedLocations.has(itemLocation)) {
+            if (!visitedItems.has(itemKey) && !uniqueItemsInLocation.has(itemKey)) {
               visitedItems.add(itemKey);
-              visitedLocations.add(itemLocation);
-              results.push({ barcode: item.barcode, location: itemLocation, ...item, quantity: getCountOfItem(item, items) });
+              uniqueItemsInLocation.add(itemKey);
+              results.push({ _id: item._id, barcode: item.barcode, location: itemLocation, ...item, quantity: getCountOfItem(item, items) });
             }
+          }
+        }
+      } else {
+        const itemLocation = `H21.${category.name}${shelf.name}`;
+        const item = items;
+        const itemKey = item._id;
+
+        if (
+          (query && (item.barcode === query || item.articleNumber === query || `${item.brand} ${item.model}`.toLowerCase().includes(query.toLowerCase()) || itemLocation === query))
+        ) {
+          if (!visitedItems.has(itemKey) && !visitedLocations.has(itemLocation)) {
+            visitedItems.add(itemKey);
+            visitedLocations.add(itemLocation);
+            results.push({ _id: item._id, barcode: item.barcode, location: itemLocation, ...item, quantity: getCountOfItem(item, items) });
           }
         }
       }
@@ -318,8 +316,9 @@ myApp.get("/inventory/search/:query", (req, res) => {
   }
 });
 
-myApp.get("/inventory", (req, res) => {
-  const inventoryData = readInventoryFromFile();
+myApp.get("/inventory", async (req, res) => {
+  //const inventoryData = readInventoryFromFile();
+  const inventoryData = await getInventoryFromDatabase();
   res.json(inventoryData);
 });
 
@@ -372,19 +371,15 @@ myApp.get("/inventory/:location", (req, res) => {
   }
 
   const locationParts = location.split(".");
-  const category = locationParts[0];
   const shelf = locationParts[1];
   const level = locationParts[2];
 
-  const categoryObj = inventory.categories.find((c) => c.name === category);
-  if (categoryObj) {
-    const shelfObj = categoryObj.shelves.find((s) => s.name === shelf);
-    if (shelfObj) {
-      const levelObj = shelfObj.levels.find((l) => l.name === level);
-      if (levelObj) {
-        res.json(levelObj.items);
-        return;
-      }
+  const shelfObj = inventory.shelves.find((s) => s.name === shelf);
+  if (shelfObj) {
+    const levelObj = shelfObj.levels.find((l) => l.name === level);
+    if (levelObj) {
+      res.json(levelObj.items);
+      return;
     }
   }
 
@@ -405,34 +400,14 @@ function convertToFullLocationFormat(location) {
   return `${category}.${shelf}.${level}`;
 }
 
-myApp.delete("/inventory/:barcode", (req, res) => {
-  const { barcode } = req.params;
-
-  let itemFound = false;
-
-  for (const categoryObj of inventory.categories) {
-    for (const shelfObj of categoryObj.shelves) {
-      for (const levelObj of shelfObj.levels) {
-        const itemIndex = levelObj.items.findIndex((item) => item._id === barcode);
-        if (itemIndex !== -1) {
-          levelObj.items.splice(itemIndex, 1);
-          itemFound = true;
-          break;
-        }
-      }
-      if (itemFound) {
-        break;
-      }
-    }
-    if (itemFound) {
-      break;
-    }
-  }
-
-  if (itemFound) {
-    saveInventoryToFile(inventory);
-    deleteItemFromInventory(barcode);
-    res.json({ message: "Vare slettet" });
+myApp.delete("/inventory/:id", (req, res) => {
+  const { id } = req.params;
+  //Funksjon for håndtering av sletting av vare basert på id. Vi skal slette varen fra databasen og fra inventory.json.
+  //Vi skal også håndtere eventuelle feil som kan oppstå.
+  //Husk å sende riktig statuskode tilbake til klienten.
+  const item = deleteItemFromDb(id);
+  if (item) {
+    res.status(200).json({ message: "Vare slettet" });
   } else {
     res.status(404).json({ message: "Vare ikke funnet" });
   }

@@ -160,14 +160,12 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    for (const category of data.categories) {
-                        for (const shelf of category.shelves) {
-                            count.shelfCount += 1;
+                    for (const shelf of data[0].shelves) {
+                        count.shelfCount += 1;
 
-                            for (const level of shelf.levels) {
-                                count.levelCount += 1;
-                                count.itemCount += level.items.length;
-                            }
+                        for (const level of shelf.levels) {
+                            count.levelCount += 1;
+                            count.itemCount += level.items.length;
                         }
                     }
                 }
@@ -209,6 +207,7 @@
             try {
                 const response = await fetch(`/inventory/search/${barcode}`);
                 const data = await response.json();
+                console.log(data);
 
                 if (response.ok) {
                     resultElement.innerHTML = "";

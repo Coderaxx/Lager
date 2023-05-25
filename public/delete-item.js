@@ -40,16 +40,16 @@ $(document).ready(() => {
     fetch("/inventory")
       .then((response) => response.json())
       .then((data) => {
-        const items = data.categories.flatMap((category) =>
-          category.shelves.flatMap((shelf) =>
-            shelf.levels.flatMap((level) =>
-                level.items.map((item) => {
-                  return {
-                    item,
-                    location: `${category.name}.${shelf.name}.${level.name}`,
-                  };
-                })
-            )
+        const inventory = data[0]; // Hent det første objektet i arrayen
+
+        const items = inventory.shelves.flatMap((shelf) =>
+          shelf.levels.flatMap((level) =>
+            level.items.map((item) => {
+              return {
+                item,
+                location: `${shelf.name}.${level.name}`,
+              };
+            })
           )
         );
 
@@ -75,6 +75,9 @@ $(document).ready(() => {
 
   // Slett vare
   function deleteItem(itemId, row) {
+    console.log("Sletter vare med id", itemId);
+    console.log("Rad:", row);
+    
     fetch(`/inventory/${itemId}`, {
       method: "DELETE",
     })
