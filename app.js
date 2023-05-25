@@ -95,6 +95,10 @@ async function saveInventoryToFile(inventory) {
 }
 
 async function saveInventoryToDatabase(shelfName, levelName, item) {
+  console.log('Saving inventory data to MongoDB...');
+  console.log('Shelf:', shelfName);
+  console.log('Level:', levelName);
+  console.log('Item:', item);
   try {
     const client = new MongoClient(uri);
 
@@ -103,15 +107,16 @@ async function saveInventoryToDatabase(shelfName, levelName, item) {
     const db = client.db('Inventory');
     const collection = db.collection('H21');
 
-    const shelfQuery = { "name": shelfName };
-    const levelQuery = { "name": levelName };
+    const query = { 'shelves.name': shelfName };
+    const shelfProjection = { 'shelves.$': 1 };
 
-    const shelf = await collection.findOne(shelfQuery);
-    if (!shelf) {
+    const result = await collection.findOne(query, { projection: shelfProjection });
+    if (!result || !result.shelves || result.shelves.length === 0) {
       console.error(`Shelf '${shelfName}' not found.`);
       return;
     }
 
+    const shelf = result.shelves[0];
     const level = shelf.levels.find(l => l.name === levelName);
     if (!level) {
       console.error(`Level '${levelName}' not found in shelf '${shelfName}'.`);
@@ -124,7 +129,10 @@ async function saveInventoryToDatabase(shelfName, levelName, item) {
 
     level.items.push(newItem);
 
-    await collection.updateOne(shelfQuery, { $set: shelf });
+    const updateQuery = { 'shelves.name': shelfName };
+    const updateData = { $set: { 'shelves.$': shelf } };
+
+    await collection.updateOne(updateQuery, updateData);
 
     console.log('Item saved:', newItem);
 
@@ -133,6 +141,33 @@ async function saveInventoryToDatabase(shelfName, levelName, item) {
     client.close();
   } catch (error) {
     console.error('Error saving inventory data to MongoDB:', error);
+    Sentry.captureException(error);
+  }
+}
+
+async function deleteItemFromInventory(itemId) {
+  try {
+    const client = new MongoClient(uri);
+
+    await client.connect();
+
+    const db = client.db('Inventory');
+    const collection = db.collection('H21');
+
+    const query = { 'shelves.levels.items._id': itemId };
+    const updateData = { $pull: { 'shelves.$[].levels.$[].items': { _id: itemId } } };
+
+    const result = await collection.updateOne(query, updateData);
+
+    if (result.modifiedCount > 0) {
+      console.log(`Item with ID '${itemId}' deleted from inventory.`);
+    } else {
+      console.log(`Item with ID '${itemId}' not found in inventory.`);
+    }
+
+    client.close();
+  } catch (error) {
+    console.error('Error deleting item from inventory:', error);
     Sentry.captureException(error);
   }
 }
@@ -267,9 +302,9 @@ myApp.get("/inventory", (req, res) => {
 myApp.post("/inventory/:location", (req, res) => {
   const newItem = req.body;
   const { location } = req.params;
-  const [category, shelfLevel, shelfName, levelName] = location.split(".");
-  const shelf = shelfLevel.charAt(0);
-  const level = shelfLevel.substr(1);
+  const [category, shelfLevel] = location.split(".");
+  const shelf = shelfLevel.slice(0, -1);
+  const level = shelfLevel.slice(-1);
 
   if (!inventory.categories) {
     inventory.categories = [];
@@ -293,10 +328,11 @@ myApp.post("/inventory/:location", (req, res) => {
     shelfObj.levels.push(levelObj);
   }
 
-  newItem.location = location;
+  newItem.location = `H21.${shelf}${level}`;
+  newItem._id = uuidv4();
   levelObj.items.push(newItem);
 
-  saveInventoryToDatabase(shelfName, levelName, newItem);
+  saveInventoryToDatabase(shelf, level, newItem);
   saveInventoryToFile(inventory);
 
   res.status(201).json({ message: "Vare lagt til" });
@@ -353,7 +389,7 @@ myApp.delete("/inventory/:barcode", (req, res) => {
   for (const categoryObj of inventory.categories) {
     for (const shelfObj of categoryObj.shelves) {
       for (const levelObj of shelfObj.levels) {
-        const itemIndex = levelObj.items.findIndex((item) => item.barcode === barcode);
+        const itemIndex = levelObj.items.findIndex((item) => item._id === barcode);
         if (itemIndex !== -1) {
           levelObj.items.splice(itemIndex, 1);
           itemFound = true;
@@ -371,6 +407,7 @@ myApp.delete("/inventory/:barcode", (req, res) => {
 
   if (itemFound) {
     saveInventoryToFile(inventory);
+    deleteItemFromInventory(barcode);
     res.json({ message: "Vare slettet" });
   } else {
     res.status(404).json({ message: "Vare ikke funnet" });

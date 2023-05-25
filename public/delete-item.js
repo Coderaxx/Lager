@@ -26,7 +26,7 @@ $(document).ready(() => {
 
       const deleteButton = $(`<button class="button is-danger">Slett</button>`);
       deleteButton.click(() => {
-        deleteItem(barcode, row);
+        deleteItem(item._id, row);
       });
 
       const deleteCell = $("<td></td>");
@@ -74,8 +74,8 @@ $(document).ready(() => {
   fetchInventory();
 
   // Slett vare
-  function deleteItem(barcode, row) {
-    fetch(`/inventory/${barcode}`, {
+  function deleteItem(itemId, row) {
+    fetch(`/inventory/${itemId}`, {
       method: "DELETE",
     })
       .then((response) => {
