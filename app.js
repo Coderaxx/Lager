@@ -72,16 +72,45 @@ myApp.use('/lib/jquery', express.static(path.join(__dirname, 'node_modules/jquer
 myApp.use(express.json());
 myApp.use(express.static("public"));
 
-let inventory = readInventoryFromFile();
+//let inventory = readInventoryFromFile();
+let inventory = getInventoryFromDatabase();
 
-function readInventoryFromFile() {
+async function readInventoryFromFile() {
   try {
     const inventoryData = fs.readFileSync("inventory.json");
+
     return JSON.parse(inventoryData);
   } catch (error) {
     console.error("Error reading inventory file:", error);
     Sentry.captureException(error);
     return {};
+  }
+}
+
+async function getInventoryFromDatabase() {
+  try {
+    const client = new MongoClient(uri);
+    await client.connect();
+
+    const db = client.db('Inventory');
+    const collection = db.collection('H21');
+
+    const result = await collection.findOne({});
+    if (!result) {
+      console.error('No inventory data found in MongoDB.');
+      return null;
+    }
+
+    console.log('Inventory data retrieved from MongoDB:', result);
+
+    return result;
+
+  } catch (error) {
+    console.error('Error getting inventory data from MongoDB:', error);
+    Sentry.captureException(error);
+    return null;
+  } finally {
+    client.close();
   }
 }
 
@@ -96,9 +125,6 @@ async function saveInventoryToFile(inventory) {
 
 async function saveInventoryToDatabase(shelfName, levelName, item) {
   console.log('Saving inventory data to MongoDB...');
-  console.log('Shelf:', shelfName);
-  console.log('Level:', levelName);
-  console.log('Item:', item);
   try {
     const client = new MongoClient(uri);
 
@@ -133,8 +159,6 @@ async function saveInventoryToDatabase(shelfName, levelName, item) {
     const updateData = { $set: { 'shelves.$': shelf } };
 
     await collection.updateOne(updateQuery, updateData);
-
-    console.log('Item saved:', newItem);
 
     console.log('Inventory data saved to MongoDB.');
 
