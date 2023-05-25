@@ -130,4 +130,4 @@ dist
 .env
 
 # vscode
-.vscode
+.vscode/
