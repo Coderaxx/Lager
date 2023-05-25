@@ -207,7 +207,6 @@
             try {
                 const response = await fetch(`/inventory/search/${barcode}`);
                 const data = await response.json();
-                console.log(data);
 
                 if (response.ok) {
                     resultElement.innerHTML = "";
