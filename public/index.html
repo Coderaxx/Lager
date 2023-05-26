@@ -192,8 +192,6 @@
             }
         }, 5000);
 
-        countInventory();
-
         document.getElementById("barcode").addEventListener("input", () => {
             const input = barcode.value;
             barcode.value = input.toUpperCase();
@@ -359,6 +357,14 @@
             } catch (error) {
                 console.error(error);
             }
+        });
+        countInventory().then((data) => {
+            const itemCount = document.getElementById("itemCount");
+            const shelfCount = document.getElementById("shelfCount");
+            const levelCount = document.getElementById("levelCount");
+            itemCount.textContent = data.itemCount;
+            shelfCount.textContent = data.shelfCount;
+            levelCount.textContent = data.levelCount;
         });
     </script>
 </body>
