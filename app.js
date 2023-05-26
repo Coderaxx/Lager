@@ -198,7 +198,6 @@ async function deleteItemFromDb(itemId) {
 
 function searchInventory(query) {
   const results = [];
-  const visitedItems = new Set();
   const visitedLocations = new Set();
 
   const getCountOfItem = (item, items) => {
@@ -214,33 +213,57 @@ function searchInventory(query) {
 
       if (Array.isArray(items)) {
         const itemLocation = `H21.${category.name}${shelf.name}`;
-        const uniqueItemsInLocation = new Set();
 
-        for (const item of items) {
-          const itemKey = item._id;
+        if (!visitedLocations.has(itemLocation)) {
+          visitedLocations.add(itemLocation);
 
-          if (
-            (query && (item.barcode === query || item.articleNumber === query || `${item.brand} ${item.model}`.toLowerCase().includes(query.toLowerCase()) || itemLocation === query))
-          ) {
-            if (!visitedItems.has(itemKey) && !uniqueItemsInLocation.has(itemKey)) {
-              visitedItems.add(itemKey);
-              uniqueItemsInLocation.add(itemKey);
-              results.push({ _id: item._id, barcode: item.barcode, location: itemLocation, ...item, quantity: getCountOfItem(item, items) });
+          const uniqueItemsInLocation = new Set();
+
+          for (const item of items) {
+            if (
+              query &&
+              (item.barcode === query ||
+                item.articleNumber === query ||
+                `${item.brand} ${item.model}`.toLowerCase().includes(query.toLowerCase()) ||
+                itemLocation === query)
+            ) {
+              const itemKey = item.barcode;
+
+              if (!uniqueItemsInLocation.has(itemKey)) {
+                uniqueItemsInLocation.add(itemKey);
+                results.push({
+                  _id: item._id,
+                  barcode: item.barcode,
+                  location: itemLocation,
+                  ...item,
+                  quantity: getCountOfItem(item, items),
+                });
+              }
             }
           }
         }
       } else {
         const itemLocation = `H21.${category.name}${shelf.name}`;
         const item = items;
-        const itemKey = item._id;
 
         if (
-          (query && (item.barcode === query || item.articleNumber === query || `${item.brand} ${item.model}`.toLowerCase().includes(query.toLowerCase()) || itemLocation === query))
+          query &&
+          (item.barcode === query ||
+            item.articleNumber === query ||
+            `${item.brand} ${item.model}`.toLowerCase().includes(query.toLowerCase()) ||
+            itemLocation === query)
         ) {
-          if (!visitedItems.has(itemKey) && !visitedLocations.has(itemLocation)) {
-            visitedItems.add(itemKey);
+          const itemKey = item.barcode;
+
+          if (!visitedLocations.has(itemLocation)) {
             visitedLocations.add(itemLocation);
-            results.push({ _id: item._id, barcode: item.barcode, location: itemLocation, ...item, quantity: getCountOfItem(item, items) });
+            results.push({
+              _id: item._id,
+              barcode: item.barcode,
+              location: itemLocation,
+              ...item,
+              quantity: getCountOfItem(item, items),
+            });
           }
         }
       }
