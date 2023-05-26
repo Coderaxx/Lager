@@ -199,10 +199,12 @@ async function deleteItemFromDb(itemId) {
 function searchInventory(query) {
   const results = [];
   const visitedLocations = new Set();
+  const itemQuantities = {};
 
-  const getCountOfItem = (item, items) => {
-    if (Array.isArray(items)) {
-      return items.filter((i) => i.barcode === item.barcode).length;
+  const getCountOfItem = (item) => {
+    const itemKey = item.barcode;
+    if (itemQuantities[itemKey]) {
+      return itemQuantities[itemKey];
     }
     return 1;
   };
@@ -210,42 +212,37 @@ function searchInventory(query) {
   for (const category of inventory.shelves) {
     for (const shelf of category.levels) {
       const items = shelf.items;
+      const itemLocation = `H21.${category.name}${shelf.name}`;
 
       if (Array.isArray(items)) {
-        const itemLocation = `H21.${category.name}${shelf.name}`;
+        for (const item of items) {
+          if (
+            query &&
+            (item.barcode === query ||
+              item.articleNumber === query ||
+              `${item.brand} ${item.model}`.toLowerCase().includes(query.toLowerCase()) ||
+              itemLocation === query)
+          ) {
+            const itemKey = item.barcode;
 
-        if (!visitedLocations.has(itemLocation)) {
-          visitedLocations.add(itemLocation);
-
-          const itemQuantities = {};
-
-          for (const item of items) {
-            if (
-              query &&
-              (item.barcode === query ||
-                item.articleNumber === query ||
-                `${item.brand} ${item.model}`.toLowerCase().includes(query.toLowerCase()) ||
-                itemLocation === query)
-            ) {
-              const itemKey = item.barcode;
-
-              if (!itemQuantities[itemKey]) {
-                itemQuantities[itemKey] = 0;
-              }
-
-              itemQuantities[itemKey]++;
+            if (!visitedLocations.has(itemLocation)) {
+              visitedLocations.add(itemLocation);
               results.push({
                 _id: item._id,
                 barcode: item.barcode,
                 location: itemLocation,
                 ...item,
-                quantity: itemQuantities[itemKey],
+                quantity: getCountOfItem(item),
               });
+              itemQuantities[itemKey] = 1;
+            } else if (!itemQuantities[itemKey]) {
+              itemQuantities[itemKey] = 1;
+            } else {
+              itemQuantities[itemKey]++;
             }
           }
         }
       } else {
-        const itemLocation = `H21.${category.name}${shelf.name}`;
         const item = items;
 
         if (
@@ -264,8 +261,13 @@ function searchInventory(query) {
               barcode: item.barcode,
               location: itemLocation,
               ...item,
-              quantity: 1,
+              quantity: getCountOfItem(item),
             });
+            itemQuantities[itemKey] = 1;
+          } else if (!itemQuantities[itemKey]) {
+            itemQuantities[itemKey] = 1;
+          } else {
+            itemQuantities[itemKey]++;
           }
         }
       }
