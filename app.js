@@ -207,7 +207,7 @@ function searchInventory(query) {
     return 1;
   };
 
-  for (const category of inventory[0].shelves) {
+  for (const category of inventory.shelves) {
     for (const shelf of category.levels) {
       const items = shelf.items;
 
