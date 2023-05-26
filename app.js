@@ -199,22 +199,22 @@ async function deleteItemFromDb(itemId) {
 function searchInventory(query) {
   const results = [];
   const visitedLocations = new Set();
-  const itemQuantities = {};
 
-  const getCountOfItem = (item, location) => {
-    const itemKey = `${item.barcode}_${location}`;
-    if (itemQuantities[itemKey]) {
-      return itemQuantities[itemKey];
+  const getCountOfItem = (item, items) => {
+    if (Array.isArray(items)) {
+      return items.filter((i) => i.barcode === item.barcode).length;
     }
     return 1;
   };
 
-  for (const category of inventory.shelves) {
-    for (const shelf of category.levels) {
-      const items = shelf.items;
-      const itemLocation = `H21.${category.name}${shelf.name}`;
+  for (const categoryObj of inventory) {
+    for (const shelfObj of categoryObj.shelves) {
+      const items = shelfObj.levels.flatMap((level) => level.items);
+      const itemLocation = `H21.${categoryObj.name}.${shelfObj.name}`;
 
       if (Array.isArray(items)) {
+        const itemQuantities = {};
+
         for (const item of items) {
           if (
             query &&
@@ -232,13 +232,9 @@ function searchInventory(query) {
                 barcode: item.barcode,
                 location: itemLocation,
                 ...item,
-                quantity: getCountOfItem(item, itemLocation),
+                quantity: getCountOfItem(item, items),
               });
-              itemQuantities[`${itemKey}_${itemLocation}`] = 1;
-            } else if (!itemQuantities[`${itemKey}_${itemLocation}`]) {
-              itemQuantities[`${itemKey}_${itemLocation}`] = 1;
-            } else {
-              itemQuantities[`${itemKey}_${itemLocation}`]++;
+              itemQuantities[itemKey] = getCountOfItem(item, items);
             }
           }
         }
@@ -261,13 +257,8 @@ function searchInventory(query) {
               barcode: item.barcode,
               location: itemLocation,
               ...item,
-              quantity: getCountOfItem(item, itemLocation),
+              quantity: 1,
             });
-            itemQuantities[`${itemKey}_${itemLocation}`] = 1;
-          } else if (!itemQuantities[`${itemKey}_${itemLocation}`]) {
-            itemQuantities[`${itemKey}_${itemLocation}`] = 1;
-          } else {
-            itemQuantities[`${itemKey}_${itemLocation}`]++;
           }
         }
       }
