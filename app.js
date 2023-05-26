@@ -201,15 +201,15 @@ function searchInventory(query) {
   const visitedLocations = new Set();
   const itemQuantities = {};
 
-  const getCountOfItem = (item) => {
-    const itemKey = item.barcode;
+  const getCountOfItem = (item, location) => {
+    const itemKey = `${item.barcode}_${location}`;
     if (itemQuantities[itemKey]) {
       return itemQuantities[itemKey];
     }
     return 1;
   };
 
-  for (const category of inventory.shelves) {
+  for (const category of inventory[0].shelves) {
     for (const shelf of category.levels) {
       const items = shelf.items;
       const itemLocation = `H21.${category.name}${shelf.name}`;
@@ -232,13 +232,13 @@ function searchInventory(query) {
                 barcode: item.barcode,
                 location: itemLocation,
                 ...item,
-                quantity: getCountOfItem(item),
+                quantity: getCountOfItem(item, itemLocation),
               });
-              itemQuantities[itemKey] = 1;
-            } else if (!itemQuantities[itemKey]) {
-              itemQuantities[itemKey] = 1;
+              itemQuantities[`${itemKey}_${itemLocation}`] = 1;
+            } else if (!itemQuantities[`${itemKey}_${itemLocation}`]) {
+              itemQuantities[`${itemKey}_${itemLocation}`] = 1;
             } else {
-              itemQuantities[itemKey]++;
+              itemQuantities[`${itemKey}_${itemLocation}`]++;
             }
           }
         }
@@ -261,13 +261,13 @@ function searchInventory(query) {
               barcode: item.barcode,
               location: itemLocation,
               ...item,
-              quantity: getCountOfItem(item),
+              quantity: getCountOfItem(item, itemLocation),
             });
-            itemQuantities[itemKey] = 1;
-          } else if (!itemQuantities[itemKey]) {
-            itemQuantities[itemKey] = 1;
+            itemQuantities[`${itemKey}_${itemLocation}`] = 1;
+          } else if (!itemQuantities[`${itemKey}_${itemLocation}`]) {
+            itemQuantities[`${itemKey}_${itemLocation}`] = 1;
           } else {
-            itemQuantities[itemKey]++;
+            itemQuantities[`${itemKey}_${itemLocation}`]++;
           }
         }
       }
