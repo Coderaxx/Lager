@@ -15,16 +15,6 @@
               "barcode": "4058546225018",
               "articleNumber": "8804198",
               "location": "H21.A1",
-              "_id": "ccb55b90-9eb0-4251-9c21-82c0b0ee98c8"
-            },
-            {
-              "brand": "MILWAUKEE",
-              "model": "BOR/SKRUTREKKER M18 CBLDD-502C",
-              "image": "https://efobasen.no/API/Produktfiler/Skalert?id=613665&w=1000&h=1000&m=5",
-              "brandImage": "",
-              "barcode": "4058546225018",
-              "articleNumber": "8804198",
-              "location": "H21.A1",
               "_id": "22374e43-3acc-4054-b504-d0cf41202455"
             },
             {
@@ -236,7 +226,18 @@
         },
         {
           "name": "4",
-          "items": []
+          "items": [
+            {
+              "brand": "MILWAUKEE",
+              "model": "BOR/SKRUTREKKER M18 CBLDD-502C",
+              "image": "https://efobasen.no/API/Produktfiler/Skalert?id=613665&w=1000&h=1000&m=5",
+              "brandImage": "",
+              "barcode": "4058546225018",
+              "articleNumber": "8804198",
+              "location": "H21.C4",
+              "_id": "0005e93c-fb85-4406-b26e-c8fc68792d0f"
+            }
+          ]
         }
       ]
     },
@@ -724,14 +725,14 @@
               "name": "4",
               "items": [
                 {
-                  "brand": "MILWAUKEE",
-                  "model": "BOR/SKRUTREKKER M18 CBLDD-502C",
-                  "image": "https://efobasen.no/API/Produktfiler/Skalert?id=613665&w=1000&h=1000&m=5",
-                  "brandImage": "",
-                  "barcode": "4058546225018",
-                  "articleNumber": "8804198",
+                  "brand": "HellermannTyton",
+                  "model": "Termoskriver TT431",
+                  "image": "https://efobasen.no/API/Produktfiler/Skalert?id=632615&w=1000&h=1000&m=5",
+                  "brandImage": "https://efobasen.no/API/Firmalogoer/Skalert?id=1&w=1000&h=1000&m=5",
+                  "barcode": "4031026613154",
+                  "articleNumber": "1800500",
                   "location": "H21.C4",
-                  "_id": "0005e93c-fb85-4406-b26e-c8fc68792d0f"
+                  "_id": "c6743c4a-90a1-4ba6-a3f0-46e6c155cef1"
                 }
               ]
             }
