@@ -72,10 +72,27 @@ myApp.use('/lib/jquery', express.static(path.join(__dirname, 'node_modules/jquer
 myApp.use(express.json());
 myApp.use(express.static("public"));
 
-//let inventory = readInventoryFromFile();
+/*let inventory = readInventoryFromFile();
 let inventory = getInventoryFromDatabase().then((result) => {
   inventory = result[0];
-});
+});*/
+let inventory = null;
+
+async function updateInventory() {
+  try {
+    const result = await getInventoryFromDatabase();
+    inventory = result[0];
+    console.log("Lageret er oppdatert");
+  } catch (error) {
+    console.error("Feil ved oppdatering av lageret:", error);
+  }
+}
+
+// Oppdater lageret umiddelbart
+updateInventory();
+
+// Oppdater lageret hvert 5. sekund
+setInterval(updateInventory, 5000);
 
 async function readInventoryFromFile() {
   try {
