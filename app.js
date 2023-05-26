@@ -207,7 +207,7 @@ function searchInventory(query) {
     return 1;
   };
 
-  for (const category of inventory.shelves) {
+  for (const category of inventory[0].shelves) {
     for (const shelf of category.levels) {
       const items = shelf.items;
 
@@ -217,7 +217,7 @@ function searchInventory(query) {
         if (!visitedLocations.has(itemLocation)) {
           visitedLocations.add(itemLocation);
 
-          const uniqueItemsInLocation = new Set();
+          const itemQuantities = {};
 
           for (const item of items) {
             if (
@@ -229,16 +229,18 @@ function searchInventory(query) {
             ) {
               const itemKey = item.barcode;
 
-              if (!uniqueItemsInLocation.has(itemKey)) {
-                uniqueItemsInLocation.add(itemKey);
-                results.push({
-                  _id: item._id,
-                  barcode: item.barcode,
-                  location: itemLocation,
-                  ...item,
-                  quantity: getCountOfItem(item, items),
-                });
+              if (!itemQuantities[itemKey]) {
+                itemQuantities[itemKey] = 0;
               }
+
+              itemQuantities[itemKey]++;
+              results.push({
+                _id: item._id,
+                barcode: item.barcode,
+                location: itemLocation,
+                ...item,
+                quantity: itemQuantities[itemKey],
+              });
             }
           }
         }
@@ -262,7 +264,7 @@ function searchInventory(query) {
               barcode: item.barcode,
               location: itemLocation,
               ...item,
-              quantity: getCountOfItem(item, items),
+              quantity: 1,
             });
           }
         }
