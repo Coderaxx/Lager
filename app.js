@@ -207,38 +207,43 @@ function searchInventory(query) {
     return 1;
   };
 
-  for (const categoryObj of inventory) {
-    for (const shelfObj of categoryObj.shelves) {
-      const items = shelfObj.levels.flatMap((level) => level.items);
-      const itemLocation = `H21.${categoryObj.name}.${shelfObj.name}`;
+  for (const category of inventory.shelves) {
+    for (const shelf of category.levels) {
+      const items = shelf.items;
 
       if (Array.isArray(items)) {
-        const itemQuantities = {};
+        const itemLocation = `H21.${category.name}${shelf.name}`;
 
-        for (const item of items) {
-          if (
-            query &&
-            (item.barcode === query ||
-              item.articleNumber === query ||
-              `${item.brand} ${item.model}`.toLowerCase().includes(query.toLowerCase()) ||
-              itemLocation === query)
-          ) {
-            const itemKey = item.barcode;
+        if (!visitedLocations.has(itemLocation)) {
+          visitedLocations.add(itemLocation);
 
-            if (!visitedLocations.has(itemLocation)) {
-              visitedLocations.add(itemLocation);
-              results.push({
-                _id: item._id,
-                barcode: item.barcode,
-                location: itemLocation,
-                ...item,
-                quantity: getCountOfItem(item, items),
-              });
-              itemQuantities[itemKey] = getCountOfItem(item, items);
+          const uniqueItemsInLocation = new Set();
+
+          for (const item of items) {
+            if (
+              query &&
+              (item.barcode === query ||
+                item.articleNumber === query ||
+                `${item.brand} ${item.model}`.toLowerCase().includes(query.toLowerCase()) ||
+                itemLocation === query)
+            ) {
+              const itemKey = item.barcode;
+
+              if (!uniqueItemsInLocation.has(itemKey)) {
+                uniqueItemsInLocation.add(itemKey);
+                results.push({
+                  _id: item._id,
+                  barcode: item.barcode,
+                  location: itemLocation,
+                  ...item,
+                  quantity: getCountOfItem(item, items),
+                });
+              }
             }
           }
         }
       } else {
+        const itemLocation = `H21.${category.name}${shelf.name}`;
         const item = items;
 
         if (
@@ -257,7 +262,7 @@ function searchInventory(query) {
               barcode: item.barcode,
               location: itemLocation,
               ...item,
-              quantity: 1,
+              quantity: getCountOfItem(item, items),
             });
           }
         }
