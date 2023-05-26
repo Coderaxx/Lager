@@ -177,7 +177,7 @@ async function saveInventoryToDatabase(shelfName, levelName, item) {
 
     await collection.updateOne(updateQuery, updateData);
 
-    console.log('Inventory data saved to MongoDB.');
+    console.log(`Item with ID '${newItem._id}' saved to inventory.`);
 
     client.close();
   } catch (error) {
