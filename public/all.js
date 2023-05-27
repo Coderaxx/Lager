@@ -24,8 +24,17 @@ $(document).ready(() => {
             }
 
             const row = document.createElement("tr");
+            row.setAttribute("name", "itemRow");
+            row.setAttribute("onclick", "this.classList.toggle('is-selected')");
             const nameCell = document.createElement("td");
             nameCell.textContent = item.brand + " " + item.model;
+            const iconCell = document.createElement("td");
+            const icon = document.createElement("img");
+            icon.setAttribute("src", item.image);
+            icon.setAttribute("alt", item.brand + " " + item.model);
+            icon.setAttribute("width", "50");
+            icon.setAttribute("height", "50");
+            iconCell.appendChild(icon);
             const barcodeCell = document.createElement("td");
             barcodeCell.textContent = item.barcode;
             const articleNumberCell = document.createElement("td");
@@ -34,6 +43,7 @@ $(document).ready(() => {
             locationCell.textContent = item.location;
 
             row.appendChild(nameCell);
+            row.appendChild(iconCell);
             row.appendChild(barcodeCell);
             row.appendChild(articleNumberCell);
             row.appendChild(locationCell);

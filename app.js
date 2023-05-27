@@ -1,10 +1,10 @@
 const express = require("express");
+const subdomain = require('express-subdomain');
 const myApp = express();
 const PORT = process.env.PORT || 5000;
 const path = require("path");
 const fs = require("fs");
 const Sentry = require("@sentry/node");
-const jquery = require("jquery");
 const { v4: uuidv4 } = require('uuid');
 
 const { MongoClient, ServerApiVersion } = require('mongodb');
@@ -45,6 +45,13 @@ Sentry.init({
 // Angi sti til den offentlige mappen
 myApp.use(express.static(path.join(__dirname, "public")));
 
+myApp.sub = express.Router();
+myApp.use(subdomain('admin', myApp.sub));
+
+myApp.sub.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "admin", "index.html"));
+});
+ 
 // Håndter GET-forespørsel for /add
 myApp.get("/add", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "add-item.html"));
