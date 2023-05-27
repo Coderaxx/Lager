@@ -48,7 +48,7 @@ myApp.use(express.static(path.join(__dirname, "public")));
 myApp.sub = express.Router();
 myApp.use(subdomain('admin', myApp.sub));
 
-myApp.sub.get("/", (req, res) => {
+myApp.get("/admin", (req, res) => {
   res.sendFile(path.join(__dirname, "admin", "index.html"));
 });
  
@@ -85,15 +85,22 @@ let inventory = getInventoryFromDatabase().then((result) => {
 });*/
 let inventory = null;
 
+/**
+ * Asynchronously updates the inventory by fetching it from the database. 
+ *
+ * @return {Promise<void>} Returns a Promise that resolves with no value when the update is complete.
+ */
 async function updateInventory() {
   try {
     const result = await getInventoryFromDatabase();
     inventory = result[0];
-    console.log("Lageret er oppdatert");
+    //console.log("Lageret er oppdatert");
   } catch (error) {
     console.error("Feil ved oppdatering av lageret:", error);
   }
 }
+
+
 
 // Oppdater lageret umiddelbart
 updateInventory();
@@ -101,6 +108,12 @@ updateInventory();
 // Oppdater lageret hvert 5. sekund
 setInterval(updateInventory, 5000);
 
+/**
+ * Reads the inventory data from a JSON file and returns it as a JavaScript object.
+ *
+ * @return {Object} An object representing the inventory data.
+ * @throws {Error} If there is an error reading the inventory file.
+ */
 async function readInventoryFromFile() {
   try {
     const inventoryData = fs.readFileSync("inventory.json");
@@ -133,6 +146,42 @@ async function getInventoryFromDatabase() {
 
   } catch (error) {
     console.error('Error getting inventory data from MongoDB:', error);
+    Sentry.captureException(error);
+    return null;
+  }
+}
+
+//Create a function that adds or removes a location in the database
+async function addOrRemoveLocation(location, type) {
+  try {
+    const client = new MongoClient(uri);
+    await client.connect();
+
+    const db = client.db('Inventory');
+    const collection = db.collection('H21');
+
+    if (type === 'add') {
+      const result = await collection.insertOne({ name: location, shelves: [] });
+      if (!result) {
+        console.error(`Error adding location '${location}' to MongoDB.`);
+        return null;
+      }
+      console.log(`Successfully added location '${location}' to MongoDB.`);
+      return result;
+    } else if (type === 'remove') {
+      const result = await collection.deleteOne({ name: location });
+      if (!result) {
+        console.error(`Error removing location '${location}' from MongoDB.`);
+        return null;
+      }
+      console.log(`Successfully removed location '${location}' from MongoDB.`);
+      return result;
+    } else {
+      console.error(`Unknown type '${type}' for addOrRemoveLocation.`);
+      return null;
+    }
+  } catch (error) {
+    console.error(`Error ${type === 'add' ? 'adding' : 'removing'} location '${location}' from MongoDB:`, error);
     Sentry.captureException(error);
     return null;
   }
