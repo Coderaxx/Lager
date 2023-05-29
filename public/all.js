@@ -14,7 +14,7 @@ $(document).ready(() => {
             if (item.location !== currentLocation) {
                 const locationRow = document.createElement("tr");
                 const locationHeader = document.createElement("th");
-                locationHeader.setAttribute("colspan", "4");
+                locationHeader.setAttribute("colspan", "5");
                 locationHeader.setAttribute("align", "center");
                 locationHeader.textContent = item.location;
                 locationRow.appendChild(locationHeader);
