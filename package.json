@@ -9,6 +9,8 @@
   "author": "Jesper Grimstad",
   "license": "ISC",
   "dependencies": {
+    "@azure/cognitiveservices-computervision": "^8.2.0",
+    "@azure/ms-rest-js": "^2.6.6",
     "@honeybadger-io/js": "^5.4.1",
     "@sentry/node": "^7.51.2",
     "axios": "^1.4.0",
@@ -23,6 +25,7 @@
     "socket.io": "^4.6.1",
     "sweetalert2": "^11.4.8",
     "url": "^0.11.0",
+    "uuid": "^9.0.0",
     "uuidv4": "^6.2.13"
   }
 }

@@ -1,3 +1,10 @@
+"use strict";
+
+import { ComputerVisionClient } from "@azure/cognitiveservices-computervision";
+import { ApiKeyCredentials } from "@azure/ms-rest-js";
+import axios from 'axios';
+import { v4 as uuidv4 } from 'uuid';
+
 $(document).ready(async () => {
   function showAlert(title, type) {
     Swal.fire({
@@ -14,6 +21,7 @@ $(document).ready(async () => {
   const barcodeInput = document.getElementById("barcodeInput");
   const brandInput = document.getElementById("brandInput");
   const modelInput = document.getElementById("modelInput");
+  const tagsInput = document.getElementById("tagsInput");
   const imageInput = document.getElementById("imagePreview");
   const brandImageInput = document.getElementById("brandImagePreview");
   const articleNumberInput = document.getElementById("articleNumberInput");
@@ -160,6 +168,72 @@ $(document).ready(async () => {
     }
   }
 
+  async function getImageTags(url) {
+    // Angi nødvendige detaljer for å koble til Azure Computer Vision API
+    const visionEndpoint = 'https://coderaxai.cognitiveservices.azure.com/';
+    const visionApiKey = 'f507ec85db794fdbac771c26e9681ae6';
+
+    // Angi nødvendige detaljer for å koble til Azure Translator Text API
+    const translatorEndpoint = 'https://api.cognitive.microsofttranslator.com';
+    const translatorApiKey = '0ff5b82db33443a0a7421e0c589960ad';
+    let location = "eastus";
+
+    // Opprett en instans av ComputerVisionClient
+    const visionCredentials = new ApiKeyCredentials({ inHeader: { 'Ocp-Apim-Subscription-Key': visionApiKey } });
+    const visionClient = new ComputerVisionClient(visionCredentials, visionEndpoint);
+
+    // Funksjon for å hente ut tagger fra et bilde
+    async function getTagsFromImage(imageUrl) {
+      const tags = await visionClient.tagImage(imageUrl);
+      return tags.tags.map((tag) => tag.name);
+    }
+
+    // Funksjon for å oversette en tekststreng fra engelsk til norsk
+    async function translateText(text) {
+      const request = {
+        baseURL: translatorEndpoint,
+        url: '/translate',
+        method: 'post',
+        headers: {
+          'Ocp-Apim-Subscription-Key': translatorApiKey,
+          'Ocp-Apim-Subscription-Region': location,
+          'Content-Type': 'application/json',
+          'X-ClientTraceId': uuidv4().toString()
+        },
+        params: {
+          'api-version': '3.0',
+          'from': 'en',
+          'to': 'nb'
+        },
+        data: [{
+          'text': text
+        }],
+        responseType: 'json'
+      };
+
+      try {
+        const response = await axios(request);
+        return response.data[0].translations[0].text;
+      } catch (error) {
+        console.error('Error:', error);
+        throw error;
+      }
+    }
+
+    // Bruk funksjonene for å hente ut tagger fra et bilde og oversette dem
+    getTagsFromImage(url)
+      .then(async (tags) => {
+        console.log('Engelske tagger:', tags);
+
+        const translatedTags = await Promise.all(tags.map(translateText));
+        console.log('Norske tagger:', translatedTags);
+        return translatedTags;
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+  }
+
   const oldLocation = locationInput.value;
 
   locationInput.addEventListener("change", () => {
@@ -231,11 +305,13 @@ $(document).ready(async () => {
     const brandInputDiv = document.getElementById("brandInputDiv");
     const modelInputDiv = document.getElementById("modelInputDiv");
     const articleNumberInputDiv = document.getElementById("articleNumberInputDiv");
+    const tagsInputDiv = document.getElementById("tagsInputDiv");
 
     barcodeInputDiv.classList.add("is-loading");
     brandInputDiv.classList.add("is-loading");
     modelInputDiv.classList.add("is-loading");
     articleNumberInputDiv.classList.add("is-loading");
+    tagsInputDiv.classList.add("is-loading");
 
     //barcodeInput.setAttribute("placeholder", "Laster...");
     //brandInput.setAttribute("placeholder", "Laster...");
@@ -243,19 +319,31 @@ $(document).ready(async () => {
     //articleNumberInput.setAttribute("placeholder", "Laster...");
 
     await searchInventoryByBarcode(barcode)
-      .then(({ barcode, brand, model, image, brandImage, articleNumber }) => {
+      .then(async ({ barcode, brand, model, image, brandImage, articleNumber }) => {
         barcodeInput.value = barcode;
         brandInput.value = brand;
         modelInput.value = model;
         imageInput.value = image;
         brandImageInput.value = brandImage;
         articleNumberInput.value = articleNumber;
+        
         articleNumberInput.focus();
         shouldCallGoUpc = false; // Sett til false siden en match ble funnet
         barcodeInputDiv.classList.remove("is-loading");
         brandInputDiv.classList.remove("is-loading");
         modelInputDiv.classList.remove("is-loading");
         articleNumberInputDiv.classList.remove("is-loading");
+
+        await getImageTags(image)
+          .then((tags) => {
+            tagsInput.value = tags;
+          })
+          .catch((error) => {
+            Sentry.captureException(error);
+            console.error("Feil ved henting av bilde:", error);
+          });
+        
+        tagsInputDiv.classList.remove("is-loading");
         checked = false;
       })
       .catch((error) => {
@@ -285,6 +373,7 @@ $(document).ready(async () => {
             brandInputDiv.classList.remove("is-loading");
             modelInputDiv.classList.remove("is-loading");
             articleNumberInputDiv.classList.remove("is-loading");
+            tagsInputDiv.classList.remove("is-loading");
             modelInput.focus();
           } else {
             throw new Error("Ingen match funnet for strekkoden");
@@ -295,6 +384,7 @@ $(document).ready(async () => {
           brandInputDiv.classList.remove("is-loading");
           modelInputDiv.classList.remove("is-loading");
           articleNumberInputDiv.classList.remove("is-loading");
+          tagsInputDiv.classList.remove("is-loading");
           Sentry.captureException(error);
           console.error("Feil ved søk etter strekkode:", error);
           brandInput.value = "";
@@ -342,6 +432,7 @@ $(document).ready(async () => {
     const image = imageInput.value;
     const brandImage = brandImageInput.value;
     const articleNumber = articleNumberInput.value;
+    const tags = tagsInput.value.split(",").map((tag) => tag.trim());
     const newItem = {
       brand,
       model,
@@ -350,6 +441,7 @@ $(document).ready(async () => {
       barcode,
       articleNumber,
       location,
+      tags,
     };
 
     axios.get(`/inventory/${location}`)
