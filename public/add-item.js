@@ -1,8 +1,7 @@
 "use strict";
 
-import { ComputerVisionClient } from "@azure/cognitiveservices-computervision";
-import { ApiKeyCredentials } from "@azure/ms-rest-js";
-import axios from 'axios';
+import { ComputerVisionClient } from "/azure/cognitiveservices-computervision";
+import { ApiKeyCredentials } from "/azure/ms-rest-js";
 import { v4 as uuidv4 } from 'uuid';
 
 $(document).ready(async () => {

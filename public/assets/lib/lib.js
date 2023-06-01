@@ -1,0 +1,1 @@
+export const ComputerVisionClient = require("@azure/cognitiveservices-computervision").ComputerVisionClient;
