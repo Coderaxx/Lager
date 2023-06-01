@@ -70,6 +70,26 @@ myApp.get("/all", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "all.html"));
 });
 
+//Send @azure/cognitiveservices-computervision node modulen til klienten
+myApp.get("/azure", (req, res) => {
+  res.sendFile(path.join(__dirname, "node_modules", "@azure", "cognitiveservices-computervision", "dist", "cognitiveservices-computervision.min.js"));
+});
+
+//Send @azure/ms-rest-js node modulen til klienten
+myApp.get("/ms-rest-js", (req, res) => {
+  res.sendFile(path.join(__dirname, "node_modules", "@azure", "ms-rest-js", "dist", "msRest.browser.js"));
+});
+
+//Send axios node modulen til klienten
+myApp.get("/axios", (req, res) => {
+  res.sendFile(path.join(__dirname, "node_modules", "axios", "dist", "axios.min.js"));
+});
+
+//Send uuid node modulen til klienten
+myApp.get("/uuid", (req, res) => {
+  res.sendFile(path.join(__dirname, "node_modules", "uuid", "dist", "v4.js"));
+});
+
 myApp.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
