@@ -20,13 +20,14 @@
         }
     </style>
 </head>
+
 <body>
     <nav class="navbar" role="navigation" aria-label="main navigation">
         <div class="navbar-brand">
             <a class="navbar-item" href="#">
                 <img src="/assets/img/logo.png" width="112" height="28">
             </a>
-            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
                 <span aria-hidden="true"></span>
                 <span aria-hidden="true"></span>
                 <span aria-hidden="true"></span>
@@ -72,11 +73,18 @@
     <script src="https://js.sentry-cdn.com/3c602fc817b942cbaf82608c5d9450fe.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/gridjs/dist/gridjs.umd.js"></script>
     <script type="text/javascript">
+        //Toggle is-active class på knappen i navbar
+        $(document).ready(function () {
+            $(".navbar-burger").click(function () {
+                $(".navbar-burger").toggleClass("is-active");
+                $(".navbar-menu").toggleClass("is-active");
+            });
+        });
         $(document).ready(() => {
             Sentry.init({
-            // Set tracesSampleRate to 1.0 to capture 100%
-            // of transactions for performance monitoring.
-            // We recommend adjusting this value in production
+                // Set tracesSampleRate to 1.0 to capture 100%
+                // of transactions for performance monitoring.
+                // We recommend adjusting this value in production
                 tracesSampleRate: 0.0,
             });
         });
