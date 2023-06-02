@@ -440,6 +440,17 @@ myApp.get("/inventory", async (req, res) => {
   res.json(inventoryData);
 });
 
+myApp.get("/getTags/:url", async (req, res) => {
+  const { url } = req.params;
+  try {
+    const tags = await getImageTags(url);
+    res.json({ tags });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ message: 'An error occurred' });
+  }
+});
+
 myApp.post("/inventory/:location", (req, res) => {
   const newItem = req.body;
   const { location } = req.params;
@@ -631,16 +642,3 @@ async function getImageTags(url) {
   console.log('Norske tagger:', translatedTags);
   return translatedTags;
 }
-
-myApp.get("/getTags/:url", async (req, res) => {
-  const { url } = req.params;
-  console.log(url);
-  try {
-    const tags = await getImageTags(url);
-    console.log(tags);
-    res.json({ tags });
-  } catch (error) {
-    console.error('Error:', error);
-    res.status(500).json({ message: 'An error occurred' });
-  }
-});

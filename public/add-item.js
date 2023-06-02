@@ -264,9 +264,8 @@ $(document).ready(async () => {
         axios.get(`/getTags/${encodeURIComponent(image)}`)
           .then((response) => {
             if (response.status === 200) {
-              console.log(response.data);
               const tags = response.data.tags;
-              tagsInput.value = tags;
+              tagsInput.BulmaTagsInput().add(tags);
             } else {
               throw new Error(response.data.message);
             }
