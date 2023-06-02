@@ -1,10 +1,3 @@
-"use strict";
-
-import { ComputerVisionClient } from "/azure";
-import { ApiKeyCredentials } from "/ms-rest-js";
-import axios from "/axios";
-import { v4 as uuidv4 } from "/uuid";
-
 $(document).ready(async () => {
   function showAlert(title, type) {
     Swal.fire({
@@ -168,72 +161,6 @@ $(document).ready(async () => {
     }
   }
 
-  async function getImageTags(url) {
-    // Angi nødvendige detaljer for å koble til Azure Computer Vision API
-    const visionEndpoint = 'https://coderaxai.cognitiveservices.azure.com/';
-    const visionApiKey = 'f507ec85db794fdbac771c26e9681ae6';
-
-    // Angi nødvendige detaljer for å koble til Azure Translator Text API
-    const translatorEndpoint = 'https://api.cognitive.microsofttranslator.com';
-    const translatorApiKey = '0ff5b82db33443a0a7421e0c589960ad';
-    let location = "eastus";
-
-    // Opprett en instans av ComputerVisionClient
-    const visionCredentials = new ApiKeyCredentials({ inHeader: { 'Ocp-Apim-Subscription-Key': visionApiKey } });
-    const visionClient = new ComputerVisionClient(visionCredentials, visionEndpoint);
-
-    // Funksjon for å hente ut tagger fra et bilde
-    async function getTagsFromImage(imageUrl) {
-      const tags = await visionClient.tagImage(imageUrl);
-      return tags.tags.map((tag) => tag.name);
-    }
-
-    // Funksjon for å oversette en tekststreng fra engelsk til norsk
-    async function translateText(text) {
-      const request = {
-        baseURL: translatorEndpoint,
-        url: '/translate',
-        method: 'post',
-        headers: {
-          'Ocp-Apim-Subscription-Key': translatorApiKey,
-          'Ocp-Apim-Subscription-Region': location,
-          'Content-Type': 'application/json',
-          'X-ClientTraceId': uuidv4().toString()
-        },
-        params: {
-          'api-version': '3.0',
-          'from': 'en',
-          'to': 'nb'
-        },
-        data: [{
-          'text': text
-        }],
-        responseType: 'json'
-      };
-
-      try {
-        const response = await axios(request);
-        return response.data[0].translations[0].text;
-      } catch (error) {
-        console.error('Error:', error);
-        throw error;
-      }
-    }
-
-    // Bruk funksjonene for å hente ut tagger fra et bilde og oversette dem
-    getTagsFromImage(url)
-      .then(async (tags) => {
-        console.log('Engelske tagger:', tags);
-
-        const translatedTags = await Promise.all(tags.map(translateText));
-        console.log('Norske tagger:', translatedTags);
-        return translatedTags;
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-      });
-  }
-
   const oldLocation = locationInput.value;
 
   locationInput.addEventListener("change", () => {
@@ -334,9 +261,15 @@ $(document).ready(async () => {
         modelInputDiv.classList.remove("is-loading");
         articleNumberInputDiv.classList.remove("is-loading");
 
-        await getImageTags(image)
-          .then((tags) => {
-            tagsInput.value = tags;
+        axios.get(`/getTags/${encodeURIComponent(image)}`)
+          .then((response) => {
+            if (response.status === 200) {
+              console.log(response.data);
+              const tags = response.data.tags;
+              tagsInput.value = tags;
+            } else {
+              throw new Error(response.data.message);
+            }
           })
           .catch((error) => {
             Sentry.captureException(error);
