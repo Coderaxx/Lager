@@ -348,6 +348,12 @@
 
                     resultElement.classList.remove("is-hidden", "is-danger");
                     resultElement.classList.add("is-success");
+                    //Scroll til første result card
+                    columns.firstElementChild.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start",
+                        inline: "nearest"
+                    });
                     barcodeForm.reset();
                 } else {
                     resultElement.classList.remove("is-hidden", "is-success");
