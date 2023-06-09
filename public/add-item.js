@@ -364,7 +364,7 @@ $(document).ready(async () => {
     const image = imageInput.value;
     const brandImage = brandImageInput.value;
     const articleNumber = articleNumberInput.value;
-    const tags = tagsInput.value.split(",").map((tag) => tag.trim());
+    const tags = tagsInput.value;
     const newItem = {
       brand,
       model,
