@@ -318,7 +318,8 @@ function searchInventory(query) {
               (item.barcode === query ||
                 item.articleNumber === query ||
                 `${item.brand} ${item.model}`.toLowerCase().includes(query.toLowerCase()) ||
-                itemLocation === query || item.tags.includes(query))
+                itemLocation === query || 
+                item.tags.includes(query.toLowerCase()).toLowerCase())
             ) {
               const itemKey = item.barcode;
 
@@ -344,7 +345,8 @@ function searchInventory(query) {
           (item.barcode === query ||
             item.articleNumber === query ||
             `${item.brand} ${item.model}`.toLowerCase().includes(query.toLowerCase()) ||
-            itemLocation === query || item.tags.includes(query))
+            itemLocation === query || 
+            item.tags.includes(query.toLowerCase()).toLowerCase())
         ) {
           const itemKey = item.barcode;
 
