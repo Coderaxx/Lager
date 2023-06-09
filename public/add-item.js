@@ -188,7 +188,7 @@ $(document).ready(async () => {
         console.error("Feil ved sjekk av plassering:", error);
         showAlert("Feil!\r\nPlasseringen finnes ikke. Vennligst prøv igjen.", "error");
         document.getElementById("addItemForm").reset();
-        tagsInput.removeAll();
+        tagsInput.BulmaTagsInput().flush();
         itemInputFields.style.display = "none";
         locationInput.focus();
         locationInput.value = oldLocation;
@@ -398,7 +398,7 @@ $(document).ready(async () => {
                   barcodeInput.focus();
                 }
                 addItemForm.reset();
-                tagsInput.removeAll();
+                tagsInput.BulmaTagsInput().flush();
                 locationInput.value = location;
                 barcodeInput.focus();
                 localStorage.setItem("lastLocation", location);
@@ -424,7 +424,7 @@ $(document).ready(async () => {
         console.error("Feil ved sjekk av plassering:", error);
         showAlert("Feil!\r\nPlasseringen finnes ikke. Vennligst prøv igjen.", "error");
         document.getElementById("addItemForm").reset();
-        tagsInput.removeAll();
+        tagsInput.BulmaTagsInput().flush();
         itemInputFields.style.display = "none";
         locationInput.focus();
         locationInput.value = oldLocation;
